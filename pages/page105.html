@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Number Patterns — Exercise</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     105 · Number Patterns Exercise
+     (5 questions · answer boxes · keypad · score %)
+     ============================================================ */
+  .ttl { flex: none; font-size: 24px; line-height: 1.1; white-space: nowrap; }
+  .sub { flex: none; margin-top: 2px; font-size: 12.5px; letter-spacing: 1.8px; }
+
+  /* ---------- question box ---------- */
+  .wk {
+    flex: none;
+    margin-top: 7px;
+    padding: 6px 10px 4px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 5px 12px rgba(30, 80, 80, .07);
+  }
+  .qhead {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 22px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #eef5f4;
+  }
+  .qb {
+    height: 18px;
+    padding: 0 8px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    background: #0d6d74;
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: bold;
+  }
+  .qm {
+    margin-left: auto;
+    font-family: Verdana, sans-serif;
+    font-size: 9.5px;
+    color: #95a6a3;
+  }
+
+  .qrow {
+    padding: 5px 0;
+    border-bottom: 1px dashed #eaf1f0;
+  }
+  .qrow:last-child { border-bottom: 0; }
+  .qtop { display: flex; align-items: flex-start; gap: 7px; }
+  .qn {
+    flex: none;
+    width: 19px;
+    height: 19px;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: #eef9f6;
+    color: #0d6d74;
+    font-family: Verdana, sans-serif;
+    font-size: 10.5px;
+    font-weight: bold;
+    line-height: 19px;
+    text-align: center;
+  }
+  .qrow:nth-child(2) .qn { background: #fff5dc; color: #a8720a; }
+  .qrow:nth-child(3) .qn { background: #eff6fd; color: #2f7fd0; }
+  .qrow:nth-child(4) .qn { background: #f5f0fd; color: #7c4fc4; }
+  .qrow:nth-child(5) .qn { background: #effaf4; color: #0d8a64; }
+  .qrow:nth-child(6) .qn { background: #eef9f6; color: #0d6d74; }
+  .qt {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #33454c;
+  }
+  .qt b { font-family: Verdana, sans-serif; color: #0d6d74; }
+
+  .af {
+    flex: none;
+    width: 44px;
+    height: 30px;
+    padding: 0;
+    border: 1.5px solid #cfe3df;
+    border-radius: 8px;
+    background: #fbfdfc;
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    color: #0d6d74;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .af:empty::before { content: "?"; color: #c3d4d0; font-size: 13px; }
+  .af.on { border-color: #4b9be8; background: #f2f8ff; box-shadow: 0 0 0 3px rgba(75, 155, 232, .16); }
+  .af.ok { border-color: #0d8a64; background: #e7f7ef; color: #0d8a64; }
+  .af.no { border-color: #e0457b; background: #fdeef4; color: #c22a5e; }
+
+  .qr {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    opacity: 0;
+    transform: scale(.6);
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  .qr.show { opacity: 1; transform: none; }
+  .qr.ok { background: #e7f7ef; color: #0d8a64; }
+  .qr.no { background: #fdeef4; color: #e0457b; }
+  .qr.part { background: #fff5dc; color: #a8720a; font-size: 8.5px; }
+
+  .qboxes { display: flex; gap: 6px; margin: 5px 0 0 26px; }
+  .qboxes .af { width: 42px; }
+
+  /* ---------- keypad ---------- */
+  .pad {
+    flex: none;
+    margin-top: 6px;
+    padding: 5px 9px 6px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 5px 12px rgba(30, 80, 80, .07);
+  }
+  .sel {
+    height: 22px;
+    margin-bottom: 2px;
+    font-size: 10.5px;
+    line-height: 22px;
+    color: #8a9a97;
+    white-space: nowrap;
+  }
+  .sel b { color: #0d6d74; font-weight: bold; }
+  .keys { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+  .key {
+    height: 37px;
+    padding: 0;
+    border-radius: 9px;
+    border: 1px solid #dcebe7;
+    background: linear-gradient(180deg, #fff, #f4fbf8);
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: #3f5c5f;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(30, 70, 70, .05);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .key:active { transform: translateY(1px); background: #e9f7f1; }
+  .key:focus { outline: none; }
+  .key.fn { font-family: inherit; font-size: 10.5px; color: #6f7f7c; background: #f6fbfa; }
+  .key.del { font-size: 14px; }
+
+  /* ---------- score bar ---------- */
+  .bar { flex: none; margin-top: 6px; height: 42px; display: flex; gap: 6px; }
+  .sp {
+    flex: none;
+    width: 96px;
+    border-radius: 11px;
+    border: 1px solid #e2ebe9;
+    background: #f7fbfa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+  }
+  .sp b { font-family: Verdana, sans-serif; font-size: 14px; font-weight: bold; color: #95a6a3; }
+  .sp i { font-style: normal; font-size: 8.5px; color: #a9b8b4; margin-top: 2px; }
+  .sp.hi { border-color: #b6e3cf; background: #e7f7ef; }
+  .sp.hi b { color: #0d8a64; }
+  .sp.mid { border-color: #f0d795; background: #fff8e6; }
+  .sp.mid b { color: #a8720a; }
+  .sp.lo { border-color: #f3c3d6; background: #fdeef4; }
+  .sp.lo b { color: #c22a5e; }
+
+  .go {
+    flex: 1;
+    border: 0;
+    border-radius: 11px;
+    background: linear-gradient(180deg, #16a074, #0b7a58);
+    color: #fff;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(13, 138, 100, .28);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .go:active { transform: translateY(1px); }
+  .again {
+    flex: none;
+    width: 76px;
+    border-radius: 11px;
+    border: 1px solid #dcebe7;
+    background: #fff;
+    color: #5d7370;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .again:active { transform: translateY(1px); background: #f4fbf8; }
+
+  /* ---------- 100% animation ---------- */
+  .win {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 252, 244, .82);
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .win.on { display: flex; }
+  .wcard {
+    position: relative;
+    z-index: 2;
+    width: 278px;
+    padding: 16px 14px 14px;
+    border-radius: 22px;
+    background: #fff;
+    border: 3px solid #ffd75e;
+    box-shadow: 0 18px 40px rgba(120, 80, 0, .28);
+    text-align: center;
+    animation: pop .5s cubic-bezier(.2, 1.5, .4, 1);
+  }
+  @keyframes pop {
+    0% { transform: scale(.4) rotate(-6deg); opacity: 0; }
+    60% { transform: scale(1.06) rotate(1deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); }
+  }
+  .wstar {
+    font-size: 44px;
+    line-height: 1;
+    color: #f5b301;
+    animation: bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob {
+    0%, 100% { transform: rotate(-7deg) scale(1); }
+    50% { transform: rotate(7deg) scale(1.08); }
+  }
+  .wt { margin-top: 2px; font-size: 20px; font-weight: bold; color: #a8720a; }
+  .wp {
+    font-family: Verdana, sans-serif;
+    font-size: 44px;
+    font-weight: bold;
+    line-height: 1.1;
+    color: #0d8a64;
+  }
+  .ws { margin-top: 1px; font-size: 13px; color: #5d7370; }
+  .wh { margin-top: 8px; font-size: 10px; color: #b9c8c5; }
+  .conf { position: absolute; inset: 0; pointer-events: none; }
+  .cf {
+    position: absolute;
+    top: -14px;
+    width: 8px;
+    height: 12px;
+    border-radius: 2px;
+    animation: cfall linear forwards;
+  }
+  @keyframes cfall {
+    0% { transform: translateY(0) rotate(0); opacity: 1; }
+    100% { transform: translateY(580px) rotate(540deg); opacity: .9; }
+  }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <div class="ttl">Number Patterns — Exercise</div>
+  <div class="sub">NUMBER PATTERNS · EXERCISE</div>
+
+  <div class="wk">
+    <div class="qhead"><span class="qb">Exercise</span><span class="qm">5 questions · 100 marks</span></div>
+
+    <div class="qrow">
+      <div class="qtop">
+        <span class="qn">1</span>
+        <span class="qt">Write a prime number greater than <b>15</b> and less than <b>20</b>.</span>
+        <span class="qr" data-q="0"></span>
+        <button class="af" type="button" data-q="0" data-i="0"></button>
+      </div>
+    </div>
+
+    <div class="qrow">
+      <div class="qtop">
+        <span class="qn">2</span>
+        <span class="qt">What is the largest prime number less than <b>100</b>?</span>
+        <span class="qr" data-q="1"></span>
+        <button class="af" type="button" data-q="1" data-i="0"></button>
+      </div>
+    </div>
+
+    <div class="qrow">
+      <div class="qtop">
+        <span class="qn">3</span>
+        <span class="qt">What is the largest square number less than <b>100</b>?</span>
+        <span class="qr" data-q="2"></span>
+        <button class="af" type="button" data-q="2" data-i="0"></button>
+      </div>
+    </div>
+
+    <div class="qrow">
+      <div class="qtop">
+        <span class="qn">4</span>
+        <span class="qt">Using triangular numbers <b>1</b> to <b>15</b>, write 4 sums of consecutive pairs.</span>
+        <span class="qr" data-q="3"></span>
+      </div>
+      <div class="qboxes">
+        <button class="af" type="button" data-q="3" data-i="0"></button>
+        <button class="af" type="button" data-q="3" data-i="1"></button>
+        <button class="af" type="button" data-q="3" data-i="2"></button>
+        <button class="af" type="button" data-q="3" data-i="3"></button>
+      </div>
+    </div>
+
+    <div class="qrow">
+      <div class="qtop">
+        <span class="qn">5</span>
+        <span class="qt">Write the <b>7</b>th triangular number.</span>
+        <span class="qr" data-q="4"></span>
+        <button class="af" type="button" data-q="4" data-i="0"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pad">
+    <div class="sel" id="sel">Tap an answer box.</div>
+    <div class="keys" id="keys">
+      <button class="key" type="button" data-k="1">1</button>
+      <button class="key" type="button" data-k="2">2</button>
+      <button class="key" type="button" data-k="3">3</button>
+      <button class="key" type="button" data-k="4">4</button>
+      <button class="key" type="button" data-k="5">5</button>
+      <button class="key" type="button" data-k="6">6</button>
+      <button class="key" type="button" data-k="7">7</button>
+      <button class="key" type="button" data-k="8">8</button>
+      <button class="key" type="button" data-k="9">9</button>
+      <button class="key del" type="button" data-k="del">←</button>
+      <button class="key" type="button" data-k="0">0</button>
+      <button class="key fn" type="button" data-k="clr">Clear</button>
+    </div>
+  </div>
+
+  <div class="bar">
+    <div class="sp" id="sp"><b id="pv">—</b><i>Score</i></div>
+    <button class="go" type="button" id="go">Check answers</button>
+    <button class="again" type="button" id="again">↻ Reset</button>
+  </div>
+
+  <div class="win" id="win">
+    <div class="conf" id="conf"></div>
+    <div class="wcard">
+      <div class="wstar">★</div>
+      <div class="wt">Excellent!</div>
+      <div class="wp">100%</div>
+      <div class="ws">All answers are correct!</div>
+      <div class="wh">Tap to close</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.af'));
+  var keys = document.getElementById('keys');
+  var sel = document.getElementById('sel');
+  var sp = document.getElementById('sp');
+  var pv = document.getElementById('pv');
+  var go = document.getElementById('go');
+  var again = document.getElementById('again');
+  var win = document.getElementById('win');
+  var conf = document.getElementById('conf');
+
+  var active = null;
+  var checked = false;
+  var fresh = true;
+  var hideT = null;
+
+  /* answers: Q1 17 or 19 · Q2 97 · Q3 81 · Q4 4, 9, 16, 25 · Q5 28 */
+  var ANS = [
+    { one: true, vals: [17, 19] },
+    { one: true, vals: [97] },
+    { one: true, vals: [81] },
+    { one: false, vals: [4, 9, 16, 25] },
+    { one: true, vals: [28] }
+  ];
+
+  function setActive(b) {
+    if (active) active.classList.remove('on');
+    active = b;
+    fresh = true;
+    if (b) {
+      b.classList.add('on');
+      var q = parseInt(b.dataset.q, 10);
+      var i = parseInt(b.dataset.i, 10);
+      var txt = 'Question ' + (q + 1);
+      if (b.parentNode.classList.contains('qboxes')) {
+        txt += ' · box ' + (i + 1);
+      }
+      sel.innerHTML = 'Type a number: <b>' + txt + '</b>';
+    } else {
+      sel.textContent = 'Tap an answer box.';
+    }
+  }
+
+  function clearMarks() {
+    boxes.forEach(function (b) { b.classList.remove('ok', 'no'); });
+    Array.prototype.forEach.call(document.querySelectorAll('.qr'), function (r) {
+      r.className = 'qr';
+      r.textContent = '';
+    });
+    sp.className = 'sp';
+    pv.textContent = '—';
+    checked = false;
+  }
+
+  function edited() {
+    if (checked) clearMarks();
+  }
+
+  function typeDigit(d) {
+    if (!active) return;
+    if (fresh) {
+      active.textContent = d;
+      fresh = false;
+    } else {
+      if (active.textContent.length >= 3) return;
+      active.textContent += d;
+    }
+    edited();
+  }
+
+  function del() {
+    if (!active) return;
+    active.textContent = active.textContent.slice(0, -1);
+    fresh = false;
+    edited();
+  }
+
+  function clr() {
+    if (!active) return;
+    active.textContent = '';
+    fresh = false;
+    edited();
+  }
+
+  boxes.forEach(function (b) {
+    b.addEventListener('click', function () { setActive(b); });
+  });
+
+  keys.addEventListener('click', function (e) {
+    var k = e.target.closest ? e.target.closest('.key') : null;
+    if (!k) return;
+    var v = k.dataset.k;
+    if (v === 'del') del();
+    else if (v === 'clr') clr();
+    else typeDigit(v);
+  });
+
+  function valueOf(b) {
+    var t = b.textContent.trim();
+    return t === '' ? null : parseInt(t, 10);
+  }
+
+  function check() {
+    var total = 0;
+
+    for (var q = 0; q < 5; q++) {
+      var qb = boxes.filter(function (b) { return parseInt(b.dataset.q, 10) === q; });
+      var need = ANS[q].one ? 1 : 4;
+      var got = 0;
+
+      qb.forEach(function (b, i) {
+        var v = valueOf(b);
+        var ok = ANS[q].one
+          ? (v !== null && ANS[q].vals.indexOf(v) >= 0)
+          : (v !== null && v === ANS[q].vals[i]);
+        b.classList.add(ok ? 'ok' : 'no');
+        if (ok) got++;
+      });
+
+      total += ANS[q].one ? (got ? 20 : 0) : got * 5;
+
+      var chip = document.querySelector('.qr[data-q="' + q + '"]');
+      chip.className = 'qr show ' + (got === need ? 'ok' : (got === 0 ? 'no' : 'part'));
+      chip.textContent = got === need ? '✓' : (got === 0 ? '✗' : got + '/4');
+    }
+
+    checked = true;
+    pv.textContent = total + '%';
+    sp.className = 'sp ' + (total === 100 ? 'hi' : (total >= 50 ? 'mid' : 'lo'));
+
+    if (total === 100) winNow();
+  }
+
+  function hideWin() {
+    win.classList.remove('on');
+    conf.innerHTML = '';
+    clearTimeout(hideT);
+  }
+
+  function winNow() {
+    conf.innerHTML = '';
+    var colors = ['#ffcf3f', '#0d8a64', '#4b9be8', '#9c6ce5', '#e0457b', '#ff9250'];
+    for (var i = 0; i < 46; i++) {
+      var c = document.createElement('i');
+      c.className = 'cf';
+      c.style.left = (Math.random() * 100) + '%';
+      c.style.background = colors[i % colors.length];
+      c.style.width = (5 + Math.random() * 6) + 'px';
+      c.style.height = (8 + Math.random() * 8) + 'px';
+      c.style.animationDelay = (Math.random() * 0.9) + 's';
+      c.style.animationDuration = (1.5 + Math.random() * 1.4) + 's';
+      conf.appendChild(c);
+    }
+    win.classList.add('on');
+    clearTimeout(hideT);
+    hideT = setTimeout(hideWin, 6000);
+  }
+
+  go.addEventListener('click', check);
+  win.addEventListener('click', hideWin);
+
+  again.addEventListener('click', function () {
+    boxes.forEach(function (b) {
+      b.textContent = '';
+      b.classList.remove('on', 'ok', 'no');
+    });
+    active = null;
+    clearMarks();
+    setActive(null);
+    hideWin();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key >= '0' && e.key <= '9') { typeDigit(e.key); e.preventDefault(); }
+    else if (e.key === 'Backspace') { del(); e.preventDefault(); }
+    else if (e.key === 'Enter') { check(); e.preventDefault(); }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     23 · Multiplying by 10, 100 and 1000 — add the zeros
+     ============================================================ */
+  .ttl { font-size: 25px; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    text-align: left;
+    text-transform: none;
+  }
+
+  /* ---------- board ---------- */
+  .bwrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .board {
+    position: relative;
+    width: 376px;
+    padding: 12px 12px 12px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #ffffff, #fdfbf5);
+    border: 1px solid #e6e0d2;
+    box-shadow: 0 4px 12px rgba(60, 80, 80, .10), inset 0 0 0 3px #fffdf8;
+  }
+  .qno {
+    position: absolute;
+    top: 6px;
+    left: 13px;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-family: Verdana, sans-serif;
+    line-height: 1;
+  }
+  .qno b { font-size: 18px; color: #dd8422; }
+  .qno span { font-size: 14px; color: var(--muted); }
+
+  /* ---------- the multiplication row ---------- */
+  .eq {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 60px;
+    margin-top: 14px;
+    font-family: Verdana, sans-serif;
+    font-size: 36px;
+    font-weight: bold;
+    line-height: 1.25;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .eq .op {
+    font-size: 24px;
+    font-weight: normal;
+    color: var(--muted);
+  }
+  .eq .z {
+    display: inline-block;
+    color: #dd8422;
+    transition: opacity .35s ease, color .35s ease;
+  }
+  .eq .z.hot { animation: zpulse .5s ease 2; }
+  .eq .z.used { opacity: .3; }
+  .eq .gsp { display: inline-block; width: 8px; }
+  @keyframes zpulse {
+    50% { transform: scale(1.24); color: #e2541f; }
+  }
+
+  /* ---------- the row with zeros removed ---------- */
+  .core {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: 100%;
+    height: 34px;
+    margin-top: 2px;
+    font-size: 14px;
+    color: var(--muted);
+    opacity: 0;
+    transition: opacity .35s ease;
+  }
+  .core.on { opacity: 1; }
+  .core b {
+    font-family: Verdana, sans-serif;
+    font-size: 19px;
+    color: var(--teal);
+    white-space: nowrap;
+  }
+
+  /* ---------- zero count ---------- */
+  .cnt {
+    width: 100%;
+    height: 24px;
+    margin-top: 6px;
+    font-size: 15px;
+    line-height: 24px;
+    font-weight: bold;
+    text-align: center;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .cnt b { color: #dd8422; font-family: Verdana, sans-serif; font-size: 17px; }
+
+  /* ---------- answer box ---------- */
+  .aline {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 100%;
+    height: 68px;
+    margin-top: 6px;
+    border-radius: 12px;
+    background: #fbfaf4;
+    border: 1.5px dashed #ded7c6;
+    transition: background .4s ease, border-color .4s ease;
+  }
+  .aline .ph {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-family: Verdana, sans-serif;
+    font-size: 28px;
+    font-weight: bold;
+    color: #c9c2b2;
+  }
+  .ansline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+    height: 54px;
+  }
+  .ansline .ag {
+    display: flex;
+    align-items: center;
+  }
+  .ad {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 54px;
+    font-family: Verdana, sans-serif;
+    font-size: 44px;
+    font-weight: bold;
+    color: var(--green);
+    transition: color .45s ease;
+  }
+  .ad.z { color: #dd8422; }
+  .ad.hd { visibility: hidden; }
+  .ad.on { visibility: visible; animation: adpop .34s ease; }
+  @keyframes adpop {
+    0%   { transform: scale(.4); opacity: 0; }
+    70%  { transform: scale(1.12); opacity: 1; }
+    100% { transform: none; opacity: 1; }
+  }
+  .aline.done {
+    background: #eaf9f2;
+    border-style: solid;
+    border-color: #bfe8d8;
+  }
+  .aline.done .ad.z { color: var(--green); }
+
+  /* ---------- step announcement ---------- */
+  .note23 {
+    width: 100%;
+    min-height: 30px;
+    margin-top: 8px;
+    padding-top: 7px;
+    border-top: 1px dashed #e6e0d2;
+    font-size: 14px;
+    line-height: 1.35;
+    text-align: center;
+    color: var(--muted);
+  }
+  .note23 b { color: var(--teal); }
+
+  /* ---------- the flying zero ---------- */
+  .flyz {
+    position: absolute;
+    z-index: 9;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+    font-size: 31px;
+    font-weight: bold;
+    color: #dd8422;
+    transform: translate(-50%, -50%);
+    transition: left .68s cubic-bezier(.45, .05, .25, 1),
+                top .68s cubic-bezier(.45, .05, .25, 1);
+    pointer-events: none;
+  }
+
+  /* ---------- step strip ---------- */
+  .step {
+    width: 376px;
+    height: 58px;
+    margin: 6px auto 0;
+    padding: 6px 12px 7px;
+    border-radius: 11px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    overflow: hidden;
+  }
+  .slabel {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.2;
+    color: var(--muted);
+  }
+  .sline2 {
+    margin-top: 2px;
+    font-size: 15px;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+
+  /* ---------- buttons ---------- */
+  .btns {
+    display: flex;
+    gap: 9px;
+    width: 376px;
+    margin: 6px auto 0;
+  }
+  .startBtn, .newBtn {
+    flex: 1;
+    height: 42px;
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: 16.5px;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .startBtn {
+    border: 0;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(13, 128, 94, .28), inset 0 1px 0 rgba(255, 255, 255, .35);
+  }
+  .startBtn:active { transform: scale(.99); }
+  .startBtn:disabled { opacity: .72; cursor: default; }
+  .newBtn {
+    border: 1.5px solid #9fd6c4;
+    background: #fff;
+    color: var(--teal);
+  }
+  .newBtn:active { transform: scale(.99); }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Multiplying by 10, 100 and 1000</h2>
+    <div class="sub">MULTIPLY · ADD THE ZEROS</div>
+
+    <div class="bwrap">
+      <div class="board" id="board">
+        <div class="qno" id="qno"><b>(1).</b><span>/ 10</span></div>
+        <div class="eq" id="eq"></div>
+        <div class="core" id="core">
+          <span>Zeros removed:</span><b id="coreEq">8 × 3 = 24</b>
+        </div>
+        <div class="cnt" id="cnt">Look carefully at the multiplier</div>
+        <div class="aline" id="aline"><span class="ph" id="ph">?</span><span class="ansline" id="ansline"></span></div>
+        <div class="note23">Count the <b>zeros</b> in the multiplier · add that many zeros at the end</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="slabel" id="slabel">Problem 1</div>
+      <div class="sline2" id="sline2">Tap Start</div>
+    </div>
+
+    <div class="btns">
+      <button class="startBtn" id="startBtn">Start</button>
+      <button class="newBtn" id="newBtn">Other</button>
+    </div>
+  </div>
+
+<script>
+  /* ============================================================
+     10 problems — answers have been checked
+     1–6 : by 10, 100, 1000 · 7–10 : round numbers like 300, 5000
+     ============================================================ */
+  var PROBS = [
+    /*  1 */ { a: 24, b: 10   },   /* = 240 */
+    /*  2 */ { a: 24, b: 100  },   /* = 2 400 */
+    /*  3 */ { a: 24, b: 1000 },   /* = 24 000 */
+    /*  4 */ { a: 57, b: 10   },   /* = 570 */
+    /*  5 */ { a: 38, b: 100  },   /* = 3 800 */
+    /*  6 */ { a: 6,  b: 1000 },   /* = 6 000 */
+    /*  7 */ { a: 8,  b: 300  },   /* = 2 400 */
+    /*  8 */ { a: 7,  b: 5000 },   /* = 35 000 */
+    /*  9 */ { a: 9,  b: 600  },   /* = 5 400 */
+    /* 10 */ { a: 4,  b: 2000 }    /* = 8 000 */
+  ];
+  var idx = 0, running = false, done = false;
+  var timers = [], audioCtx = null, cur = null;
+
+  var board = document.getElementById('board');
+  var qno = document.getElementById('qno');
+  var eq = document.getElementById('eq');
+  var core = document.getElementById('core');
+  var coreEq = document.getElementById('coreEq');
+  var cnt = document.getElementById('cnt');
+  var aline = document.getElementById('aline');
+  var ph = document.getElementById('ph');
+  var slabel = document.getElementById('slabel');
+  var sline2 = document.getElementById('sline2');
+  var startBtn = document.getElementById('startBtn');
+  var newBtn = document.getElementById('newBtn');
+
+  function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'); }
+  function after(ms, fn) { timers.push(setTimeout(fn, ms)); }
+  function clearTimers() {
+    for (var i = 0; i < timers.length; i++) clearTimeout(timers[i]);
+    timers = [];
+  }
+  function zTxt(z) { return z === 1 ? 'one zero' : z + ' zeros'; }
+  function zerosOf(b) {
+    var n = 0;
+    while (b > 0 && b % 10 === 0) { n++; b /= 10; }
+    return n;
+  }
+
+  function pop(freq, vol) {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.25, audioCtx.currentTime + .1);
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .22);
+      osc.connect(g); g.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + .24);
+    } catch (e) {}
+  }
+
+  /* ---------- build the board ---------- */
+  function numHTML(n, zeroCount) {
+    var s = String(n), out = '';
+    for (var i = 0; i < s.length; i++) {
+      if (i > 0 && (s.length - i) % 3 === 0) out += '<span class="gsp"></span>';
+      var ch = s.charAt(i);
+      if (zeroCount && i >= s.length - zeroCount) out += '<b class="z">' + ch + '</b>';
+      else out += ch;
+    }
+    return out;
+  }
+
+  function build() {
+    var a = cur.a, b = cur.b, z = cur.z;
+    eq.innerHTML =
+      '<span class="ea">' + numHTML(a, 0) + '</span>' +
+      '<span class="op">\u00d7</span>' +
+      '<span class="eb">' + numHTML(b, z) + '</span>' +
+      '<span class="op">=</span>';
+
+    cur.mzEls = eq.querySelectorAll('.eb .z');
+
+    if (cur.simple) {
+      core.classList.remove('on');
+      coreEq.textContent = '';
+    } else {
+      core.classList.add('on');
+      coreEq.textContent = a + ' \u00d7 ' + cur.coreV + ' = ' + fmt(cur.base);
+    }
+
+    cnt.innerHTML = 'Look carefully at the multiplier';
+
+    aline.className = 'aline';
+    aline.innerHTML = '<span class="ph" id="ph">?</span><span class="ansline" id="ansline"></span>';
+    ph = document.getElementById('ph');
+    var ansline = document.getElementById('ansline');
+
+    /* separate the answer in groups of 3 digits — 12 000 */
+    cur.baseEls = [];
+    cur.zeroEls = [];
+    var total = cur.base.length + z;
+    var first = total % 3 || 3;
+    var pos = 0;
+    while (pos < total) {
+      var take = (pos === 0 ? first : 3);
+      var g = document.createElement('span');
+      g.className = 'ag';
+      for (var c = 0; c < take; c++) {
+        var d = document.createElement('span');
+        if (pos + c < cur.base.length) {
+          d.className = 'ad hd';
+          d.textContent = cur.base.charAt(pos + c);
+          cur.baseEls.push(d);
+        } else {
+          d.className = 'ad z hd';
+          d.textContent = '0';
+          cur.zeroEls.push(d);
+        }
+        g.appendChild(d);
+      }
+      ansline.appendChild(g);
+      pos += take;
+    }
+
+    qno.querySelector('b').textContent = '(' + (idx + 1) + ').';
+    slabel.textContent = 'Problem ' + (idx + 1);
+    sline2.textContent = 'Tap Start';
+    startBtn.disabled = false;
+    startBtn.textContent = 'Start';
+  }
+
+  /* ---------- the flying zero ---------- */
+  function flyZero(i, landed) {
+    var from = cur.mzEls[i], to = cur.zeroEls[i];
+    var fr = from.getBoundingClientRect();
+    var tr = to.getBoundingClientRect();
+    var br = board.getBoundingClientRect();
+
+    var fz = document.createElement('span');
+    fz.className = 'flyz';
+    fz.textContent = '0';
+    fz.style.left = (fr.left - br.left + fr.width / 2) + 'px';
+    fz.style.top = (fr.top - br.top + fr.height / 2) + 'px';
+    board.appendChild(fz);
+    from.classList.add('used');
+
+    void fz.offsetWidth;
+    fz.style.left = (tr.left - br.left + tr.width / 2) + 'px';
+    fz.style.top = (tr.top - br.top + tr.height / 2) + 'px';
+
+    after(700, function () {
+      if (fz.parentNode) fz.parentNode.removeChild(fz);
+      to.classList.remove('hd');
+      to.classList.add('on');
+      pop(760, .09);
+      if (landed) landed();
+    });
+  }
+
+  /* ---------- step by step ---------- */
+  function start() {
+    if (running) return;
+    running = true;
+    done = false;
+    startBtn.disabled = true;
+    startBtn.textContent = 'Step by step…';
+
+    var a = cur.a, b = cur.b, z = cur.z, simple = cur.simple;
+    var zeros = '';
+    for (var q = 0; q < z; q++) zeros += '0';
+
+    slabel.textContent = 'Step 1 · look at the multiplier';
+    sline2.textContent = 'The multiplier is ' + fmt(b) + '. It has ' + zTxt(z) + '.';
+    cnt.innerHTML = 'The multiplier has <b>0</b> zeros';
+
+    /* highlight the zeros one by one */
+    var t = 450;
+    for (var i = 0; i < z; i++) {
+      (function (i) {
+        after(t, function () {
+          cur.mzEls[i].classList.add('hot');
+          cnt.innerHTML = 'The multiplier has <b>' + (i + 1) + '</b> zeros';
+          pop(520 + i * 45, .05);
+        });
+      })(i);
+      t += 650;
+    }
+    after(t, function () {
+      cnt.innerHTML = 'The multiplier has ' + zTxt(z);
+    });
+
+    /* remove the zeros and multiply first (like 300, 5000) */
+    if (!simple) {
+      var coreT = t + 200;
+      after(coreT, function () {
+        slabel.textContent = 'Step 2 · multiply first';
+        sline2.textContent = 'With the zeros removed ' + fmt(b) + ' → ' + cur.coreV + '. ' +
+                             a + ' \u00d7 ' + cur.coreV + ' = ' + cur.base + '.';
+        pop(620, .06);
+      });
+      t = coreT + 1750;
+    } else {
+      t += 450;
+    }
+
+    /* writing the answer */
+    var ansT = t;
+    after(ansT, function () {
+      slabel.textContent = 'Step ' + (simple ? 2 : 3) + ' · write the answer';
+      sline2.textContent = 'Write ' + cur.base + ', then add ' + zeros + ' at the end.';
+      ph.style.display = 'none';
+      pop(660, .06);
+    });
+
+    var bt = 500;
+    for (var j = 0; j < cur.base.length; j++) {
+      (function (j) {
+        after(ansT + bt, function () {
+          cur.baseEls[j].classList.remove('hd');
+          cur.baseEls[j].classList.add('on');
+          pop(700 + j * 30, .07);
+        });
+      })(j);
+      bt += 380;
+    }
+
+    /* the zeros fly to the end */
+    var zStart = ansT + bt + 550;
+    after(zStart - 300, function () {
+      slabel.textContent = 'Step ' + (simple ? 2 : 3) + ' · add the zeros at the end';
+      sline2.textContent = 'The main digits are written. Now add the zeros at the end.';
+    });
+
+    for (var k = 0; k < z; k++) {
+      (function (k) {
+        after(zStart + k * 1150, function () {
+          cur.mzEls[k].classList.add('hot');
+          pop(540 + k * 40, .05);
+        });
+        after(zStart + k * 1150 + 320, function () {
+          flyZero(k, function () {
+            cur.mzEls[k].classList.remove('hot');
+            if (z === 1) {
+              sline2.textContent = '0 added at the end.';
+            } else if (k === z - 1) {
+              sline2.textContent = 'The last 0 is added at the end.';
+            } else {
+              sline2.textContent = '0 added at the end · ' + (z - 1 - k) + ' more.';
+            }
+          });
+        });
+      })(k);
+    }
+
+    var endT = zStart + (z - 1) * 1150 + 320 + 700 + 420;
+    after(endT, finish);
+  }
+
+  function finish() {
+    var a = cur.a, b = cur.b, z = cur.z;
+    var zeros = '';
+    for (var q = 0; q < z; q++) zeros += '0';
+
+    aline.classList.add('done');
+    for (var i = 0; i < cur.mzEls.length; i++) cur.mzEls[i].classList.remove('hot', 'used');
+
+    slabel.textContent = 'Final · ' + a + ' \u00d7 ' + fmt(b);
+    sline2.textContent = cur.base + ' then ' + zeros + ' → answer ' + fmt(cur.ans);
+    cnt.innerHTML = 'The multiplier has ' + zTxt(z) + ' · and ' + zTxt(z) + ' at the end';
+
+    pop(880, .08);
+    after(170, function () { pop(1100, .06); });
+
+    running = false;
+    done = true;
+    startBtn.disabled = false;
+    startBtn.textContent = 'View again';
+  }
+
+  /* ---------- show a problem ---------- */
+  function load(i) {
+    clearTimers();
+    running = false;
+    done = false;
+
+    idx = (i + PROBS.length) % PROBS.length;
+    var p = PROBS[idx];
+    var z = zerosOf(p.b);
+    var coreV = p.b / Math.pow(10, z);
+    var simple = (coreV === 1);
+
+    cur = {
+      a: p.a, b: p.b, z: z, coreV: coreV, simple: simple,
+      base: String(simple ? p.a : p.a * coreV),
+      ans: p.a * p.b,
+      mzEls: [], baseEls: [], zeroEls: []
+    };
+    build();
+  }
+
+  startBtn.addEventListener('click', function () {
+    if (running) return;
+    if (done) load(idx);
+    start();
+  });
+  newBtn.addEventListener('click', function () { load(idx + 1); });
+
+  load(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Odd or Even?</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     99 · Drag and sort (odd / even)
+     ============================================================ */
+  .ttl { flex: none; font-size: 25px; line-height: 1.1; white-space: nowrap; }
+  .sub { flex: none; margin-top: 2px; font-size: 13px; letter-spacing: 1.8px; }
+
+  .tip {
+    flex: none;
+    margin-top: 7px;
+    padding: 5px 10px;
+    border-radius: 12px;
+    background: #fffdf4;
+    border: 1px solid #f2e6bd;
+    box-shadow: 0 4px 10px rgba(120, 100, 40, .05);
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 13px;
+    line-height: 1.35;
+    color: #6f6650;
+  }
+  .tip .dot { flex: none; width: 7px; height: 7px; margin-top: 7px; border-radius: 50%; background: #f6c945; }
+  .tip b { color: #8a5b00; }
+  .tip .g { color: #0d8a64; }
+
+  /* ---------- draggable pool ---------- */
+  .pool {
+    flex: none;
+    margin-top: 7px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 5px 12px rgba(30, 80, 80, .06);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 9px 16px;
+  }
+
+  .chip {
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid #d9e6e4;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(30, 80, 80, .07);
+    font-family: Verdana, sans-serif;
+    font-size: 17.5px;
+    font-weight: bold;
+    color: #2c4c53;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .chip.dragging {
+    position: relative;
+    z-index: 60;
+    cursor: grabbing;
+    background: #f7fdfc;
+    box-shadow: 0 12px 22px rgba(20, 60, 60, .22);
+  }
+  .slot {
+    height: 40px;
+    border-radius: 10px;
+    border: 1px dashed #e3edeb;
+    background: #fbfdfc;
+  }
+
+  /* ---------- the two circles ---------- */
+  .zones {
+    flex: none;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .zone {
+    width: 176px;
+    height: 176px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    border: 2px dashed #e8b84a;
+    background: #fffaf0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 15px;
+    transition: border-color .2s ease, background .2s ease;
+  }
+  .zone.e { border-color: #57b892; background: #f3fbf7; }
+  .zone .zh { font-size: 15px; font-weight: bold; line-height: 1.2; color: #a8720a; white-space: nowrap; }
+  .zone.e .zh { color: #0b7a58; }
+  .zone .zs {
+    margin-top: 2px;
+    font-family: Verdana, sans-serif;
+    font-size: 10.5px;
+    letter-spacing: .6px;
+    color: #b39a63;
+  }
+  .zone.e .zs { color: #5f9c86; }
+  .zone .landed {
+    width: 128px;
+    margin-top: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    align-content: flex-start;
+  }
+  .zone .chip.in {
+    width: 60px;
+    height: 26px;
+    font-size: 12.5px;
+    border-radius: 8px;
+    cursor: default;
+    box-shadow: none;
+    background: #fff3cd;
+    border-color: #eccf8b;
+    color: #8a5b00;
+  }
+  .zone.e .chip.in {
+    background: #e7f6ee;
+    border-color: #b6e3cf;
+    color: #0d6d74;
+  }
+
+  @keyframes no {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+  .zone.no { border-color: #e0457b; animation: no .4s ease; }
+
+  @keyframes hop {
+    0% { transform: translateY(0); }
+    25% { transform: translateY(-12px); }
+    50% { transform: translateY(0); }
+    70% { transform: translateY(-5px); }
+    100% { transform: translateY(0); }
+  }
+  .chip.hop { animation: hop .55s ease; }
+
+  /* ---------- bottom bar ---------- */
+  .stat {
+    flex: none;
+    margin-top: 8px;
+    height: 34px;
+    border-radius: 11px;
+    background: #f7faf9;
+    border: 1px solid #e6efed;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 5px 0 12px;
+    font-size: 13px;
+    color: #5b6f6d;
+  }
+  .stat .msg { flex: 1; text-align: center; }
+  .stat b { font-family: Verdana, sans-serif; color: #0d6d74; }
+  .stat.ok {
+    background: #eafaf1;
+    border-color: #b9e7d4;
+    color: #0d8a64;
+    font-weight: bold;
+    animation: pop .3s ease;
+  }
+  .rsb {
+    flex: none;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1px solid #cfe4df;
+    background: #fff;
+    color: #0d6d74;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .rsb:hover { background: #f2fbf7; border-color: #9fd4c4; }
+  .rsb:active { transform: scale(.96); }
+  .rsb .ri { font-size: 14px; line-height: 1; }
+  @keyframes pop {
+    0% { transform: scale(.97); }
+    60% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+  }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <div class="ttl">Odd or Even?</div>
+  <div class="sub">ODD &amp; EVEN · DRAG AND DROP</div>
+
+  <div class="tip">
+    <span class="dot"></span>
+    <span>Drag each number into the correct <b>circle</b>. If wrong, it <b>bounces back</b>.</span>
+  </div>
+
+  <div class="pool" id="pool"></div>
+
+  <div class="zones">
+    <div class="zone o" id="zo" data-kind="1">
+      <div class="zh">Odd numbers</div>
+      <div class="zs">ends 1, 3, 5, 7, 9</div>
+      <div class="landed" id="lo"></div>
+    </div>
+    <div class="zone e" id="ze" data-kind="0">
+      <div class="zh">Even numbers</div>
+      <div class="zs">ends 0, 2, 4, 6, 8</div>
+      <div class="landed" id="le"></div>
+    </div>
+  </div>
+
+  <div class="stat" id="stat">
+    <span class="msg" id="msg"></span>
+    <button class="rsb" id="rst" type="button"><span class="ri">↻</span>Reset</button>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var pool = document.getElementById('pool');
+  var lo = document.getElementById('lo');
+  var le = document.getElementById('le');
+  var stat = document.getElementById('stat');
+  var msg = document.getElementById('msg');
+  var nums = [145, 349, 426, 83, 98, 1254, 781, 530, 4366];
+  var total = nums.length, placed = 0, drag = null;
+
+  function newChip(n, i) {
+    var c = document.createElement('button');
+    c.type = 'button';
+    c.className = 'chip';
+    c.textContent = n;
+    c.dataset.v = n;
+    c.dataset.o = (n % 2 === 1) ? '1' : '0';
+    c.style.gridColumn = (i % 3) + 1;
+    c.style.gridRow = Math.floor(i / 3) + 1;
+    c.addEventListener('pointerdown', start);
+    return c;
+  }
+
+  function fill() {
+    pool.innerHTML = '';
+    lo.innerHTML = '';
+    le.innerHTML = '';
+    placed = 0;
+    drag = null;
+    nums.forEach(function (n, i) { pool.appendChild(newChip(n, i)); });
+    update();
+  }
+
+  function update() {
+    var left = total - placed;
+    if (left === 0) {
+      stat.classList.add('ok');
+      msg.innerHTML = '✓ All numbers are correct!';
+    } else {
+      stat.classList.remove('ok');
+      msg.innerHTML = 'Numbers left <b>' + left + '</b>';
+    }
+  }
+
+  function zoneOf(x, y) {
+    var zs = [document.getElementById('zo'), document.getElementById('ze')];
+    for (var i = 0; i < zs.length; i++) {
+      var r = zs[i].getBoundingClientRect();
+      var cx = r.left + r.width / 2, cy = r.top + r.height / 2, rad = r.width / 2;
+      var dx = x - cx, dy = y - cy;
+      if (dx * dx + dy * dy <= rad * rad) return zs[i];
+    }
+    return null;
+  }
+
+  function start(e) {
+    if (drag || (e.button !== undefined && e.button > 0)) return;
+    var c = e.currentTarget;
+    drag = { el: c, id: e.pointerId, x0: e.clientX, y0: e.clientY };
+    c.classList.add('dragging');
+    c.style.transform = 'scale(1.03)';
+    try { c.setPointerCapture(e.pointerId); } catch (err) {}
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', end);
+    document.addEventListener('pointercancel', end);
+    e.preventDefault();
+  }
+
+  function move(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    var dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+    drag.el.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(1.03)';
+  }
+
+  function end(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    document.removeEventListener('pointermove', move);
+    document.removeEventListener('pointerup', end);
+    document.removeEventListener('pointercancel', end);
+    var d = drag; drag = null;
+    var el = d.el, z = zoneOf(e.clientX, e.clientY);
+    var ok = z && z.dataset.kind === el.dataset.o;
+
+    if (ok) {
+      land(el, z);
+    } else {
+      if (z) {
+        z.classList.add('no');
+        setTimeout(function () { z.classList.remove('no'); }, 420);
+      }
+      el.style.transition = 'transform .3s cubic-bezier(.3,1.2,.5,1)';
+      el.style.transform = '';
+      setTimeout(function () {
+        el.classList.remove('dragging');
+        el.style.transition = '';
+        el.style.transform = '';
+      }, 320);
+    }
+  }
+
+  function land(el, z) {
+    var first = el.getBoundingClientRect();
+    el.classList.remove('dragging');
+    el.style.transition = '';
+    el.style.transform = '';
+    el.classList.add('in');
+
+    var slot = document.createElement('span');
+    slot.className = 'slot';
+    slot.style.gridColumn = el.style.gridColumn;
+    slot.style.gridRow = el.style.gridRow;
+    pool.appendChild(slot);
+
+    (z.dataset.kind === '1' ? lo : le).appendChild(el);
+
+    var last = el.getBoundingClientRect();
+    el.style.transformOrigin = 'left top';
+    el.style.transition = 'none';
+    el.style.transform = 'translate(' + (first.left - last.left) + 'px,' +
+      (first.top - last.top) + 'px) scale(' + (first.width / last.width) + ',' +
+      (first.height / last.height) + ')';
+    void el.offsetWidth;
+    el.style.transition = 'transform .3s ease';
+    el.style.transform = '';
+    setTimeout(function () {
+      el.style.transition = '';
+      el.style.transform = '';
+      el.style.transformOrigin = '';
+      el.classList.add('hop');
+      setTimeout(function () { el.classList.remove('hop'); }, 560);
+    }, 310);
+
+    placed++;
+    update();
+  }
+
+  document.getElementById('rst').addEventListener('click', fill);
+
+  fill();
+})();
+</script>
+</body>
+</html>

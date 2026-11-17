@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Factors and Multiples</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     85 · Factors and multiples
+     (animation arranging 6 flowers in 4 ways + lesson objectives)
+     ============================================================ */
+  .ttl { flex: none; font-size: 25px; line-height: 1.1; white-space: nowrap; }
+  .sub { flex: none; margin-top: 2px; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- animation stage ---------- */
+  .stage {
+    flex: none;
+    margin-top: 6px;
+    padding: 9px 10px 8px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 6px 14px rgba(30, 80, 80, .07);
+    text-align: center;
+  }
+  .eq {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+    font-size: 25px;
+    font-weight: bold;
+    color: var(--teal);
+    letter-spacing: 1px;
+  }
+  .eq.pop { animation: eqpop .45s ease; }
+  @keyframes eqpop {
+    0% { transform: scale(.75); opacity: 0; }
+    100% { transform: none; opacity: 1; }
+  }
+
+  .grid {
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 2px;
+  }
+  .row { display: flex; gap: 7px; }
+  .grid.small { gap: 2px; }
+  .grid.small .row { gap: 2px; }
+
+  .fl {
+    width: 36px;
+    height: 36px;
+    display: block;
+    animation: bloom .45s cubic-bezier(.2, 1.6, .5, 1) both;
+  }
+  .grid.small .fl { width: 22px; height: 22px; }
+  @keyframes bloom {
+    0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+    100% { transform: none; opacity: 1; }
+  }
+
+  .capt {
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--ink-soft);
+  }
+  .dots { display: flex; gap: 5px; justify-content: center; height: 12px; margin-top: 2px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #d7e9e3; }
+  .dot.on { background: var(--teal); }
+
+  /* ---------- factors/multiples explanation ---------- */
+  .note {
+    flex: none;
+    margin-top: 6px;
+    padding: 6px 10px;
+    border-radius: 12px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.35;
+    color: #1d5b52;
+  }
+  .note b { color: var(--teal); }
+
+  /* ---------- lesson objectives ---------- */
+  .obj {
+    flex: none;
+    margin-top: 6px;
+    padding: 8px 12px 9px;
+    border-radius: 16px;
+    background: #fffdf4;
+    border: 1px solid #f2e6bd;
+    box-shadow: 0 5px 12px rgba(120, 100, 40, .06);
+  }
+  .ohead {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  .orow {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .orow + .orow { margin-top: 4px; }
+  .op {
+    flex: none;
+    width: 17px;
+    height: 17px;
+    margin-top: 1px;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #e8f7f1;
+    border: 1px solid #c6e5da;
+    color: var(--teal);
+    font-family: Verdana, sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <div class="ttl">2  Factors and Multiples</div>
+  <div class="sub">FACTORS AND MULTIPLES</div>
+
+  <div class="stage">
+    <div class="eq" id="eq">6 = 6 × 1</div>
+    <div class="grid" id="grid"></div>
+    <div class="capt" id="capt">6 flowers in one row</div>
+    <div class="dots" id="dots">
+      <span class="dot on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+  </div>
+
+  <div class="note" id="note">6 and 1 — factors of 6. 6 is a multiple of both 6 and 1.</div>
+
+  <div class="obj">
+    <div class="ohead">By learning this lesson you will</div>
+    <div class="orow"><span class="op">+</span><span>know the factors and multiples of numbers up to 100.</span></div>
+    <div class="orow"><span class="op">+</span><span>solve problems using factors and multiples.</span></div>
+    <div class="orow"><span class="op">+</span><span>recognise numbers divisible by 2, 5 and 10 with no remainder.</span></div>
+    <div class="orow"><span class="op">+</span><span>recognise numbers divisible by 3, 4, 6 and 9 with no remainder.</span></div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var eq = document.getElementById('eq');
+  var grid = document.getElementById('grid');
+  var capt = document.getElementById('capt');
+  var note = document.getElementById('note');
+  var dots = [].slice.call(document.querySelectorAll('.dot'));
+
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var PETALS = ['#f7a1be', '#f6b8cf'];
+
+  function flower(i) {
+    var svg = document.createElementNS(SVGNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 40 40');
+    var g = document.createElementNS(SVGNS, 'g');
+    g.setAttribute('fill', PETALS[i % PETALS.length]);
+    var pts = [[20, 9.5], [30, 16.8], [26.2, 28.6], [13.8, 28.6], [10, 16.8]];
+    for (var p = 0; p < pts.length; p++) {
+      var c = document.createElementNS(SVGNS, 'circle');
+      c.setAttribute('cx', pts[p][0]);
+      c.setAttribute('cy', pts[p][1]);
+      c.setAttribute('r', 7);
+      g.appendChild(c);
+    }
+    svg.appendChild(g);
+    var mid = document.createElementNS(SVGNS, 'circle');
+    mid.setAttribute('cx', 20);
+    mid.setAttribute('cy', 20);
+    mid.setAttribute('r', 5.6);
+    mid.setAttribute('fill', '#ffcf3f');
+    mid.setAttribute('stroke', '#e8a020');
+    mid.setAttribute('stroke-width', 1.2);
+    svg.appendChild(mid);
+    return svg;
+  }
+
+  /* 4 ways: rows × columns */
+  var STEPS = [
+    { eq: '6 = 6 × 1', rows: 1, cols: 6, big: true,  cap: '6 flowers in one row' },
+    { eq: '6 = 1 × 6', rows: 6, cols: 1, big: false, cap: '6 flowers in one column' },
+    { eq: '6 = 3 × 2', rows: 3, cols: 2, big: true,  cap: '6 flowers · 3 rows · 2 columns' },
+    { eq: '6 = 2 × 3', rows: 2, cols: 3, big: true,  cap: '6 flowers · 2 rows · 3 columns' }
+  ];
+
+  function factorsOf(s) {
+    var parts = s.eq.split('=')[1].split('×');
+    return [parts[0].trim(), parts[1].trim()];
+  }
+
+  var i = 0, timer = null;
+
+  function show() {
+    var s = STEPS[i];
+    eq.textContent = s.eq;
+    eq.classList.remove('pop');
+    void eq.offsetWidth;
+    eq.classList.add('pop');
+    capt.textContent = s.cap;
+
+    grid.innerHTML = '';
+    grid.className = 'grid' + (s.big ? '' : ' small');
+    var n = 0;
+    for (var r = 0; r < s.rows; r++) {
+      var row = document.createElement('div');
+      row.className = 'row';
+      for (var c = 0; c < s.cols; c++) {
+        var f = document.createElement('span');
+        f.className = 'fl';
+        f.style.animationDelay = (n * 80) + 'ms';
+        f.appendChild(flower(n));
+        row.appendChild(f);
+        n++;
+      }
+      grid.appendChild(row);
+    }
+
+    var fct = factorsOf(s);
+    note.innerHTML = '<b>' + fct[0] + '</b> and <b>' + fct[1] + '</b> — factors of 6. ' +
+      '6 is a multiple of both <b>' + fct[0] + '</b> and <b>' + fct[1] + '</b>.';
+
+    for (var d = 0; d < dots.length; d++) dots[d].classList.toggle('on', d === i);
+
+    timer = setTimeout(function () {
+      i = (i + 1) % STEPS.length;
+      show();
+    }, 2800);
+  }
+
+  show();
+})();
+</script>
+</body>
+</html>

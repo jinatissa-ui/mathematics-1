@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* Module 2 divider — same look as page 1 */
+  .panel {
+    position: relative;
+    width: 420px;
+    height: 540px;
+    border-radius: 16px;
+    overflow: hidden;
+    text-align: center;
+    background:
+      radial-gradient(230px 190px at 92% 4%, #ffd9e9 0%, rgba(255,217,233,0) 70%),
+      radial-gradient(260px 220px at 2% 96%, #c9f2e7 0%, rgba(201,242,231,0) 72%),
+      radial-gradient(180px 150px at 6% 6%, #fff0c4 0%, rgba(255,240,196,0) 75%),
+      linear-gradient(168deg, #fffaea 0%, #f0fbf7 52%, #fff2f8 100%);
+    box-shadow: 0 8px 20px rgba(30, 80, 80, .14), inset 0 0 0 1px rgba(14, 122, 128, .10);
+  }
+
+  .ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px dashed rgba(14, 122, 128, .22);
+  }
+  .r1 { width: 200px; height: 200px; top: -84px; left: -76px; }
+  .r2 { width: 160px; height: 160px; bottom: -64px; right: -56px; border-color: rgba(224, 69, 123, .22); }
+
+  .content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 540px;
+    padding: 22px 22px 16px;
+  }
+
+  .chip {
+    display: inline-block;
+    padding: 5px 16px 6px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1.5px solid #7fd0c6;
+    color: #0e7a80;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 3px 0 rgba(127, 208, 198, .45);
+  }
+
+  h1 {
+    margin-top: 12px;
+    font-size: 44px;
+    line-height: 1.15;
+    color: #0d6d74;
+    font-weight: bold;
+    letter-spacing: .5px;
+    text-shadow: 0 2px 0 #fff, 0 4px 10px rgba(13, 109, 116, .12);
+  }
+  h1 em { font-style: normal; color: #e0457b; }
+
+  .eng {
+    margin-top: 2px;
+    font-size: 12.5px;
+    letter-spacing: 3px;
+    font-weight: bold;
+    color: #9a8f88;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+
+  .rule {
+    width: 96px;
+    margin: 14px auto 12px;
+  }
+
+  .grade {
+    font-size: 17px;
+    color: #4c5a5f;
+    letter-spacing: .3px;
+  }
+
+  /* ---------- the three pictures ---------- */
+  .pics {
+    display: flex;
+    gap: 10px;
+    margin: auto 0 4px;
+  }
+  .card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 118px;
+    height: 240px;
+    border-radius: 16px;
+    border: 1px solid;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px #fff, 0 6px 14px rgba(60, 120, 130, .10);
+  }
+  .c1 { background: #f2fbf7; border-color: #d5eee6; }
+  .c2 { background: #fffaf0; border-color: #f3e6c8; }
+  .c3 { background: #fff6f9; border-color: #f8dbe6; }
+
+  .card svg { display: block; }
+
+  /* ---------- animations ---------- */
+  #carc { opacity: 1; }
+  #rlines path { transition: opacity .3s; }
+
+  .dots { margin-top: 2px; }
+  .dots i {
+    display: inline-block;
+    width: 9px; height: 9px;
+    margin: 0 4px;
+    border-radius: 50%;
+    background: #7fd0c6;
+  }
+  .dots i:nth-child(2) { background: #ffcf3f; }
+  .dots i:nth-child(3) { background: #f7a1be; }
+
+  /* gentle entrance */
+  .content > * { animation: rise .6s ease-out both; }
+  .content > *:nth-child(2) { animation-delay: .06s; }
+  .content > *:nth-child(3) { animation-delay: .12s; }
+  .content > *:nth-child(4) { animation-delay: .18s; }
+  .content > *:nth-child(5) { animation-delay: .24s; }
+  .content > *:nth-child(6) { animation-delay: .30s; }
+  .content > *:nth-child(7) { animation-delay: .36s; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body class="en">
+  <div class="panel">
+    <span class="ring r1"></span>
+    <span class="ring r2"></span>
+
+    <div class="content">
+      <span class="chip">Module 2</span>
+      <h1>Geometry and <em>Measurement</em></h1>
+      <div class="eng">GEOMETRY &amp; MEASUREMENT</div>
+      <div class="rule"></div>
+      <div class="grade">Grade 6 &nbsp;·&nbsp; First Term</div>
+
+      <div class="pics">
+
+        <!-- 1 · clock -->
+        <div class="card c1">
+          <svg width="108" height="200" viewBox="0 0 108 200" aria-hidden="true">
+            <circle cx="54" cy="96" r="52" fill="#fff" stroke="#d5eee6" stroke-width="3"/>
+            <circle cx="54" cy="96" r="46.5" fill="#fffdf6" stroke="#cfe0e6" stroke-width="1.3"/>
+            <g id="cticks" stroke="#6d8a90" stroke-linecap="round"></g>
+            <g fill="#45606a" font-size="11" font-weight="bold" text-anchor="middle">
+              <text x="54" y="69">12</text>
+              <text x="86" y="100">3</text>
+              <text x="54" y="132">6</text>
+              <text x="22" y="100">9</text>
+            </g>
+
+            <g>
+              <line x1="54" y1="96" x2="54" y2="73" stroke="#0d6d74" stroke-width="5" stroke-linecap="round"/>
+              <animateTransform attributeName="transform" type="rotate"
+                from="305 54 96" to="665 54 96" dur="432s" repeatCount="indefinite"/>
+            </g>
+            <g>
+              <line x1="54" y1="96" x2="54" y2="61" stroke="#33454c" stroke-width="3.2" stroke-linecap="round"/>
+              <animateTransform attributeName="transform" type="rotate"
+                from="60 54 96" to="420 54 96" dur="36s" repeatCount="indefinite"/>
+            </g>
+            <g>
+              <line x1="54" y1="101" x2="54" y2="55" stroke="#e0457b" stroke-width="1.6" stroke-linecap="round"/>
+              <animateTransform attributeName="transform" type="rotate"
+                from="0 54 96" to="360 54 96" dur="6s" repeatCount="indefinite"/>
+            </g>
+            <circle cx="54" cy="96" r="3.9" fill="#0d6d74"/>
+            <circle cx="54" cy="96" r="1.4" fill="#fff"/>
+          </svg>
+        </div>
+
+        <!-- 2 · compass -->
+        <div class="card c2">
+          <svg width="108" height="200" viewBox="0 0 108 200" aria-hidden="true">
+            <circle id="carc" cx="52" cy="146" r="40" fill="none"
+                    stroke="#33454c" stroke-width="2.4" stroke-linecap="round"
+                    pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>
+            <line id="carm" x1="52" y1="58" x2="92" y2="146"
+                  stroke="#2f6fa8" stroke-width="4.4" stroke-linecap="round"/>
+            <line x1="52" y1="58" x2="52" y2="145" stroke="#2f6fa8" stroke-width="4.4" stroke-linecap="round"/>
+            <circle cx="52" cy="146" r="2.2" fill="#33454c"/>
+            <circle cx="52" cy="58" r="6.4" fill="#2f6fa8"/>
+            <circle cx="52" cy="58" r="2.3" fill="#fffdf6"/>
+            <g id="cpen" transform="translate(92,146) rotate(-114.4)">
+              <polygon points="0,0 10,-4.2 10,4.2" fill="#f2c37a" stroke="#c99a4e" stroke-width=".9"/>
+              <polygon points="0,0 4,-1.7 4,1.7" fill="#3b4a52"/>
+              <rect x="10" y="-4.7" width="20" height="9.4" rx="1.7" fill="#ffd35c" stroke="#d9a62e" stroke-width=".9"/>
+              <rect x="25" y="-4.7" width="6" height="9.4" rx="1.7" fill="#ef9bb2" stroke="#c9748c" stroke-width=".9"/>
+            </g>
+          </svg>
+        </div>
+
+        <!-- 3 · drawing lines with a ruler -->
+        <div class="card c3">
+          <svg width="108" height="200" viewBox="0 0 108 200" aria-hidden="true">
+            <g id="rlines"></g>
+            <g id="rr" transform="translate(0,74)">
+              <rect x="6" y="0" width="96" height="18" rx="3.5"
+                    fill="#fff8e3" stroke="#e2cfa0" stroke-width="1.3"/>
+              <g id="rticks" stroke="#c8b276" stroke-width=".9" stroke-linecap="round"></g>
+              <text x="97" y="12" font-size="5.5" fill="#a38c58" text-anchor="end"
+                    font-family="Georgia, serif">cm</text>
+            </g>
+            <g id="rp" transform="translate(18,71) rotate(-34)">
+              <polygon points="0,0 8.5,-3.6 8.5,3.6" fill="#f2c37a" stroke="#c99a4e" stroke-width=".8"/>
+              <polygon points="0,0 3.4,-1.4 3.4,1.4" fill="#3b4a52"/>
+              <rect x="8.5" y="-4" width="16" height="8" rx="1.4" fill="#ffd35c" stroke="#d9a62e" stroke-width=".8"/>
+              <rect x="20" y="-4" width="5" height="8" rx="1.4" fill="#ef9bb2" stroke="#c9748c" stroke-width=".8"/>
+            </g>
+          </svg>
+        </div>
+
+      </div>
+
+      <div class="dots"><i></i><i></i><i></i></div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(n, a) {
+    var e = document.createElementNS(NS, n);
+    for (var k in a) { e.setAttribute(k, a[k]); }
+    return e;
+  }
+
+  /* ---------- clock ticks ---------- */
+  var tg = document.getElementById('cticks');
+  for (var i = 0; i < 12; i++) {
+    var a = i * Math.PI / 6, long = (i % 3 === 0);
+    var r1 = long ? 38 : 41;
+    tg.appendChild(el('line', {
+      x1: (54 + r1 * Math.sin(a)).toFixed(2), y1: (96 - r1 * Math.cos(a)).toFixed(2),
+      x2: (54 + 45 * Math.sin(a)).toFixed(2), y2: (96 - 45 * Math.cos(a)).toFixed(2),
+      'stroke-width': long ? 2.1 : 1.2
+    }));
+  }
+
+  /* ---------- ruler ticks ---------- */
+  var rg = document.getElementById('rticks');
+  for (var x = 12; x <= 90; x += 4.5) {
+    rg.appendChild(el('line', {
+      x1: x, y1: 1, x2: x, y2: ((x - 12) % 9 < 0.1) ? 6.5 : 3.8
+    }));
+  }
+
+  /* ---------- compass: drawing a small arc ---------- */
+  var carc = document.getElementById('carc');
+  var arm = document.getElementById('carm');
+  var cpen = document.getElementById('cpen');
+  var HX = 52, HY = 58, CX = 52, CY = 146, CR = 40;
+  var CT = 6000, ct0 = Date.now();
+
+  /* ---------- ruler: drawing three lines ---------- */
+  var rows = [74, 118, 162];
+  var rr = document.getElementById('rr');
+  var rp = document.getElementById('rp');
+  var lines = [];
+  var lg = document.getElementById('rlines');
+  rows.forEach(function (y) {
+    var p = el('path', {
+      d: 'M18 ' + (y - 3) + ' H88', pathLength: 1,
+      fill: 'none', stroke: '#33454c', 'stroke-width': 2, 'stroke-linecap': 'round',
+      'stroke-dasharray': 1, 'stroke-dashoffset': 1
+    });
+    lg.appendChild(p);
+    lines.push(p);
+  });
+  var RT = 6000, rt0 = Date.now();
+
+  setInterval(function () {
+    var t = Date.now();
+
+    /* compass */
+    var e = (t - ct0) % CT, dash, op = 1, th = 0;
+    if (e < 4500) { dash = 1 - e / 4500; th = 360 * (e / 4500); }
+    else if (e < 5400) { dash = 0; th = 360; }
+    else if (e < 5800) { dash = 0; th = 360; op = 1 - (e - 5400) / 400; }
+    else { dash = 1; }
+    var rad = th * Math.PI / 180;
+    var px = CX + CR * Math.cos(rad), py = CY + CR * Math.sin(rad);
+    arm.setAttribute('x2', px.toFixed(2));
+    arm.setAttribute('y2', py.toFixed(2));
+    var ang = Math.atan2(HY - py, HX - px) * 180 / Math.PI;
+    cpen.setAttribute('transform',
+      'translate(' + px.toFixed(2) + ',' + py.toFixed(2) + ') rotate(' + ang.toFixed(1) + ')');
+    carc.setAttribute('stroke-dashoffset', dash.toFixed(4));
+    carc.style.opacity = op;
+
+    /* ruler */
+    var r = (t - rt0) % RT;
+    var k = Math.min(2, Math.floor(r / 1500));
+    var p = Math.max(0, Math.min(1, (r - k * 1500) / 1000));
+    if (r >= 5700) { k = 0; p = 0; }
+    rr.setAttribute('transform', 'translate(0,' + rows[k] + ')');
+    rp.setAttribute('transform',
+      'translate(' + (18 + 70 * p).toFixed(1) + ',' + (rows[k] - 3) + ') rotate(-34)');
+    for (var j = 0; j < 3; j++) {
+      if (r >= 5700) { lines[j].style.opacity = 0; lines[j].setAttribute('stroke-dashoffset', '1'); }
+      else if (r >= 5300) { lines[j].style.opacity = 0; }
+      else if (r >= 4500) { lines[j].style.opacity = 1; lines[j].setAttribute('stroke-dashoffset', '0'); }
+      else {
+        lines[j].style.opacity = 1;
+        lines[j].setAttribute('stroke-dashoffset',
+          j < k ? '0' : (j === k ? String(1 - p) : '1'));
+      }
+    }
+  }, 33);
+})();
+</script>
+</body>
+</html>

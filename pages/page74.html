@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Find the Age</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     74 · Find the age
+     (today’s real date · empty birth date · find-age button ·
+      days in the 12 months · leap year)
+     ============================================================ */
+  .ttl { flex: none; font-size: 24px; line-height: 1.1; }
+  .sub { flex: none; margin-top: 1px; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- age table ---------- */
+  .agecard {
+    flex: none;
+    margin-top: 8px;
+    padding: 6px 12px 7px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e2efe9;
+    box-shadow: 0 7px 16px rgba(30, 80, 80, .07);
+  }
+  .agerow {
+    display: grid;
+    grid-template-columns: 84px 1fr 1fr 1fr;
+    align-items: center;
+  }
+  .agerow.head { height: 20px; }
+  .agerow.head span + span {
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #6f908d;
+    letter-spacing: .3px;
+  }
+  .agerow + .agerow { border-top: 1px dashed #e3efeb; }
+  .agerow.today { height: 40px; }
+  .agerow.birth { height: 42px; }
+  .agerow.age { height: 40px; }
+
+  .lbl {
+    padding-left: 2px;
+    font-size: 14.5px;
+    font-weight: bold;
+    color: #45606a;
+  }
+  .val {
+    text-align: center;
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 24px;
+    line-height: 1;
+    font-weight: bold;
+    color: #22343b;
+  }
+
+  .agerow.birth .cell { display: flex; align-items: center; justify-content: center; }
+  .di {
+    height: 34px;
+    padding: 0 2px;
+    border: 1.5px solid #d5e6e1;
+    border-radius: 9px;
+    background: #fbfefd;
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 21px;
+    font-weight: bold;
+    color: #22343b;
+    text-align: center;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    caret-color: #d2870f;
+  }
+  .di.y { width: 78px; }
+  .di.m, .di.d { width: 50px; }
+  .di::placeholder { color: #c4d4d0; }
+  .di:focus {
+    border-color: #f0c14b;
+    background: #fffbf0;
+    box-shadow: 0 0 0 2px #ffe9a8;
+  }
+
+  .agerow.age .val { color: #c4d4d0; transition: color .18s ease; }
+  .agerow.age .lbl { color: #8ba49f; transition: color .18s ease; }
+  .agerow.age.show {
+    background: #f2fbf7;
+    border-top-color: #bfe8d8;
+    border-radius: 10px;
+  }
+  .agerow.age.show .val { color: var(--green); }
+  .agerow.age.show .lbl { color: var(--green); }
+
+  /* ---------- button ---------- */
+  .go {
+    flex: none;
+    margin-top: 8px;
+    height: 44px;
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(140deg, #12a08c, #0d6d74);
+    color: #fff;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 5px 12px rgba(13, 109, 116, .3);
+    transition: transform .12s ease;
+  }
+  .go:active { transform: translateY(1px); }
+
+  .msg {
+    flex: none;
+    margin-top: 4px;
+    height: 18px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 18px;
+    color: #8ba49f;
+  }
+  .msg.ok { color: var(--green); font-weight: bold; }
+  .msg.err { color: #c0386a; font-weight: bold; }
+
+  /* ---------- 12 months ---------- */
+  .learn { flex: none; margin-top: 8px; }
+  .lhead {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 18px;
+    padding-left: 2px;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--teal);
+  }
+  .lhead::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--gold);
+  }
+  .mgrid {
+    margin-top: 4px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border: 1px solid #e2efe9;
+    border-radius: 12px;
+    background: #fff;
+    overflow: hidden;
+  }
+  .mcell {
+    height: 26px;
+    padding: 0 9px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px dashed #e7f1ee;
+    font-size: 14px;
+    line-height: 26px;
+    color: #33454c;
+  }
+  .mcell b {
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    color: var(--teal);
+  }
+  .mcell.feb { background: #fffaf1; }
+  .mcell.feb b { color: #d2870f; }
+  .mgrid .mcell:nth-last-child(-n+3) { border-bottom: 0; }
+
+  .lnote {
+    flex: none;
+    margin-top: 6px;
+    padding: 4px 10px 5px;
+    border-radius: 10px;
+    background: #fff7f0;
+    border: 1px solid #f7e2cf;
+    text-align: center;
+    font-size: 14.5px;
+    line-height: 1.3;
+    color: #7a5a3a;
+  }
+  .lnote b { color: #d2416f; font-family: Verdana, sans-serif; }
+  .lnote .feb { color: #d2870f; font-weight: bold; }
+
+  .pop { animation: pop .34s ease; }
+  @keyframes pop {
+    0% { transform: scale(.7); }
+    60% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+  <div class="ttl">Find the Age</div>
+  <div class="sub">FINDING AGE</div>
+
+  <div class="agecard">
+    <div class="agerow head">
+      <span></span><span>Years</span><span>Months</span><span>Days</span>
+    </div>
+    <div class="agerow today">
+      <span class="lbl">Today</span>
+      <span class="val" id="ty">–</span>
+      <span class="val" id="tm">–</span>
+      <span class="val" id="td">–</span>
+    </div>
+    <div class="agerow birth">
+      <span class="lbl">Birth date</span>
+      <span class="cell"><input class="di y" id="by" type="text" inputmode="numeric" maxlength="4" placeholder="–" autocomplete="off" aria-label="Birth year"></span>
+      <span class="cell"><input class="di m" id="bm" type="text" inputmode="numeric" maxlength="2" placeholder="–" autocomplete="off" aria-label="Birth month"></span>
+      <span class="cell"><input class="di d" id="bd" type="text" inputmode="numeric" maxlength="2" placeholder="–" autocomplete="off" aria-label="Birth day"></span>
+    </div>
+    <div class="agerow age" id="ageRow">
+      <span class="lbl">Age</span>
+      <span class="val" id="ay">–</span>
+      <span class="val" id="am">–</span>
+      <span class="val" id="ad">–</span>
+    </div>
+  </div>
+
+  <button class="go" type="button" id="go">Find the Age</button>
+  <div class="msg" id="msg">Enter the birth date and tap “Find the Age”.</div>
+
+  <div class="learn">
+    <div class="lhead">Learn more — days in the 12 months</div>
+    <div class="mgrid">
+      <div class="mcell"><span>January</span><b>31</b></div>
+      <div class="mcell feb"><span>February</span><b>28</b></div>
+      <div class="mcell"><span>March</span><b>31</b></div>
+      <div class="mcell"><span>April</span><b>30</b></div>
+      <div class="mcell"><span>May</span><b>31</b></div>
+      <div class="mcell"><span>June</span><b>30</b></div>
+      <div class="mcell"><span>July</span><b>31</b></div>
+      <div class="mcell"><span>August</span><b>31</b></div>
+      <div class="mcell"><span>September</span><b>30</b></div>
+      <div class="mcell"><span>October</span><b>31</b></div>
+      <div class="mcell"><span>November</span><b>30</b></div>
+      <div class="mcell"><span>December</span><b>31</b></div>
+    </div>
+  </div>
+
+  <div class="lnote">In a leap year <span class="feb">February</span> has <b>29</b> days.<br>Then the year has <b>366</b> days.</div>
+</div>
+
+<script>
+(function () {
+  var MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+  var ty = document.getElementById('ty'), tm = document.getElementById('tm'), td = document.getElementById('td');
+  var by = document.getElementById('by'), bm = document.getElementById('bm'), bd = document.getElementById('bd');
+  var go = document.getElementById('go'), msg = document.getElementById('msg');
+  var ageRow = document.getElementById('ageRow');
+  var ay = document.getElementById('ay'), am = document.getElementById('am'), ad = document.getElementById('ad');
+
+  var HINT = 'Enter the birth date and tap “Find the Age”.';
+
+  var now = new Date();
+  var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  /* today’s real date */
+  ty.textContent = now.getFullYear();
+  tm.textContent = now.getMonth() + 1;
+  td.textContent = now.getDate();
+
+  function isLeap(y) {
+    return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+  }
+  function daysIn(y, m) {
+    return MONTH_DAYS[m - 1] + (m === 2 && isLeap(y) ? 1 : 0);
+  }
+
+  function setMsg(t, cls) {
+    msg.textContent = t;
+    msg.className = 'msg' + (cls ? ' ' + cls : '');
+  }
+
+  function resetAge() {
+    ageRow.classList.remove('show');
+    ay.textContent = '–';
+    am.textContent = '–';
+    ad.textContent = '–';
+  }
+
+  function clearResult() {
+    if (ageRow.classList.contains('show')) resetAge();
+    if (msg.classList.contains('err') || msg.classList.contains('ok')) setMsg(HINT, '');
+  }
+
+  function wire(el, next, len) {
+    el.addEventListener('input', function () {
+      var v = el.value.replace(/\D/g, '').slice(0, len);
+      if (v !== el.value) el.value = v;
+      clearResult();
+      if (next && (v.length === len || (v.length === 1 && v > (len === 4 ? '9' : '3')))) {
+        next.focus();
+        if (next.select) next.select();
+      }
+    });
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        calc();
+      }
+    });
+  }
+
+  /* when the year has 4 digits, jump to the month; when the month is 2 digits or 4–9, jump to the day */
+  wire(by, bm, 4);
+  wire(bm, bd, 2);
+  wire(bd, null, 2);
+
+  function age(b) {
+    var y = today.getFullYear() - b.getFullYear();
+    var m = today.getMonth() - b.getMonth();
+    var d = today.getDate() - b.getDate();
+    var pm = today.getMonth() - 1;   /* the month before today (from 0) */
+    while (d < 0) {
+      d += new Date(today.getFullYear(), pm + 1, 0).getDate();
+      m--;
+      pm--;
+    }
+    while (m < 0) {
+      m += 12;
+      y--;
+    }
+    return { y: y, m: m, d: d };
+  }
+
+  function calc() {
+    var ys = by.value, ms = bm.value, ds = bd.value;
+
+    if (ys.length !== 4) {
+      resetAge();
+      setMsg('Write the year with 4 digits.', 'err');
+      by.focus();
+      return;
+    }
+    var y = +ys;
+    if (y < 1900 || y > now.getFullYear()) {
+      resetAge();
+      setMsg('Check that the year is correct.', 'err');
+      by.focus();
+      return;
+    }
+    if (!ms) {
+      resetAge();
+      setMsg('Enter the month.', 'err');
+      bm.focus();
+      return;
+    }
+    var m = +ms;
+    if (m < 1 || m > 12) {
+      resetAge();
+      setMsg('Enter the month from 1 to 12.', 'err');
+      bm.focus();
+      return;
+    }
+    if (!ds) {
+      resetAge();
+      setMsg('Enter the day.', 'err');
+      bd.focus();
+      return;
+    }
+    var d = +ds;
+    var dim = daysIn(y, m);
+    if (d < 1 || d > dim) {
+      resetAge();
+      setMsg('That month has only ' + dim + ' days.', 'err');
+      bd.focus();
+      return;
+    }
+
+    var b = new Date(y, m - 1, d);
+    if (b > today) {
+      resetAge();
+      setMsg('The birth date cannot be after today.', 'err');
+      return;
+    }
+
+    var a = age(b);
+    resetAge();
+    ay.textContent = a.y;
+    am.textContent = a.m;
+    ad.textContent = a.d;
+    void ageRow.offsetWidth;
+    ageRow.classList.add('show');
+    [ay, am, ad].forEach(function (el) {
+      el.classList.remove('pop');
+      void el.offsetWidth;
+      el.classList.add('pop');
+    });
+    setMsg('Age calculated ✓', 'ok');
+  }
+
+  go.addEventListener('click', calc);
+})();
+</script>
+</body>
+</html>

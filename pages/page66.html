@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Morning and Afternoon</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     66 · Morning and afternoon
+     (two halves of the day · a.m./p.m. notation · clock with day/night change)
+     ============================================================ */
+  .ttl { flex: none; font-size: 24px; line-height: 1.1; }
+  .sub { flex: none; margin-top: 1px; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- definition ---------- */
+  .dcard {
+    flex: none;
+    margin-top: 6px;
+    padding: 6px 11px 7px;
+    border-radius: 13px;
+    background: #fff;
+    border: 1px solid #e2efe9;
+  }
+  .dhead {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--green);
+    line-height: 1.2;
+  }
+  .drow {
+    margin-top: 4px;
+    padding: 3.5px 8px 4.5px 9px;
+    border-radius: 9px;
+    border-left: 3px solid #43c3a0;
+    background: #f3fcf8;
+  }
+  .drow.pm { border-left-color: #f0a44a; background: #fffaf1; }
+  .dr1 {
+    font-size: 15.5px;
+    font-weight: bold;
+    color: var(--teal);
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .drow.pm .dr1 { color: #a45600; }
+  .dr2 {
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+  .dr2 b { color: var(--teal); }
+  .drow.pm .dr2 b { color: #a45600; }
+  .dnote {
+    margin-top: 4px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--muted);
+    font-family: Verdana, Garamond, sans-serif;
+    letter-spacing: .2px;
+  }
+
+  /* ---------- clock stage ---------- */
+  .stage {
+    position: relative;
+    flex: none;
+    width: 376px;
+    height: 192px;
+    margin-top: 6px;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: background .55s ease;
+    box-shadow: inset 0 0 0 1px rgba(13, 109, 116, .2), 0 6px 14px rgba(13, 109, 116, .14);
+  }
+  .stage.night {
+    background:
+      radial-gradient(150px 110px at 76% 18%, rgba(56, 92, 122, .55) 0%, rgba(56, 92, 122, 0) 72%),
+      linear-gradient(180deg, #06111c 0%, #0c2131 62%, #143246 100%);
+  }
+  .stage.predawn {
+    background:
+      radial-gradient(170px 110px at 24% 22%, rgba(255, 145, 90, .22) 0%, rgba(255, 145, 90, 0) 72%),
+      linear-gradient(180deg, #101a2e 0%, #243a55 62%, #5a4a5c 100%);
+  }
+  .stage.dawn {
+    background:
+      radial-gradient(190px 120px at 76% 76%, rgba(255, 206, 120, .75) 0%, rgba(255, 206, 120, 0) 72%),
+      linear-gradient(180deg, #1d2550 0%, #6f5470 48%, #e08a55 78%, #ffc46b 100%);
+  }
+  .stage.day {
+    background:
+      radial-gradient(170px 120px at 80% 18%, rgba(255, 216, 92, .55) 0%, rgba(255, 216, 92, 0) 72%),
+      linear-gradient(180deg, #a9dcf2 0%, #dff3fb 58%, #fff8e4 100%);
+  }
+  .stage.dusk {
+    background:
+      radial-gradient(190px 130px at 24% 82%, rgba(255, 168, 82, .7) 0%, rgba(255, 168, 82, 0) 74%),
+      linear-gradient(180deg, #202040 0%, #6a3a56 46%, #d0634a 78%, #ffb45e 100%);
+  }
+
+  .orb {
+    position: absolute;
+    top: 26px;
+    right: 32px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity .45s ease, background .45s ease;
+  }
+  .stage.day .orb {
+    opacity: 1;
+    background: radial-gradient(circle at 35% 32%, #fffbe0, #ffd23f 58%, #ef9f14);
+    box-shadow: 0 0 24px rgba(255, 208, 63, .85);
+  }
+  .stage.dawn .orb, .stage.dusk .orb {
+    opacity: 1;
+    background: radial-gradient(circle at 38% 36%, #fff1c0, #ffb84d 60%, #ee7f22);
+    box-shadow: 0 0 22px rgba(255, 165, 66, .7);
+  }
+  .stage.night .orb, .stage.predawn .orb {
+    opacity: 1;
+    background: radial-gradient(circle at 36% 32%, #fdfbef, #dde6ee 60%, #b7c7d3);
+    box-shadow: 0 0 18px rgba(220, 235, 250, .5);
+  }
+
+  .stars {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity .5s ease;
+    background-image:
+      radial-gradient(1.5px 1.5px at 9% 20%, #fff, transparent),
+      radial-gradient(1.3px 1.3px at 17% 44%, #eef6ff, transparent),
+      radial-gradient(1.6px 1.6px at 27% 14%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 34% 36%, #dceaf6, transparent),
+      radial-gradient(1.4px 1.4px at 44% 10%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 55% 28%, #e8f2fa, transparent),
+      radial-gradient(1.5px 1.5px at 63% 12%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 72% 40%, #dceaf6, transparent),
+      radial-gradient(1.5px 1.5px at 82% 16%, #fff, transparent),
+      radial-gradient(1.3px 1.3px at 90% 46%, #eef6ff, transparent),
+      radial-gradient(1.2px 1.2px at 12% 66%, #dceaf6, transparent),
+      radial-gradient(1.4px 1.4px at 30% 58%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 48% 72%, #e8f2fa, transparent),
+      radial-gradient(1.3px 1.3px at 68% 62%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 86% 70%, #dceaf6, transparent);
+  }
+  .stage.night .stars { opacity: 1; }
+  .stage.predawn .stars { opacity: .45; }
+
+  .clock {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 158px;
+    height: 158px;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 7px 12px rgba(0, 0, 0, .28));
+  }
+  .clock text {
+    font-family: "Segoe UI", "Nirmala UI", "Iskoola Pota", sans-serif;
+    font-size: 29px;
+    font-weight: bold;
+    fill: #2f4a51;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+
+  /* ---------- time line ---------- */
+  .tline {
+    flex: none;
+    margin-top: 6px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #e2efe9;
+    box-shadow: 0 2px 6px rgba(13, 109, 116, .06);
+  }
+  .tsi { font-size: 22px; font-weight: bold; color: var(--teal); }
+  .tline.pm .tsi { color: #a45600; }
+  .tline.twelve .tsi { color: #7a4bb8; }
+  .tdash { font-size: 16px; color: #b9c8c4; }
+  .ten {
+    font-size: 15.5px;
+    font-family: Verdana, Garamond, sans-serif;
+    font-weight: bold;
+    color: var(--muted);
+    letter-spacing: .3px;
+  }
+
+  /* ---------- button ---------- */
+  .next {
+    flex: none;
+    margin-top: 8px;
+    height: 44px;
+    border: 0;
+    border-radius: 13px;
+    background: linear-gradient(140deg, #ffd75e, #f2ad18);
+    color: #6b3f00;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: bold;
+    letter-spacing: .2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    box-shadow: 0 5px 13px rgba(242, 173, 24, .35);
+    transition: transform .12s ease;
+  }
+  .next:active { transform: translateY(1px); }
+  .next span { font-size: 20px; line-height: 1; }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+  <div class="ttl">Morning and Afternoon</div>
+  <div class="sub">a.m. / p.m.</div>
+
+  <div class="dcard">
+    <div class="dhead">The day is split into two halves.</div>
+    <div class="drow am">
+      <div class="dr1">12 midnight to 12 noon</div>
+      <div class="dr2">Morning time (ante meridiem) · <b>a.m.</b></div>
+    </div>
+    <div class="drow pm">
+      <div class="dr1">12 noon to 12 midnight</div>
+      <div class="dr2">Afternoon time (post meridiem) · <b>p.m.</b></div>
+    </div>
+    <div class="dnote">a.m. = ante meridiem · p.m. = post meridiem</div>
+  </div>
+
+  <div class="stage night" id="stage">
+    <div class="stars"></div>
+    <div class="orb"></div>
+    <svg class="clock" viewBox="0 0 300 300" aria-label="Clock">
+      <circle cx="150" cy="150" r="146" fill="#fffdf8"></circle>
+      <circle cx="150" cy="150" r="146" fill="none" stroke="#0d6d74" stroke-width="6"></circle>
+      <circle cx="150" cy="150" r="137" fill="none" stroke="#d9ece6" stroke-width="1.6"></circle>
+      <g id="ticks"></g>
+      <g id="nums"></g>
+      <line id="minute" x1="150" y1="150" x2="150" y2="56" stroke="#0d6d74" stroke-width="5.5" stroke-linecap="round"></line>
+      <line id="hour" x1="150" y1="150" x2="150" y2="84" stroke="#1f3b45" stroke-width="7" stroke-linecap="round"></line>
+      <circle cx="150" cy="150" r="8" fill="#0d6d74"></circle>
+      <circle cx="150" cy="150" r="3.2" fill="#ffcf3f"></circle>
+    </svg>
+  </div>
+
+  <div class="tline" id="tline">
+    <span class="tsi" id="tsi">12 midnight</span>
+    <span class="tdash">&mdash;</span>
+    <span class="ten" id="ten">12 midnight</span>
+  </div>
+
+  <button class="next" type="button" id="next" aria-label="Next hour">Next hour <span>&#8594;</span></button>
+</div>
+
+<script>
+(function () {
+  /* 24 hours of the day — 0 = 12 midnight, 12 = 12 noon */
+  var i = 0;
+
+  var stage = document.getElementById('stage');
+  var tline = document.getElementById('tline');
+  var tsi   = document.getElementById('tsi');
+  var ten   = document.getElementById('ten');
+  var hh    = document.getElementById('hour');
+  var next  = document.getElementById('next');
+
+  /* ---------- clock face ---------- */
+  var ticks = document.getElementById('ticks');
+  var NS = 'http://www.w3.org/2000/svg';
+  for (var t = 0; t < 60; t++) {
+    var big = t % 5 === 0;
+    var a = t * 6 * Math.PI / 180;
+    var r1 = big ? 129 : 134, r2 = 140;
+    var ln = document.createElementNS(NS, 'line');
+    ln.setAttribute('x1', 150 + Math.sin(a) * r1);
+    ln.setAttribute('y1', 150 - Math.cos(a) * r1);
+    ln.setAttribute('x2', 150 + Math.sin(a) * r2);
+    ln.setAttribute('y2', 150 - Math.cos(a) * r2);
+    ln.setAttribute('stroke', big ? '#5f848a' : '#a9c8c1');
+    ln.setAttribute('stroke-width', big ? 2.6 : 1.2);
+    ln.setAttribute('stroke-linecap', 'round');
+    ticks.appendChild(ln);
+  }
+  var nums = document.getElementById('nums');
+  for (var n = 1; n <= 12; n++) {
+    var ang = n * 30 * Math.PI / 180;
+    var tx = document.createElementNS(NS, 'text');
+    tx.setAttribute('x', 150 + Math.sin(ang) * 108);
+    tx.setAttribute('y', 150 - Math.cos(ang) * 108);
+    tx.textContent = n;
+    nums.appendChild(tx);
+  }
+
+  /* ---------- time and background ---------- */
+  function phaseOf(h) {
+    if (h <= 4) return 'night';
+    if (h === 5) return 'predawn';
+    if (h === 6) return 'dawn';
+    if (h <= 17) return 'day';
+    if (h === 18) return 'dusk';
+    return 'night';
+  }
+
+  function labelOf(h) {
+    if (h === 0)  return ['12 midnight', '12 midnight', 'twelve'];
+    if (h === 12) return ['12 noon', '12 noon', 'twelve'];
+    if (h < 12)   return [h + ' a.m.', h + ' a.m.', 'am'];
+    return [(h - 12) + ' p.m.', (h - 12) + ' p.m.', 'pm'];
+  }
+
+  function render() {
+    var h = i % 24;
+
+    hh.setAttribute('transform', 'rotate(' + ((h % 12) * 30) + ' 150 150)');
+
+    var ph = phaseOf(h);
+    stage.className = 'stage ' + ph;
+
+    var lb = labelOf(h);
+    tsi.textContent = lb[0];
+    ten.textContent = lb[1];
+    tline.className = 'tline ' + (lb[2] === 'twelve' ? 'twelve' : lb[2]);
+  }
+
+  next.addEventListener('click', function () {
+    i = (i + 1) % 24;
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

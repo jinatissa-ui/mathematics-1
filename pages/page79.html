@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Estimating Mass</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     79 · Estimating mass
+     (apple bag + balance scale + 0–9 buttons)
+     ============================================================ */
+  .ttl { flex: none; font-size: 25px; line-height: 1.1; white-space: nowrap; }
+  .sub { flex: none; margin-top: 2px; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- one-apple weight strip ---------- */
+  .fact {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 4px;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--ink-soft);
+  }
+  .fact svg { flex: none; }
+
+  /* ---------- bag card ---------- */
+  .pcard {
+    position: relative;
+    flex: none;
+    margin-top: 6px;
+    padding: 10px 12px 9px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 6px 14px rgba(30, 80, 80, .07);
+  }
+  .stage { position: relative; height: 88px; }
+
+  .pcount {
+    position: absolute;
+    top: 1px;
+    right: 0;
+    height: 22px;
+    padding: 0 9px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    border-radius: 999px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--teal);
+  }
+  .pcount b { font-family: Verdana, sans-serif; font-size: 14px; }
+
+  .qlabel {
+    margin-top: 3px;
+    font-size: 15px;
+    line-height: 1.25;
+    font-weight: bold;
+    color: var(--ink-soft);
+  }
+
+  .arow { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+
+  .abox {
+    width: 86px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #fffdf4;
+    border: 2px solid #ffe08a;
+    box-shadow: inset 0 2px 4px rgba(120, 100, 40, .06);
+    font-family: Verdana, sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--teal);
+    letter-spacing: 1px;
+  }
+  .abox.on { border-color: #0d8a64; background: #effaf4; }
+  .abox.bad { border-color: #e0457b; background: #fff2f7; color: #c0305f; }
+  .abox .car {
+    display: inline-block;
+    width: 2px;
+    height: 25px;
+    background: #c9d6d2;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .unit { font-size: 15px; font-weight: bold; color: var(--muted); }
+
+  .del {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    margin-left: auto;
+    border: 1px solid #dbe7e6;
+    border-radius: 10px;
+    background: #f7fbfa;
+    cursor: pointer;
+  }
+  .del:active { background: #e9f4f1; }
+  .del:disabled { opacity: .45; cursor: default; }
+
+  /* ---------- message ---------- */
+  .status {
+    flex: none;
+    height: 21px;
+    margin-top: 6px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+  .status.ok { color: #0d8a64; font-weight: bold; }
+  .status.near { color: #b57a12; font-weight: bold; }
+  .status.bad { color: #d2416f; }
+
+  /* ---------- buttons ---------- */
+  .btns { flex: none; margin-top: 5px; }
+  .btn {
+    height: 46px;
+    border-radius: 12px;
+    border: 0;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .next {
+    width: 100%;
+    background: #f2fbf7;
+    border: 1px solid #c6e5da;
+    color: var(--teal);
+  }
+  .next:active { background: #e6f7f0; }
+
+  /* ---------- bottom area: buttons + scale ---------- */
+  .zone {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 7px;
+    min-height: 0;
+  }
+  .pad {
+    flex: none;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    width: 180px;
+  }
+  .key {
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid #dcebe7;
+    background: linear-gradient(180deg, #ffffff, #f4fbf8);
+    font-family: Verdana, sans-serif;
+    font-size: 19px;
+    font-weight: bold;
+    color: #2c4c53;
+    cursor: pointer;
+    box-shadow: 0 2px 3px rgba(30, 70, 70, .06);
+  }
+  .key:active { transform: translateY(1px); background: #e9f7f1; }
+  .key:disabled { opacity: .45; cursor: default; transform: none; }
+
+  .scalewrap { flex: none; position: relative; width: 186px; height: 169px; }
+  .scalewrap svg { display: block; }
+  .tray { transition: filter .2s ease; }
+  .scalewrap.ready .tray { filter: drop-shadow(0 0 6px rgba(13, 138, 100, .9)); }
+  .scalewrap.weigh .tray { filter: drop-shadow(0 0 8px rgba(232, 160, 32, .95)); }
+  #needle { transform-origin: 93px 106px; }
+
+  /* ---------- apple bag ---------- */
+  .bag {
+    position: absolute;
+    left: 34px;
+    top: 100px;
+    width: 150px;
+    height: 90px;
+    z-index: 45;
+    cursor: default;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    filter: drop-shadow(0 4px 4px rgba(20, 50, 60, .14));
+  }
+  .bag svg { display: block; }
+  .bag.live {
+    cursor: grab;
+    animation: nudge 1.5s ease 2;
+  }
+  .bag.dragging { cursor: grabbing; animation: none; }
+  .bag.ready {
+    filter: drop-shadow(0 0 8px rgba(13, 138, 100, .85));
+  }
+  @keyframes nudge {
+    0%, 100% { transform: none; }
+    50% { transform: translate(3px, 3px); }
+  }
+  .dragtag {
+    position: absolute;
+    right: 2px;
+    bottom: -18px;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--teal);
+    opacity: 0;
+    transition: opacity .2s;
+    white-space: nowrap;
+  }
+  .bag.live .dragtag { opacity: 1; }
+  .bag.ready .dragtag { color: #0d8a64; }
+
+  /* ---------- right/near animation ---------- */
+  .fx {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 60;
+  }
+  .fx.on { opacity: 1; }
+  .fx .fb {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 18px 8px 8px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .18), 0 0 0 3px #bfe7d8;
+    transform: scale(.7);
+    transition: transform .28s cubic-bezier(.2, 1.4, .4, 1);
+  }
+  .fx.on .fb { transform: scale(1); }
+  .fx .fc {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #0d8a64;
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 1;
+  }
+  .fx .ftext { font-size: 17px; font-weight: bold; color: #0d8a64; }
+  .fx.near .fb { box-shadow: 0 10px 24px rgba(0, 0, 0, .18), 0 0 0 3px #f4d79a; }
+  .fx.near .fc { background: #e8a020; }
+  .fx.near .ftext { color: #b57a12; }
+
+  .cft {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    z-index: 1;
+  }
+
+  .abox.shake { animation: shake .32s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <div class="ttl">Estimating Mass</div>
+  <div class="sub">ESTIMATING MASS</div>
+
+  <div class="fact">
+    <svg id="appleIcon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"></svg>
+    This apple weighs 105 grams.
+  </div>
+
+  <div class="pcard" id="card">
+    <div class="stage">
+      <div class="pcount">Bag <b id="pno">1</b>/5</div>
+    </div>
+
+    <div class="qlabel">Write the estimated mass</div>
+    <div class="arow">
+      <span class="unit">g</span>
+      <div class="abox" id="abox"><span class="car"></span></div>
+      <button class="del" id="del" type="button" aria-label="Erase">
+        <svg viewBox="0 0 24 18" width="22" height="17" aria-hidden="true">
+          <path d="M7 2h13a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7L1 9z" fill="none" stroke="#5c7378" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M10 6l6 6M16 6l-6 6" stroke="#5c7378" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="fx" id="fx">
+      <div class="fb" id="fb"><span class="fc">✓</span><span class="ftext" id="fxt">Excellent!</span></div>
+    </div>
+  </div>
+
+  <div class="status" id="status">Write 3 digits.</div>
+
+  <div class="btns">
+    <button class="btn next" id="next" type="button">Another bag</button>
+  </div>
+
+  <div class="zone">
+    <div class="pad" id="pad">
+      <button class="key" type="button">1</button>
+      <button class="key" type="button">2</button>
+      <button class="key" type="button">3</button>
+      <button class="key" type="button">4</button>
+      <button class="key" type="button">5</button>
+      <button class="key" type="button">6</button>
+      <button class="key" type="button">7</button>
+      <button class="key" type="button">8</button>
+      <button class="key" type="button">9</button>
+      <button class="key" type="button">0</button>
+    </div>
+    <div class="scalewrap" id="scalewrap"></div>
+  </div>
+
+  <div class="bag" id="bag">
+    <span class="dragtag">Drag to the scale ↓</span>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var APPLE_G = 105;
+  var FIRST_COUNT = 7;
+  var OTHER_COUNTS = [4, 5, 6, 8, 9];
+
+  var BAG_W = 150, BAG_H = 90;
+  var HOME_L = 34, HOME_T = 100;
+  var MIN_L = 22, MIN_T = 56;
+  /* zone near the scale — the bag snaps onto the pan even if released early */
+  var SNAP = { x1: 180, y1: 285, x2: 415, y2: 470 };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var bagEl = $('bag'), box = $('abox'), statusEl = $('status'), counter = $('pno');
+  var nextBtn = $('next'), keys = [].slice.call(document.querySelectorAll('.key'));
+  var del = $('del'), fx = $('fx'), fxt = $('fxt');
+  var scalewrap = $('scalewrap'), tag = bagEl.querySelector('.dragtag');
+  var needle = null;
+
+  var bags = [], idx = 0, digits = '', checked = false, attempts = 0, score = 0;
+  var finished = false, live = false, replaceNext = false;
+  var weighing = false, needleAngle = 0;
+  var weighTimer = null, resultTimer = null, clearTimer = null, gen = 0;
+
+  function svgEl(n, at) {
+    var e = document.createElementNS('http://www.w3.org/2000/svg', n);
+    for (var k in at) e.setAttribute(k, at[k]);
+    return e;
+  }
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function buildSet() {
+    var others = shuffle(OTHER_COUNTS.slice()).slice(0, 4);
+    var set = [{ count: FIRST_COUNT, mass: 0 }];
+    for (var i = 0; i < 4; i++) set.push({ count: others[i], mass: 0 });
+    /* each bag is close to 105×count (±2) — not exactly */
+    for (i = 0; i < set.length; i++) {
+      set[i].mass = set[i].count * APPLE_G + Math.floor(Math.random() * 5) - 2;
+    }
+    return set;
+  }
+
+  /* ---------- apple ---------- */
+  function appleSVG(x, y, r) {
+    var g = svgEl('g', {});
+    g.appendChild(svgEl('circle', { cx: x, cy: y, r: r, fill: '#d2372c' }));
+    g.appendChild(svgEl('circle', { cx: x - r * .32, cy: y - r * .38, r: r * .38, fill: 'rgba(255,255,255,.4)' }));
+    g.appendChild(svgEl('line', { x1: x, y1: y - r, x2: x + r * .18, y2: y - r * 1.4, stroke: '#7a4a21', 'stroke-width': 1.6, 'stroke-linecap': 'round' }));
+    g.appendChild(svgEl('ellipse', { cx: x + r * .5, cy: y - r * 1.25, rx: r * .34, ry: r * .16, fill: '#3f9e4d', transform: 'rotate(-28 ' + (x + r * .5) + ' ' + (y - r * 1.25) + ')' }));
+    return g;
+  }
+
+  (function buildAppleIcon() {
+    var svg = $('appleIcon');
+    svg.appendChild(svgEl('circle', { cx: 10, cy: 12, r: 7, fill: '#d2372c' }));
+    svg.appendChild(svgEl('circle', { cx: 7.6, cy: 9.4, r: 2.4, fill: 'rgba(255,255,255,.4)' }));
+    svg.appendChild(svgEl('line', { x1: 10, y1: 5, x2: 11.4, y2: 2.2, stroke: '#7a4a21', 'stroke-width': 1.6, 'stroke-linecap': 'round' }));
+    svg.appendChild(svgEl('ellipse', { cx: 13.4, cy: 3.4, rx: 2.6, ry: 1.2, fill: '#3f9e4d', transform: 'rotate(-28 13.4 3.4)' }));
+  })();
+
+  /* ---------- apple bag ---------- */
+  function bagSVG(count) {
+    var svg = svgEl('svg', { width: BAG_W, height: BAG_H, viewBox: '0 0 ' + BAG_W + ' ' + BAG_H });
+    /* the stem */
+    svg.appendChild(svgEl('path', {
+      d: 'M45 22 Q75 -12 105 22', fill: 'none', stroke: '#aab6b8',
+      'stroke-width': 3, 'stroke-linecap': 'round'
+    }));
+    /* bag body */
+    svg.appendChild(svgEl('rect', {
+      x: 8, y: 20, width: 134, height: 64, rx: 13,
+      fill: 'rgba(255,255,255,.6)', stroke: '#b9c4c6', 'stroke-width': 2
+    }));
+    svg.appendChild(svgEl('rect', {
+      x: 8, y: 20, width: 134, height: 14, rx: 7,
+      fill: 'rgba(190,205,207,.35)'
+    }));
+    /* apple positions: bottom row 5 · top row 4 — 1–2 apples are smaller */
+    var bottom = [26, 52, 78, 104, 130], top = [39, 65, 91, 117];
+    var spots = [];
+    var i;
+    if (count <= 5) {
+      for (i = 0; i < count; i++) spots.push([bottom[i], 64]);
+    } else {
+      for (i = 0; i < 5; i++) spots.push([bottom[i], 64]);
+      for (i = 0; i < count - 5; i++) spots.push([top[i], 41]);
+    }
+    var order = [];
+    for (i = 0; i < spots.length; i++) order.push(i);
+    shuffle(order);
+    var smallIdx = {};
+    var nSmall = 1 + (Math.random() < 0.5 ? 1 : 0);
+    for (i = 0; i < nSmall; i++) smallIdx[order[i]] = true;
+    for (i = 0; i < spots.length; i++) {
+      svg.appendChild(appleSVG(spots[i][0], spots[i][1], smallIdx[i] ? 9 : 12.5));
+    }
+    /* tie line */
+    svg.appendChild(svgEl('path', {
+      d: 'M8 34 H142', stroke: 'rgba(160,175,178,.5)', 'stroke-width': 1.2
+    }));
+    return svg;
+  }
+
+  /* ---------- balance scale ---------- */
+  (function buildScale() {
+    var W = 186, H = 169, cx = 93, cy = 106;
+    var svg = svgEl('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H });
+
+    /* pan */
+    svg.appendChild(svgEl('polygon', {
+      points: '8,20 178,20 164,4 22,4', fill: '#ccd4d6', stroke: '#9aa7a9',
+      'stroke-width': 1.5, 'stroke-linejoin': 'round', 'class': 'tray'
+    }));
+    svg.appendChild(svgEl('polygon', {
+      points: '22,4 164,4 158,9 28,9', fill: '#eef2f2', 'class': 'tray'
+    }));
+    /* small post */
+    svg.appendChild(svgEl('rect', { x: 88, y: 20, width: 10, height: 27, fill: '#b9c4c6' }));
+
+    /* dial */
+    svg.appendChild(svgEl('circle', { cx: cx, cy: cy, r: 60, fill: '#f6c945', stroke: '#d9a91f', 'stroke-width': 2 }));
+    svg.appendChild(svgEl('circle', { cx: cx, cy: cy, r: 52, fill: '#fffdf4', stroke: '#e8d98f', 'stroke-width': 1 }));
+
+    /* ticks (0–1000, every 10) */
+    for (var v = 0; v <= 1000; v += 10) {
+      var a = (-90 + v * 0.36) * Math.PI / 180;
+      var r2 = v % 100 === 0 ? 40 : (v % 50 === 0 ? 45 : 48);
+      svg.appendChild(svgEl('line', {
+        x1: (cx + Math.cos(a) * 52).toFixed(1), y1: (cy + Math.sin(a) * 52).toFixed(1),
+        x2: (cx + Math.cos(a) * r2).toFixed(1), y2: (cy + Math.sin(a) * r2).toFixed(1),
+        stroke: '#4b4b45', 'stroke-width': v % 100 === 0 ? 2 : 1
+      }));
+    }
+    /* values 0–900 */
+    for (var n = 0; n < 10; n++) {
+      var an = (-90 + n * 36) * Math.PI / 180;
+      var t = svgEl('text', {
+        x: (cx + Math.cos(an) * 30).toFixed(1), y: (cy + Math.sin(an) * 30 + 4).toFixed(1),
+        'text-anchor': 'middle', 'font-family': 'Verdana, sans-serif',
+        'font-size': 11, 'font-weight': 'bold', fill: '#4b4b45'
+      });
+      t.textContent = n * 100;
+      svg.appendChild(t);
+    }
+
+    /* the needle */
+    var ng = svgEl('g', { id: 'needle' });
+    ng.appendChild(svgEl('line', {
+      x1: cx, y1: cy + 6, x2: cx, y2: cy - 44,
+      stroke: '#d2372c', 'stroke-width': 3, 'stroke-linecap': 'round'
+    }));
+    ng.appendChild(svgEl('circle', { cx: cx, cy: cy, r: 5, fill: '#d2372c' }));
+    svg.appendChild(ng);
+
+    scalewrap.appendChild(svg);
+    needle = ng;
+  })();
+
+  function setNeedle(deg, animateBack) {
+    needleAngle = deg;
+    if (!animateBack) {
+      needle.style.transform = 'rotate(' + deg + 'deg)';
+      return;
+    }
+    var anim = needle.animate(
+      [{ transform: 'rotate(' + deg + 'deg)' }, { transform: 'rotate(0deg)' }],
+      { duration: 700, easing: 'ease-in-out', fill: 'forwards' }
+    );
+    anim.onfinish = function () {
+      needle.style.transform = 'rotate(0deg)';
+      needleAngle = 0;
+    };
+  }
+
+  /* ---------- status ---------- */
+  function setStatus(t, c) {
+    statusEl.textContent = t;
+    statusEl.className = 'status' + (c ? ' ' + c : '');
+  }
+
+  function renderBox() {
+    if (digits) box.textContent = digits;
+    else box.innerHTML = '<span class="car"></span>';
+    box.classList.toggle('on', digits.length === 3);
+  }
+
+  function bagHome(keepLive) {
+    bagEl.style.transition = 'left .3s ease, top .3s ease, transform .3s ease';
+    bagEl.style.left = HOME_L + 'px';
+    bagEl.style.top = HOME_T + 'px';
+    bagEl.style.transform = '';
+    setTimeout(function () { bagEl.style.transition = ''; }, 320);
+    scalewrap.classList.remove('ready');
+    tag.textContent = 'Drag to the scale ↓';
+    if (!keepLive) {
+      live = false;
+      bagEl.classList.remove('live');
+    }
+  }
+
+  function cancelWeigh() {
+    clearTimeout(weighTimer);
+    clearTimeout(resultTimer);
+    weighTimer = null;
+    resultTimer = null;
+  }
+
+  function loadBag() {
+    gen++;
+    digits = '';
+    checked = false;
+    attempts = 0;
+    live = false;
+    weighing = false;
+    replaceNext = false;
+    cancelWeigh();
+    clearTimeout(clearTimer);
+
+    bagEl.innerHTML = '';
+    bagEl.appendChild(bagSVG(bags[idx].count));
+    var t = document.createElement('span');
+    t.className = 'dragtag';
+    t.textContent = 'Drag to the scale ↓';
+    bagEl.appendChild(t);
+    tag = t;
+    counter.textContent = String(idx + 1);
+
+    box.classList.remove('bad');
+    renderBox();
+    nextBtn.textContent = 'Another bag';
+    nextBtn.disabled = false;
+
+    for (var i = 0; i < keys.length; i++) keys[i].disabled = false;
+    del.disabled = false;
+
+    bagEl.classList.remove('live', 'dragging', 'ready');
+    bagEl.style.transition = 'none';
+    bagEl.style.left = HOME_L + 'px';
+    bagEl.style.top = HOME_T + 'px';
+    bagEl.style.transform = '';
+
+    scalewrap.classList.remove('ready', 'weigh');
+    if (needle.getAnimations) needle.getAnimations().forEach(function (a) { a.cancel(); });
+    setNeedle(0, false);
+
+    fx.classList.remove('on');
+    setStatus('Write 3 digits.', '');
+  }
+
+  function press(d) {
+    if (finished || checked) return;
+    clearTimeout(clearTimer);
+    if (replaceNext) { digits = ''; replaceNext = false; }
+    if (digits.length >= 3) return;
+    digits += d;
+    box.classList.remove('bad');
+    renderBox();
+    if (digits.length === 3) {
+      live = true;
+      bagEl.classList.add('live');
+      setStatus('Now drag the bag onto the scale.', '');
+    } else {
+      bagHome(false);
+      setStatus(3 - digits.length === 1 ? 'Write one more digit.' : 'Write 2 more digits.', '');
+    }
+  }
+
+  function erase() {
+    if (finished || checked || !digits.length) return;
+    cancelWeigh();
+    weighing = false;
+    scalewrap.classList.remove('weigh');
+    replaceNext = false;
+    digits = digits.slice(0, -1);
+    box.classList.remove('bad');
+    renderBox();
+    bagHome(false);
+    setStatus(digits.length ? 'Write one more digit.' : 'Write 3 digits.', '');
+  }
+
+  /* ---------- dragging the bag ---------- */
+  var dragging = false, dragStartX = 0, dragStartY = 0, startL = HOME_L, startT = HOME_T;
+
+  function bagPos() {
+    var cs = getComputedStyle(bagEl);
+    return { l: parseFloat(cs.left) || HOME_L, t: parseFloat(cs.top) || HOME_T };
+  }
+
+  function inSnap(l, t) {
+    var cx = l + BAG_W / 2, cy = t + BAG_H / 2;
+    return cx >= SNAP.x1 && cx <= SNAP.x2 && cy >= SNAP.y1 && cy <= SNAP.y2;
+  }
+
+  bagEl.addEventListener('pointerdown', function (e) {
+    if (!live || finished || checked || weighing) return;
+    cancelWeigh();
+    clearTimeout(clearTimer);
+    dragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    var p = bagPos();
+    startL = p.l; startT = p.t;
+    bagEl.style.transition = 'none';
+    bagEl.classList.add('dragging');
+    try { bagEl.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+  });
+
+  bagEl.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var l = startL + (e.clientX - dragStartX);
+    var t = startT + (e.clientY - dragStartY);
+    l = Math.max(MIN_L, Math.min(398 - BAG_W, l));
+    t = Math.max(MIN_T, Math.min(530 - BAG_H, t));
+    bagEl.style.left = l + 'px';
+    bagEl.style.top = t + 'px';
+    var ready = inSnap(l, t);
+    bagEl.classList.toggle('ready', ready);
+    scalewrap.classList.toggle('ready', ready);
+    tag.textContent = ready ? 'Leave it here ✓' : 'Drag to the scale ↓';
+    e.preventDefault();
+  });
+
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    bagEl.classList.remove('dragging');
+    try { bagEl.releasePointerCapture(e.pointerId); } catch (_) {}
+
+    var p = bagPos();
+    if (!inSnap(p.l, p.t)) {
+      bagEl.classList.remove('ready');
+      scalewrap.classList.remove('ready');
+      tag.textContent = 'Drag to the scale ↓';
+      setStatus('Drag the bag close to the scale.', '');
+      return;
+    }
+
+    /* released near the scale — the pan snaps onto the bag */
+    weighing = true;
+    bagEl.classList.remove('ready');
+    scalewrap.classList.remove('ready');
+    scalewrap.classList.add('weigh');
+    tag.textContent = 'Weighing…';
+    setStatus('Weighing…', '');
+
+    bagEl.style.transition = 'left .22s ease, top .22s ease, transform .22s ease';
+    void bagEl.offsetWidth; /* style flush — no rAF needed */
+    bagEl.style.left = '258px';
+    bagEl.style.top = '306px';
+    bagEl.style.transform = 'scale(.62)';
+
+    weighTimer = setTimeout(function () {
+      weighTimer = null;
+      if (finished || checked) return;
+      var g = gen;
+      var act = bags[idx].mass;
+      var target = act * 0.36;
+      if (needle.getAnimations) needle.getAnimations().forEach(function (a) { a.cancel(); });
+      needle.style.transform = 'rotate(' + needleAngle + 'deg)';
+      var anim = needle.animate([
+        { transform: 'rotate(' + needleAngle + 'deg)' },
+        { transform: 'rotate(' + (target + 12) + 'deg)', offset: .68 },
+        { transform: 'rotate(' + (target - 5) + 'deg)', offset: .85 },
+        { transform: 'rotate(' + target + 'deg)' }
+      ], { duration: 1300, easing: 'ease-out', fill: 'forwards' });
+      anim.onfinish = function () {
+        if (g !== gen) return;
+        needle.style.transform = 'rotate(' + target + 'deg)';
+        needleAngle = target;
+      };
+      resultTimer = setTimeout(function () {
+        resultTimer = null;
+        if (g !== gen) return;
+        showResult(act);
+      }, 1500);
+    }, 280);
+  }
+  bagEl.addEventListener('pointerup', endDrag);
+  bagEl.addEventListener('pointercancel', function (e) {
+    if (!dragging) return;
+    dragging = false;
+    bagEl.classList.remove('dragging');
+    try { bagEl.releasePointerCapture(e.pointerId); } catch (_) {}
+  });
+
+  /* ---------- right/near animation ---------- */
+  function popBadge(text, exact) {
+    fxt.textContent = text;
+    fx.classList.toggle('near', !exact);
+    fx.classList.remove('on');
+    void fx.offsetWidth;
+    fx.classList.add('on');
+
+    var cols = ['#ffcf3f', '#7fd0c6', '#f7a1be', '#9c6ce5', '#4b9be8'];
+    for (var i = 0; i < 12; i++) {
+      var d = document.createElement('i');
+      d.className = 'cft';
+      d.style.background = cols[i % cols.length];
+      fx.appendChild(d);
+      var a = Math.random() * Math.PI * 2, r = 70 + Math.random() * 60;
+      d.animate([
+        { transform: 'translate(0,0) scale(1)', opacity: 1 },
+        { transform: 'translate(' + (Math.cos(a) * r).toFixed(1) + 'px,' + (Math.sin(a) * r).toFixed(1) + 'px) scale(.3)', opacity: 0 }
+      ], { duration: 800 + Math.random() * 300, easing: 'cubic-bezier(.2,.7,.3,1)' });
+      (function (el) { setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 1250); })(d);
+    }
+    setTimeout(function () { fx.classList.remove('on'); }, 2200);
+  }
+
+  /* ---------- result ---------- */
+  function showResult(act) {
+    if (finished || checked) return;
+    var val = parseInt(digits, 10);
+    var diff = Math.abs(val - act);
+
+    /* bag back — needle to 0 */
+    weighing = false;
+    scalewrap.classList.remove('weigh');
+    bagHome(false);
+    setTimeout(function () { setNeedle(0, true); }, 350);
+
+    if (diff <= 2) {
+      score++;
+      checked = true;
+      cancelWeigh();
+      clearTimeout(clearTimer);
+      for (var i = 0; i < keys.length; i++) keys[i].disabled = true;
+      del.disabled = true;
+      if (diff === 0) {
+        setStatus('Excellent! Exactly ' + act + ' grams.', 'ok');
+        popBadge('Excellent!', true);
+      } else if (diff === 1) {
+        setStatus('Good! The real mass is ' + act + ' grams.', 'near');
+        popBadge('Good!', false);
+      } else {
+        setStatus('Close! The real mass is ' + act + ' grams.', 'near');
+        popBadge('Close!', false);
+      }
+      if (idx === 4) {
+        setTimeout(function () { if (!finished && idx === 4 && checked) finish(); }, 1750);
+      }
+    } else {
+      /* wrong — the exact mass is not revealed; keep the direction in mind and try again */
+      attempts++;
+      replaceNext = true;
+      live = false;
+      bagEl.classList.remove('live');
+      box.classList.add('bad');
+      box.classList.remove('shake');
+      void box.offsetWidth;
+      box.classList.add('shake');
+      var nearHint = diff <= 20 ? 'Close! ' : '';
+      if (val < act) {
+        setStatus(nearHint + 'It is heavier than that. Estimate again.', 'bad');
+      } else {
+        setStatus(nearHint + 'It is lighter than that. Estimate again.', 'bad');
+      }
+
+      clearTimeout(clearTimer);
+      clearTimer = setTimeout(function () {
+        if (finished || checked || digits.length !== 3) return;
+        digits = '';
+        replaceNext = false;
+        box.classList.remove('bad');
+        renderBox();
+      }, 1000);
+    }
+  }
+
+  /* ---------- finish ---------- */
+  function finish() {
+    if (finished) return;
+    finished = true;
+    checked = true;
+    live = false;
+    weighing = false;
+    cancelWeigh();
+    clearTimeout(clearTimer);
+    bagEl.classList.remove('live');
+    bagHome(false);
+    for (var i = 0; i < keys.length; i++) keys[i].disabled = true;
+    del.disabled = true;
+    setStatus('All 5 bags done · Score ' + score + ' / 5', 'ok');
+    nextBtn.textContent = 'Again';
+  }
+
+  function nextBag() {
+    if (finished) {
+      bags = buildSet();
+      idx = 0;
+      score = 0;
+      finished = false;
+      loadBag();
+      return;
+    }
+    if (idx >= 4) { finish(); return; }
+    idx++;
+    loadBag();
+  }
+
+  /* ---------- events ---------- */
+  for (var k = 0; k < keys.length; k++) {
+    (function (btn) {
+      btn.addEventListener('click', function () { press(btn.textContent.trim()); });
+    })(keys[k]);
+  }
+  del.addEventListener('click', erase);
+  nextBtn.addEventListener('click', nextBag);
+
+  bags = buildSet();
+  loadBag();
+})();
+</script>
+</body>
+</html>

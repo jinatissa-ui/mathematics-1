@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Finding Factors by Division</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     87 · Finding factors by division
+     (a number < 100 · 1–20 divisor buttons · long division · factors)
+     ============================================================ */
+  .ttl { flex: none; font-size: 25px; line-height: 1.1; white-space: nowrap; }
+  .sub { flex: none; margin-top: 2px; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- number + other ---------- */
+  .ncard {
+    flex: none;
+    height: 42px;
+    margin-top: 5px;
+    padding: 0 9px 0 13px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    border-radius: 13px;
+    background: #fffdf4;
+    border: 1px solid #f2e6bd;
+    box-shadow: 0 5px 12px rgba(120, 100, 40, .06);
+  }
+  .nlab { font-size: 14px; color: #9a8f6a; }
+  .nval {
+    font-family: Verdana, sans-serif;
+    font-size: 25px;
+    line-height: 1;
+    color: var(--green);
+  }
+  .nval.pop { animation: npop .3s ease; }
+  @keyframes npop {
+    0% { transform: scale(.82); opacity: .3; }
+    100% { transform: none; opacity: 1; }
+  }
+  .alt {
+    margin-left: auto;
+    height: 29px;
+    padding: 0 12px;
+    border-radius: 9px;
+    border: 1.5px solid #cfe4de;
+    background: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--green);
+    cursor: pointer;
+  }
+  .alt:active { transform: translateY(1px); }
+
+  /* ---------- long-division stage ---------- */
+  .stage {
+    flex: none;
+    height: 206px;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 5px 12px rgba(30, 80, 80, .07);
+  }
+  .ph {
+    width: 250px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .ld { display: none; border-collapse: collapse; font-family: Verdana, sans-serif; }
+  .ld td {
+    width: 34px;
+    height: 26px;
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 22px;
+    font-weight: bold;
+    line-height: 1;
+  }
+  .ld td.dv { width: 42px; padding-right: 9px; text-align: right; height: 26px; }
+  .ld tr.q td { height: 24px; color: var(--teal); }
+  .ld td.dd { border-top: 2.5px solid #8ba3a5; color: var(--ink); }
+  .ld td.dd.bar { border-left: 2.5px solid #8ba3a5; }
+  .ld td.u { border-bottom: 2.2px solid #8ba3a5; color: #45606a; }
+  .ld tr.df td { color: #45606a; }
+  .ld tr.rmz td { color: var(--green); }
+  .ld tr.rmr td { color: #c0662f; }
+  .ld tr { opacity: 0; }
+  .ld tr.on { opacity: 1; transition: opacity .16s ease; }
+
+  /* ---------- message ---------- */
+  .status {
+    flex: none;
+    height: 22px;
+    margin-top: 4px;
+    font-size: 14px;
+    line-height: 22px;
+    text-align: center;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .status.good { color: var(--green); font-weight: bold; }
+  .status.bad { color: #b06a2c; font-weight: bold; }
+
+  /* ---------- factors found ---------- */
+  .facline {
+    flex: none;
+    height: 38px;
+    margin-top: 4px;
+    padding: 0 9px;
+    display: flex;
+    align-items: center;
+    border-radius: 11px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 14px;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .facline b { font-family: Verdana, sans-serif; font-size: 15px; color: var(--green); }
+  .facline .flab { margin-right: 5px; }
+  .facline .flab b { font-size: 15px; }
+  .facline .dots { margin-left: 4px; color: #aec2bd; letter-spacing: 1px; }
+  .facline.pop { animation: fpop .32s ease; }
+  @keyframes fpop {
+    0% { background: #d9f5ea; }
+    100% { background: var(--mint); }
+  }
+
+  /* ---------- all factors ---------- */
+  .allcard {
+    flex: none;
+    height: 50px;
+    margin-top: 4px;
+    padding: 5px 11px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 4px 10px rgba(30, 80, 80, .05);
+  }
+  .ahead { display: flex; align-items: center; justify-content: space-between; }
+  .alab { font-size: 14px; color: var(--muted); }
+  .allcard.on .alab { color: var(--green); font-weight: bold; }
+  .alab b { font-family: Verdana, sans-serif; }
+  .rev {
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1.5px solid #f2d27a;
+    background: #fff8de;
+    color: #8a5b00;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .rev.live { animation: rpulse 1.4s ease infinite; }
+  @keyframes rpulse {
+    50% { box-shadow: 0 0 0 4px rgba(255, 207, 63, .3); }
+  }
+  .chips {
+    display: none;
+    margin-top: 2px;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--green);
+    white-space: nowrap;
+  }
+  .allcard.on .chips { display: block; }
+
+  /* ---------- divisor buttons 1–20 ---------- */
+  .pad {
+    flex: none;
+    margin-top: 4px;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
+  }
+  .pbtn {
+    position: relative;
+    height: 34px;
+    padding: 0;
+    border-radius: 8px;
+    border: 1.5px solid #cfe4de;
+    background: #fff;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #2f6f63;
+    cursor: pointer;
+  }
+  .pbtn:active { transform: translateY(1px); }
+  .pbtn.cur { border-color: #f0c33a; box-shadow: inset 0 0 0 2px #f6c945; }
+  .pbtn.yes { background: #e7f8f0; border-color: #7fd0b0; color: var(--green); }
+  .pbtn.yes::after {
+    content: "✓";
+    position: absolute;
+    top: -5px;
+    right: -4px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--green);
+    color: #fff;
+    font-size: 9px;
+    line-height: 13px;
+    text-align: center;
+  }
+  .pbtn.no { background: #f7f9f9; border-color: #e8eeee; color: #b9c6c7; }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <div class="ttl">Finding Factors by Division</div>
+  <div class="sub">FINDING FACTORS BY DIVISION</div>
+
+  <div class="ncard">
+    <span class="nlab">Number</span>
+    <b class="nval" id="nval">24</b>
+    <button class="alt" id="new">New</button>
+  </div>
+
+  <div class="stage">
+    <div class="ph" id="ph">Tap a divisor below —<br>the long division appears here.</div>
+    <table class="ld" id="ld"></table>
+  </div>
+
+  <div class="status" id="status">Tap a number from 1–20 below.</div>
+
+  <div class="facline" id="facline"><span class="flab">Factors of <b>24</b> =</span> <b>1</b> <span class="dots">…</span></div>
+
+  <div class="allcard" id="allcard">
+    <div class="ahead">
+      <span class="alab" id="alab">All factors of <b>24</b></span>
+      <button class="rev" id="rev">Show</button>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="pad" id="pad"></div>
+
+</div>
+
+<script>
+(function () {
+  var nval = document.getElementById('nval');
+  var ph = document.getElementById('ph');
+  var ld = document.getElementById('ld');
+  var statusEl = document.getElementById('status');
+  var facline = document.getElementById('facline');
+  var allcard = document.getElementById('allcard');
+  var alab = document.getElementById('alab');
+  var rev = document.getElementById('rev');
+  var chips = document.getElementById('chips');
+  var pad = document.getElementById('pad');
+
+  var n = 24;
+  var found = [];
+  var timers = [];
+
+  function clearTimers() {
+    for (var i = 0; i < timers.length; i++) clearTimeout(timers[i]);
+    timers = [];
+  }
+
+  function setStatus(txt, cls) {
+    statusEl.textContent = txt;
+    statusEl.className = 'status' + (cls ? ' ' + cls : '');
+  }
+
+  /* ---------- buttons 1–20 ---------- */
+  function buildPad() {
+    for (var d = 1; d <= 20; d++) {
+      var b = document.createElement('button');
+      b.className = 'pbtn';
+      b.textContent = d;
+      b.dataset.d = d;
+      b.addEventListener('click', onClickDivisor);
+      pad.appendChild(b);
+    }
+  }
+
+  /* ---------- building the long division ---------- */
+  function divisionRows(dv, d) {
+    var ds = String(dv).split('').map(Number);
+    var steps = [];
+    var partial = 0;
+    for (var i = 0; i < ds.length; i++) {
+      partial = partial * 10 + ds[i];
+      if (partial < d) continue;
+      var q = Math.floor(partial / d);
+      var sub = q * d;
+      steps.push({ end: i, q: q, sub: sub, diff: partial - sub });
+      partial = partial - sub;
+    }
+
+    var rows = [];
+    var qcells = ['', ''];
+    for (var s = 0; s < steps.length; s++) qcells[steps[s].end] = String(steps[s].q);
+    rows.push({ type: 'q', cells: qcells });
+    rows.push({ type: 'nd', cells: [String(ds[0]), String(ds[1])] });
+
+    for (var k = 0; k < steps.length; k++) {
+      var st = steps[k];
+      var sv = String(st.sub).split('');
+      var start = st.end - sv.length + 1;
+      var subCells = ['', ''];
+      for (var a = 0; a < sv.length; a++) subCells[start + a] = sv[a];
+      rows.push({ type: 'sb', cells: subCells });
+
+      if (k < steps.length - 1) {
+        var dfCells = ['', ''];
+        if (st.diff > 0) {                  /* a zero difference is not written */
+          var dv2 = String(st.diff).split('');
+          var st2 = st.end - dv2.length + 1;
+          for (var b2 = 0; b2 < dv2.length; b2++) dfCells[st2 + b2] = dv2[b2];
+        }
+        if (st.end + 1 < ds.length) dfCells[st.end + 1] = String(ds[st.end + 1]);
+        rows.push({ type: 'df', cells: dfCells });
+      }
+    }
+
+    var last = steps[steps.length - 1];
+    var rv = String(last.diff).split('');
+    var rs = last.end - rv.length + 1;
+    var remCells = ['', ''];
+    for (var c = 0; c < rv.length; c++) remCells[rs + c] = rv[c];
+    rows.push({ type: 'rm', cells: remCells });
+
+    return { rows: rows, rem: last.diff };
+  }
+
+  function rowsHtml(dv, d, info) {
+    var html = '';
+    for (var i = 0; i < info.rows.length; i++) {
+      var row = info.rows[i];
+      var type = row.type;
+      if (type === 'rm') type = info.rem > 0 ? 'rmr' : 'rmz';
+      html += '<tr class="' + type + '"><td class="dv">' +
+              (row.type === 'nd' ? d : '') + '</td>';
+      for (var j = 0; j < row.cells.length; j++) {
+        var t = row.cells[j];
+        var cls = 'd';
+        if (row.type === 'nd') cls += ' dd' + (j === 0 ? ' bar' : '');
+        if (row.type === 'sb' && t !== '') cls += ' u';
+        html += '<td class="' + cls + '">' + t + '</td>';
+      }
+      html += '</tr>';
+    }
+    return html;
+  }
+
+  /* ---------- the found-factors line ---------- */
+  function renderLine() {
+    var vals = [1].concat(found.slice().sort(function (a, b) { return a - b; }));
+    facline.innerHTML = '<span class="flab">Factors of <b>' + n + '</b> =</span> <b>' +
+      vals.join(', ') + '</b> <span class="dots">…</span>';
+    facline.classList.remove('pop');
+    void facline.offsetWidth;
+    facline.classList.add('pop');
+  }
+
+  /* ---------- when a divisor is tapped ---------- */
+  function onClickDivisor() {
+    clearTimers();
+    var btns = pad.querySelectorAll('.pbtn');
+    for (var i = 0; i < btns.length; i++) btns[i].classList.remove('cur');
+    this.classList.add('cur');
+
+    var d = parseInt(this.dataset.d, 10);
+    var q = Math.floor(n / d);
+    var r = n % d;
+    var btn = this;
+
+    var info = divisionRows(n, d);
+    ph.style.display = 'none';
+    ld.style.display = 'table';
+    ld.innerHTML = rowsHtml(n, d, info);
+
+    var trs = ld.querySelectorAll('tr');
+    for (var t = 0; t < trs.length; t++) {
+      (function (tr, idx) {
+        timers.push(setTimeout(function () { tr.classList.add('on'); }, 70 + idx * 95));
+      })(trs[t], t);
+    }
+
+    timers.push(setTimeout(function () {
+      if (r === 0) {
+        if (d !== 1 && found.indexOf(d) < 0) found.push(d);   /* 1 is already written */
+        btn.classList.remove('no');
+        btn.classList.add('yes');
+        setStatus(n + ' ÷ ' + d + ' = ' + q + ' · divides exactly — ' + d + ' is a factor!', 'good');
+        renderLine();
+        if (!allcard.classList.contains('on')) rev.classList.add('live');
+      } else {
+        if (!btn.classList.contains('yes')) btn.classList.add('no');
+        setStatus(n + ' ÷ ' + d + ' = ' + q + ' · remainder ' + r + ' — ' + d + ' is not a factor.', 'bad');
+      }
+    }, 70 + trs.length * 95 + 80));
+  }
+
+  /* ---------- all factors ---------- */
+  function allDivisors() {
+    var out = [];
+    for (var i = 1; i <= n; i++) if (n % i === 0) out.push(i);
+    return out;
+  }
+
+  function revealAll() {
+    var all = allDivisors();
+    alab.innerHTML = 'All factors of <b>' + n + '</b>';
+    chips.textContent = all.join(', ');
+    allcard.classList.add('on');
+    rev.style.display = 'none';
+    rev.classList.remove('live');
+  }
+
+  /* ---------- new number ---------- */
+  function reset() {
+    clearTimers();
+    found = [];
+    nval.textContent = n;
+    nval.classList.remove('pop');
+    void nval.offsetWidth;
+    nval.classList.add('pop');
+
+    ph.style.display = 'block';
+    ld.style.display = 'none';
+    ld.innerHTML = '';
+
+    var btns = pad.querySelectorAll('.pbtn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.remove('cur', 'yes', 'no');
+    }
+
+    setStatus('Tap a number from 1–20 below.', '');
+    facline.innerHTML = '<span class="flab">Factors of <b>' + n + '</b> =</span> <b>1</b> <span class="dots">…</span>';
+    facline.classList.remove('pop');
+
+    allcard.classList.remove('on');
+    alab.innerHTML = 'All factors of <b>' + n + '</b>';
+    chips.textContent = '';
+    rev.style.display = '';
+    rev.classList.remove('live');
+  }
+
+  buildPad();
+  reset();
+
+  document.getElementById('new').addEventListener('click', function () {
+    var old = n;
+    do {
+      n = 24 + Math.floor(Math.random() * 75);
+    } while (n === old);
+    reset();
+  });
+
+  rev.addEventListener('click', function () {
+    if (!allcard.classList.contains('on')) revealAll();
+  });
+})();
+</script>
+</body>
+</html>

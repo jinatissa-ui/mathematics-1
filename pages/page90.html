@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Multiples and Common Multiples</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     90 · Multiples and common multiples
+     (number box + "Multiples" button → 10 multiples
+      + two common multiples ringed in red)
+     ============================================================ */
+  .ttl { flex: none; font-size: 25px; line-height: 1.1; white-space: nowrap; }
+  .sub { flex: none; margin-top: 2px; font-size: 13px; letter-spacing: 2px; }
+
+  /* ---------- section cards ---------- */
+  .sec {
+    flex: none;
+    margin-top: 5px;
+    padding: 7px 10px 8px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 5px 12px rgba(30, 80, 80, .07);
+  }
+  .sechead {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--teal);
+    line-height: 1.2;
+  }
+  .sechead i {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #0d8a64;
+  }
+  .sechead.cm i { background: #e0457b; }
+  .cdef {
+    margin-top: 3px;
+    font-size: 12.5px;
+    line-height: 1.25;
+    color: var(--muted);
+  }
+
+  /* ---------- number box + button ---------- */
+  .srow { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+  .nbox {
+    position: relative;
+    flex: none;
+    width: 54px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    padding-left: 9px;
+    border-radius: 10px;
+    background: #fffdf4;
+    border: 2px solid #ffe08a;
+    font-family: Verdana, sans-serif;
+    font-size: 19px;
+    font-weight: bold;
+    color: var(--teal);
+    cursor: pointer;
+  }
+  .nbox.act { border-color: #f6c945; box-shadow: 0 0 0 3px rgba(246, 201, 69, .35); }
+  .nbox .car {
+    display: inline-block;
+    width: 2px;
+    height: 20px;
+    margin-left: 1px;
+    background: #c9b26a;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .abtn {
+    flex: none;
+    height: 42px;
+    padding: 0 15px;
+    border-radius: 10px;
+    border: 1px solid #bfe3d6;
+    background: #eefaf3;
+    color: var(--green);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .abtn:active { transform: translateY(1px); background: #dff5ea; }
+  .nhint { margin-left: auto; font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .sand { flex: none; font-size: 14px; color: var(--muted); }
+
+  /* ---------- multiples row ---------- */
+  .mlist {
+    display: grid;
+    grid-template-columns: repeat(10, 32px);
+    justify-content: center;
+    gap: 3px;
+    margin-top: 7px;
+  }
+  .mlist.two { grid-auto-rows: 32px; }
+  .mnum {
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: #f2fbf7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    color: #0d8a64;
+    cursor: pointer;
+  }
+  .mnum.sel { background: #fff4cf; border-color: #f6c945; color: #8a5b00; }
+  .mnum.cm  { background: #fff5f8; border-color: #e0457b; color: #c0305f; }
+  .mnum.sel.cm { background: #ffe9f0; }
+
+  /* ---------- explanation ---------- */
+  .expl {
+    margin-top: 5px;
+    min-height: 18px;
+    font-size: 13.5px;
+    line-height: 1.25;
+    color: var(--ink-soft);
+    text-align: center;
+    white-space: nowrap;
+  }
+  .expl b { font-family: Verdana, sans-serif; color: var(--teal); }
+  .expl .red { color: #c0305f; }
+  .expl.err { color: #c0305f; }
+
+  /* ---------- keypad ---------- */
+  .pad {
+    flex: none;
+    margin-top: auto;
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    gap: 5px;
+  }
+  .key {
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid #dcebe7;
+    background: linear-gradient(180deg, #ffffff, #f4fbf8);
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    color: #2c4c53;
+    cursor: pointer;
+    box-shadow: 0 2px 3px rgba(30, 70, 70, .06);
+  }
+  .key:active { transform: translateY(1px); background: #e9f7f1; }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <div class="ttl">Multiples and Common Multiples</div>
+  <div class="sub">MULTIPLES</div>
+
+  <!-- 1 · multiples -->
+  <div class="sec">
+    <div class="sechead"><i></i>Multiples</div>
+    <div class="srow">
+      <div class="nbox" id="nb1" tabindex="0" data-v="4"></div>
+      <button class="abtn" id="go1" type="button">Multiples</button>
+      <span class="nhint">2 to 20</span>
+    </div>
+    <div class="mlist" id="ml1"></div>
+    <div class="expl" id="ex1"></div>
+  </div>
+
+  <!-- 2 · common multiples -->
+  <div class="sec">
+    <div class="sechead cm"><i></i>Common Multiples</div>
+    <div class="cdef">Numbers that are multiples of both — common multiples.</div>
+    <div class="srow">
+      <div class="nbox" id="nb2" tabindex="0" data-v="2"></div>
+      <span class="sand">and</span>
+      <div class="nbox" id="nb3" tabindex="0" data-v="3"></div>
+      <button class="abtn" id="go2" type="button">Multiples</button>
+    </div>
+    <div class="mlist two" id="ml2"></div>
+    <div class="mlist two" id="ml3"></div>
+    <div class="expl" id="ex2"></div>
+  </div>
+
+  <div class="pad" id="pad"></div>
+
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------- 3 number boxes ---------- */
+  var boxes = [$('nb1'), $('nb2'), $('nb3')];
+  var active = 0;
+
+  function boxVal(b) { return parseInt(b.dataset.v || '', 10); }
+
+  function renderBox(b, i) {
+    var on = (i === active);
+    b.innerHTML = (b.dataset.v || '') + (on && (b.dataset.v || '').length < 2 ? '<span class="car"></span>' : '');
+    b.classList.toggle('act', on);
+  }
+  function renderAll() { boxes.forEach(renderBox); }
+  function focusBox(i) { active = i; renderAll(); }
+
+  boxes.forEach(function (b, i) {
+    b.addEventListener('click', function () { focusBox(i); });
+  });
+
+  function typeDigit(d) {
+    var b = boxes[active];
+    var v = b.dataset.v || '';
+    if (v.length >= 2) return false;
+    b.dataset.v = v + d;
+    renderAll();
+    return true;
+  }
+  function back() {
+    var b = boxes[active];
+    b.dataset.v = (b.dataset.v || '').slice(0, -1);
+    renderAll();
+  }
+
+  /* ---------- keypad ---------- */
+  ['1','2','3','4','5','6','7','8','9','0','←'].forEach(function (s) {
+    var k = document.createElement('button');
+    k.className = 'key';
+    k.type = 'button';
+    k.textContent = s;
+    k.addEventListener('click', function () {
+      if (s === '←') back(); else typeDigit(s);
+    });
+    $('pad').appendChild(k);
+  });
+
+  /* ---------- 1 · row of 10 multiples ---------- */
+  var chips1 = [];
+  for (var i = 0; i < 10; i++) {
+    var c = document.createElement('div');
+    c.className = 'mnum';
+    c.tabIndex = 0;
+    $('ml1').appendChild(c);
+    chips1.push(c);
+  }
+
+  var cur1 = 0;   /* the number currently shown */
+
+  function setExpl1(idx) {
+    var v = cur1 * (idx + 1);
+    chips1.forEach(function (c, j) { c.classList.toggle('sel', j === idx); });
+    $('ex1').className = 'expl';
+    $('ex1').innerHTML = '<b>' + v + '</b> is a multiple of <b>' + cur1 + '</b>.';
+  }
+
+  function showMults1(n) {
+    cur1 = n;
+    chips1.forEach(function (c, j) { c.textContent = n * (j + 1); c.className = 'mnum'; });
+    setExpl1(5);   /* 6th one — e.g. 4 × 6 = 24 */
+  }
+
+  chips1.forEach(function (c, j) {
+    c.addEventListener('click', function () { setExpl1(j); });
+  });
+
+  $('go1').addEventListener('click', function () {
+    var n = boxVal(boxes[0]);
+    if (!(n >= 2 && n <= 20)) {
+      $('ex1').className = 'expl err';
+      $('ex1').textContent = 'Type a number from 2 to 20.';
+      focusBox(0);
+      return;
+    }
+    showMults1(n);
+  });
+
+  /* ---------- 2 · common multiples ---------- */
+  function makeRow(host) {
+    var row = [];
+    for (var i = 0; i < 10; i++) {
+      var c = document.createElement('div');
+      c.className = 'mnum';
+      c.tabIndex = 0;
+      host.appendChild(c);
+      row.push(c);
+    }
+    return row;
+  }
+  var chips2 = makeRow($('ml2'));
+  var chips3 = makeRow($('ml3'));
+
+  var cur2 = 0, cur3 = 0;
+  var row1 = [], row3 = [];
+
+  function paintCommon(selIdx) {
+    /* find the common values and ring them red in both rows */
+    var commons = [];
+    for (var j = 0; j < 10; j++) {
+      if (row3.indexOf(row1[j]) >= 0) commons.push(row1[j]);
+    }
+    chips2.forEach(function (c, j) {
+      c.classList.toggle('cm', commons.indexOf(row1[j]) >= 0);
+      c.classList.toggle('sel', selIdx === '2-' + j);
+    });
+    chips3.forEach(function (c, j) {
+      c.classList.toggle('cm', commons.indexOf(row3[j]) >= 0);
+      c.classList.toggle('sel', selIdx === '3-' + j);
+    });
+    if (commons.length) {
+      $('ex2').className = 'expl';
+      $('ex2').innerHTML = '<span class="red">Red ring</span> = common multiples · ' + commons.join(', ');
+    } else {
+      $('ex2').className = 'expl';
+      $('ex2').textContent = 'There are no common multiples among these 10.';
+    }
+    return commons;
+  }
+
+  function showMults2(a, b, selIdx) {
+    cur2 = a; cur3 = b;
+    row1 = []; row3 = [];
+    chips2.forEach(function (c, j) { row1.push(a * (j + 1)); c.textContent = row1[j]; c.className = 'mnum'; });
+    chips3.forEach(function (c, j) { row3.push(b * (j + 1)); c.textContent = row3[j]; c.className = 'mnum'; });
+    paintCommon(selIdx || null);
+  }
+
+  chips2.forEach(function (c, j) {
+    c.addEventListener('click', function () {
+      paintCommon('2-' + j);
+      $('ex2').className = 'expl';
+      var v = row1[j];
+      var both = row3.indexOf(v) >= 0;
+      $('ex2').innerHTML = '<b>' + v + '</b> is a multiple of <b>' + cur2 + '</b>' + (both ? ' and of <b>' + cur3 + '</b> too' : '') + '.';
+    });
+  });
+  chips3.forEach(function (c, j) {
+    c.addEventListener('click', function () {
+      paintCommon('3-' + j);
+      $('ex2').className = 'expl';
+      var v = row3[j];
+      var both = row1.indexOf(v) >= 0;
+      $('ex2').innerHTML = '<b>' + v + '</b> is a multiple of <b>' + cur3 + '</b>' + (both ? ' and of <b>' + cur2 + '</b> too' : '') + '.';
+    });
+  });
+
+  $('go2').addEventListener('click', function () {
+    var a = boxVal(boxes[1]), b = boxVal(boxes[2]);
+    var bad = 0;
+    if (!(a >= 2 && a <= 20)) bad = 1;
+    else if (!(b >= 2 && b <= 20)) bad = 2;
+    if (bad) {
+      $('ex2').className = 'expl err';
+      $('ex2').textContent = 'Type two numbers from 2 to 20.';
+      focusBox(bad);
+      return;
+    }
+    showMults2(a, b);
+  });
+
+  /* ---------- initial state ---------- */
+  showMults1(4);
+  showMults2(2, 3);
+  focusBox(0);
+})();
+</script>
+</body>
+</html>

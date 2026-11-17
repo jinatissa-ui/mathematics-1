@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* small settings needed only for this page */
+  .lead {
+    margin-top: 6px;
+    font-size: 14.5px;
+    line-height: 1.35;
+    color: #45606a;
+  }
+
+  /* ---------- folding a circle / squared paper ---------- */
+  .make {
+    display: flex;
+    margin-top: 7px;
+    padding: 6px 6px 4px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #d5eee6;
+    box-shadow: 0 3px 9px rgba(30, 80, 80, .06);
+  }
+  .half {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 2px 4px 4px;
+    text-align: center;
+  }
+  .half + .half { border-left: 1px dashed #d5eee6; }
+  .cap2 {
+    font-size: 14px;
+    line-height: 1.25;
+    font-weight: bold;
+    color: #0d6d74;
+  }
+  .cap2 b {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 3px;
+    border-radius: 50%;
+    background: #ffcf3f;
+    color: #7a5200;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: center;
+  }
+  .note2 {
+    min-height: 19px;
+    margin-top: 2px;
+    font-size: 14px;
+    line-height: 1.3;
+    color: #8b9ba0;
+  }
+  .note2.on { color: #0d8a64; font-weight: bold; }
+  #fold { display: block; margin: 3px auto 1px; cursor: default; }
+  #fold .qpiece { cursor: crosshair; }
+  #fold .qpiece path.qp { fill: #f7e6c4; stroke: #c49a5a; stroke-width: 1.6; }
+  #fold .qpiece:hover path.qp { fill: #ffefc9; }
+  #fold .qpiece.sep path.qp { fill: #fff6df; stroke: #b57c06; }
+  #fold .xmark { opacity: 0; pointer-events: none; }
+  #fold .qpiece:hover .xmark { opacity: 1; }
+  #fold .qpiece.sep .qmark { opacity: 1; }
+  #fold .qmark { opacity: 0; pointer-events: none; }
+  #cut { display: block; margin: 3px auto 1px; }
+  #cut .cell { fill: #fffdf3; stroke: #d8e7e2; stroke-width: 1; }
+  #cut .hole { fill: #f2fbf7; stroke: #b9cfc7; stroke-width: 1.4; stroke-dasharray: 3 3; }
+  #cut .piece { cursor: pointer; transition: transform .22s ease; }
+  #cut .piece.out { transform: translate(11px, -11px); }
+  #cut .piece rect { fill: #fff; stroke: #0d8a64; stroke-width: 1.8; }
+  #cut .piece.out rect { fill: #fff6df; stroke: #b57c06; }
+  #cut .cmk { opacity: 0; transition: opacity .2s; }
+  #cut .piece.out .cmk { opacity: 1; }
+
+  /* ---------- measuring the angle ---------- */
+  .measure {
+    margin-top: 7px;
+    padding: 7px 9px 8px;
+    border-radius: 14px;
+    background: linear-gradient(160deg, #fffdf7 0%, #f2fbf7 100%);
+    border: 1px solid #d5eee6;
+    box-shadow: inset 0 1px 0 #fff, 0 3px 9px rgba(30, 80, 80, .06);
+  }
+  .mhead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .mhead span {
+    font-size: 15.5px;
+    font-weight: bold;
+    color: #0d6d74;
+  }
+  .mhead button {
+    flex: 0 0 auto;
+    height: 26px;
+    padding: 0 11px;
+    border: 0;
+    border-radius: 999px;
+    background: #0d6d74;
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(13, 109, 116, .28);
+  }
+  .mhead button:active { transform: translateY(1px); }
+  .mhint {
+    margin-top: 2px;
+    font-size: 14px;
+    line-height: 1.3;
+    color: #8b9ba0;
+  }
+  .stage2 {
+    position: relative;
+    width: 356px;
+    height: 122px;
+    margin-top: 2px;
+  }
+  .stage2 svg { display: block; }
+  .tool {
+    position: absolute;
+    width: 56px;
+    height: 56px;
+    cursor: grab;
+    touch-action: none;
+    transform-origin: 8px 48px;
+    transition: left .22s ease, top .22s ease, transform .2s ease;
+  }
+  .tool.drag { transition: none; cursor: grabbing; }
+  .tool svg { filter: drop-shadow(0 2px 3px rgba(90, 60, 20, .22)); }
+  .stage2 .arcs {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+  }
+  .verdict {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 38px;
+    margin-top: 2px;
+    padding: 5px 9px;
+    border-radius: 9px;
+    border: 1px dashed #cfe3dc;
+    font-size: 14.5px;
+    line-height: 1.3;
+    color: #8b9ba0;
+  }
+  .verdict.on {
+    border: 1px solid #bfe3d6;
+    background: #f2fbf7;
+    color: #33454c;
+  }
+  .verdict.warn {
+    border: 1px dashed #f0cf7a;
+    background: #fffaf0;
+    color: #a27500;
+  }
+  .verdict.need {
+    border: 1px dashed #9fd0cb;
+    background: #f4fbfa;
+    color: #0d6d74;
+  }
+  .vchip {
+    display: none;
+    flex: 0 0 auto;
+    padding: 1px 8px 2px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: bold;
+    background: #e9f8f2;
+    color: #0d8a64;
+  }
+  .verdict.on .vchip { display: inline-block; }
+  .vchip.acute { background: #eaf3fc; color: #2f6fa8; }
+  .vchip.right { background: #e9f8f2; color: #0d8a64; }
+  .vchip.obtuse { background: #fff3e2; color: #b25a13; }
+  .vchip.straight { background: #f2edfc; color: #6a35b8; }
+  .vchip.reflex { background: #fdebf2; color: #c1267b; }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <h2 class="ttl">The Right Angle</h2>
+  <div class="sub">RIGHT ANGLE</div>
+  <p class="lead">A right angle is a special angle. It can be seen in many places around you.</p>
+
+  <!-- fold a circle and take a piece · cut out 9 squares -->
+  <div class="make">
+    <div class="half">
+      <div class="cap2"><b>1</b>Fold the circle into four</div>
+      <svg id="fold" width="100" height="96" viewBox="-4 -4 100 96">
+        <circle cx="46" cy="44" r="30" fill="none" stroke="#c49a5a" stroke-width="2.2"/>
+        <!-- four quarters -->
+        <g class="qpiece" data-dx="1" data-dy="-1">
+          <path class="qp" d="M46 44 V14 A30 30 0 0 1 76 44 Z"/>
+          <g class="xmark" stroke="#e0454a" stroke-width="2" stroke-linecap="round">
+            <line x1="57" y1="28" x2="65" y2="28"/><line x1="61" y1="24" x2="61" y2="32"/>
+          </g>
+          <path class="qmark" d="M46 36 H54 V44" fill="none" stroke="#b57c06" stroke-width="2"/>
+        </g>
+        <g class="qpiece" data-dx="-1" data-dy="-1">
+          <path class="qp" d="M46 44 V14 A30 30 0 0 0 16 44 Z"/>
+          <g class="xmark" stroke="#e0454a" stroke-width="2" stroke-linecap="round">
+            <line x1="27" y1="28" x2="35" y2="28"/><line x1="31" y1="24" x2="31" y2="32"/>
+          </g>
+          <path class="qmark" d="M46 36 H38 V44" fill="none" stroke="#b57c06" stroke-width="2"/>
+        </g>
+        <g class="qpiece" data-dx="-1" data-dy="1">
+          <path class="qp" d="M46 44 V74 A30 30 0 0 0 16 44 Z"/>
+          <g class="xmark" stroke="#e0454a" stroke-width="2" stroke-linecap="round">
+            <line x1="27" y1="60" x2="35" y2="60"/><line x1="31" y1="56" x2="31" y2="64"/>
+          </g>
+          <path class="qmark" d="M46 52 H38 V44" fill="none" stroke="#b57c06" stroke-width="2"/>
+        </g>
+        <g class="qpiece" data-dx="1" data-dy="1">
+          <path class="qp" d="M46 44 V74 A30 30 0 0 1 76 44 Z"/>
+          <g class="xmark" stroke="#e0454a" stroke-width="2" stroke-linecap="round">
+            <line x1="57" y1="60" x2="65" y2="60"/><line x1="61" y1="56" x2="61" y2="64"/>
+          </g>
+          <path class="qmark" d="M46 52 H54 V44" fill="none" stroke="#b57c06" stroke-width="2"/>
+        </g>
+        <circle cx="46" cy="44" r="2.4" fill="#c49a5a"/>
+      </svg>
+      <div class="note2" id="noteA">Drag one quarter apart.</div>
+    </div>
+
+    <div class="half">
+      <div class="cap2"><b>2</b>Cut out 9 squares</div>
+      <svg id="cut" width="92" height="88" viewBox="0 0 92 88">
+        <g id="grid5"></g>
+        <rect class="hole" x="22" y="22" width="48" height="48" rx="1"/>
+        <g class="piece" id="cutPiece">
+          <rect x="22" y="22" width="48" height="48" rx="1"/>
+          <g class="cmk" fill="none" stroke="#b57c06" stroke-width="2">
+            <path d="M29 22 V29 H22"/>
+            <path d="M63 22 V29 H70"/>
+            <path d="M63 70 V63 H70"/>
+            <path d="M29 70 V63 H22"/>
+          </g>
+        </g>
+      </svg>
+      <div class="note2" id="noteB">Take it out and look.</div>
+    </div>
+  </div>
+
+  <!-- measuring an angle -->
+  <div class="measure">
+    <div class="mhead">
+      <span>Let’s measure an angle</span>
+      <button id="newAng">Take an angle</button>
+    </div>
+    <p class="mhint">Drag both right angles up to the vertex.</p>
+
+    <div class="stage2" id="stage2">
+      <svg width="356" height="122" viewBox="0 0 356 122">
+        <g id="marm">
+          <line x1="150" y1="56" x2="222" y2="56"
+                stroke="#33454c" stroke-width="3.6" stroke-linecap="round"/>
+        </g>
+        <line x1="150" y1="56" x2="222" y2="56"
+              stroke="#33454c" stroke-width="3.6" stroke-linecap="round"/>
+        <circle cx="150" cy="56" r="4.2" fill="#33454c"/>
+        <circle cx="150" cy="56" r="1.7" fill="#fff"/>
+      </svg>
+
+      <!-- 1. the cardboard corner taken from the circle -->
+      <div class="tool" id="toolA" style="left:292px;top:2px">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <path d="M8 48 H48 A40 40 0 0 0 8 8 Z"
+                fill="#f7e6c4" fill-opacity=".88" stroke="#c49a5a" stroke-width="2"/>
+          <path d="M8 39 H17 V48" fill="none" stroke="#b57c06" stroke-width="1.8"/>
+          <circle cx="8" cy="48" r="2.4" fill="#c49a5a"/>
+        </svg>
+      </div>
+
+      <!-- 2. the square cut from squared paper -->
+      <div class="tool sq" id="toolB" style="left:292px;top:62px">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <rect x="8" y="8" width="40" height="40" rx="1"
+                fill="#ffffff" fill-opacity=".9" stroke="#0d8a64" stroke-width="2"/>
+          <g fill="none" stroke="#b57c06" stroke-width="1.8">
+            <path d="M8 16 V8 H16"/>
+            <path d="M40 8 H48 V16"/>
+            <path d="M48 40 V48 H40"/>
+            <path d="M16 48 H8 V40"/>
+          </g>
+          <circle cx="8" cy="48" r="2.4" fill="#0d8a64"/>
+        </svg>
+      </div>
+
+      <!-- the red arc shows above the pieces -->
+      <svg class="arcs" width="356" height="122" viewBox="0 0 356 122">
+        <path id="marc" d="" fill="none" stroke="#e0454a"
+              stroke-width="2.6" stroke-linecap="round" opacity="0"/>
+      </svg>
+    </div>
+
+    <div class="verdict" id="verdict">
+      <span class="vchip" id="vchip"></span>
+      <span id="vtxt">The answer appears here after measuring.</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  /* ========== 1. fold the circle into four and drag a quarter ========== */
+  var fold = document.getElementById('fold'),
+      noteA = document.getElementById('noteA'),
+      pieces = fold.querySelectorAll('.qpiece'),
+      act = null, sx = 0, sy = 0, dx0 = 0, dy0 = 0;
+
+  Array.prototype.forEach.call(pieces, function (p) {
+    var diagx = +p.getAttribute('data-dx'), diagy = +p.getAttribute('data-dy');
+    var sep = false;
+
+    p.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      act = p; sx = e.clientX; sy = e.clientY;
+      dx0 = sep ? 13 * diagx : 0;
+      dy0 = sep ? 13 * diagy : 0;
+      try { p.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+    p.addEventListener('pointermove', function (e) {
+      if (act !== p) return;
+      var dx = e.clientX - sx + dx0, dy = e.clientY - sy + dy0;
+      var d = dx * diagx + dy * diagy;          // distance along the diagonal
+      d = Math.max(0, Math.min(13, d));
+      p.setAttribute('transform', 'translate(' + (d * diagx).toFixed(1) + ',' +
+                                   (d * diagy).toFixed(1) + ')');
+      if (d > 5) {
+        p.classList.add('sep');
+      } else {
+        p.classList.remove('sep');
+      }
+    });
+    p.addEventListener('pointerup', function (e) {
+      if (act !== p) return;
+      act = null;
+      var dx = e.clientX - sx + dx0, dy = e.clientY - sy + dy0;
+      var d = dx * diagx + dy * diagy;
+      if (d <= 5) {
+        sep = false;
+        p.removeAttribute('transform');
+        p.classList.remove('sep');
+        if (!fold.querySelector('.qpiece.sep')) {
+          noteA.textContent = 'Drag one quarter apart.';
+          noteA.classList.remove('on');
+        }
+      } else {
+        sep = true;
+        p.setAttribute('transform', 'translate(' + (13 * diagx) + ',' + (13 * diagy) + ')');
+        p.classList.add('sep');
+        noteA.textContent = 'The corner is a right angle!';
+        noteA.classList.add('on');
+      }
+    });
+  });
+
+  /* ========== 2. cut 9 squares out of the squared paper ========== */
+  var grid = document.getElementById('grid5'),
+      piece = document.getElementById('cutPiece'),
+      noteB = document.getElementById('noteB'),
+      out = false;
+  var g = '';
+  for (var i = 0; i <= 5; i++) {
+    var q = 4 + i * 16;
+    g += '<line x1="' + q + '" y1="4" x2="' + q + '" y2="84" stroke="#cfe3dc" stroke-width="1"/>' +
+         '<line x1="4" y1="' + q + '" x2="84" y2="' + q + '" stroke="#cfe3dc" stroke-width="1"/>';
+  }
+  grid.innerHTML = g;
+
+  piece.addEventListener('click', function () {
+    out = !out;
+    piece.classList.toggle('out', out);
+    if (out) {
+      noteB.textContent = 'All 4 corners are right angles!';
+      noteB.classList.add('on');
+    } else {
+      noteB.textContent = 'Take it out and look.';
+      noteB.classList.remove('on');
+    }
+  });
+
+  /* ========== 3. take an angle and measure it with the right angles ========== */
+  var ANGLES = [
+    { a: 130, type: 'obtuse',   chip: 'Obtuse angle',  say: 'An angle greater than a right angle.' },
+    { a: 40,  type: 'acute',    chip: 'Acute angle',   say: 'An angle smaller than a right angle.' },
+    { a: 90,  type: 'right',    chip: 'Right angle',   say: 'This is a right angle.' },
+    { a: 180, type: 'straight', chip: 'Straight angle', say: 'An angle of two right angles.' },
+    { a: 240, type: 'reflex',   chip: 'Reflex angle',  say: 'An angle greater than two right angles.' }
+  ];
+  var VX = 150, VY = 56, RR = 52;
+  var ai = 0;
+  var marm = document.getElementById('marm'),
+      marc = document.getElementById('marc'),
+      stage = document.getElementById('stage2'),
+      verdict = document.getElementById('verdict'),
+      vchip = document.getElementById('vchip'),
+      vtxt = document.getElementById('vtxt'),
+      newBtn = document.getElementById('newAng');
+
+  /* the two right angles: the cardboard corner and the paper square */
+  var TOOLS = [
+    { el: document.getElementById('toolA'), hx: 292, hy: 2,  quad: -1 },
+    { el: document.getElementById('toolB'), hx: 292, hy: 62, quad: -1 }
+  ];
+
+  function home(t) {
+    t.quad = -1;
+    t.el.classList.remove('drag');
+    t.el.style.transform = '';
+    t.el.style.left = t.hx + 'px';
+    t.el.style.top = t.hy + 'px';
+  }
+
+  function placed() {
+    var n = 0;
+    TOOLS.forEach(function (t) { if (t.quad >= 0) n++; });
+    return n;
+  }
+
+  function freeQuad(t) {
+    for (var q = 0; q < 3; q++) {
+      var used = false;
+      for (var i = 0; i < TOOLS.length; i++) {
+        if (TOOLS[i] !== t && TOOLS[i].quad === q) used = true;
+      }
+      if (!used) return q;
+    }
+    return -1;
+  }
+
+  function drawAngle() {
+    var a = ANGLES[ai].a;
+    marm.setAttribute('transform', 'rotate(' + (-a) + ' ' + VX + ' ' + VY + ')');
+    marc.setAttribute('opacity', '0');
+    marc.setAttribute('d', '');
+    TOOLS.forEach(home);
+    verdict.className = 'verdict';
+    vchip.className = 'vchip';
+    vtxt.textContent = 'The answer appears here after measuring.';
+    newBtn.textContent = 'Take an angle';
+  }
+
+  function showArc() {
+    var a = ANGLES[ai].a, r2 = a * Math.PI / 180;
+    var x1 = VX + RR, y1 = VY;
+    var x2 = VX + RR * Math.cos(r2), y2 = VY - RR * Math.sin(r2);
+    marc.setAttribute('d', 'M ' + x1.toFixed(2) + ' ' + y1.toFixed(2) +
+      ' A ' + RR + ' ' + RR + ' 0 ' + (a > 180 ? 1 : 0) + ' 0 ' +
+      x2.toFixed(2) + ' ' + y2.toFixed(2));
+    marc.setAttribute('opacity', '1');
+  }
+
+  function updateVerdict() {
+    var n = placed(), it = ANGLES[ai];
+    if (!n) {
+      verdict.className = 'verdict';
+      vchip.className = 'vchip';
+      vtxt.textContent = 'The answer appears here after measuring.';
+      marc.setAttribute('opacity', '0');
+      return;
+    }
+    showArc();
+    if (it.a > 90 && n < 2) {
+      /* bigger than 90 — another right angle must be placed */
+      verdict.className = 'verdict need';
+      vchip.className = 'vchip';
+      vtxt.textContent = 'Place one more right angle and measure.';
+    } else {
+      vchip.className = 'vchip ' + it.type;
+      vchip.textContent = it.chip;
+      vtxt.textContent = it.say;
+      verdict.className = 'verdict on';
+    }
+    newBtn.textContent = 'Another angle';
+  }
+
+  /* dragging */
+  var warnT = null;
+  TOOLS.forEach(function (t) {
+    var el = t.el, dragging = false, offX = 0, offY = 0;
+
+    el.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      dragging = true;
+      el.classList.add('drag');
+      var s = stage.getBoundingClientRect();
+      var l = parseFloat(el.style.left) || t.hx;
+      var top = parseFloat(el.style.top) || t.hy;
+      offX = (e.clientX - s.left) - (l + 8);
+      offY = (e.clientY - s.top) - (top + 48);
+      try { el.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+
+    el.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      var s = stage.getBoundingClientRect();
+      var l = e.clientX - s.left - offX - 8;
+      var top = e.clientY - s.top - offY - 48;
+      l = Math.max(0, Math.min(s.width - 56, l));
+      top = Math.max(0, Math.min(s.height - 56, top));
+      el.style.left = l + 'px';
+      el.style.top = top + 'px';
+    });
+
+    el.addEventListener('pointerup', function () {
+      if (!dragging) return;
+      dragging = false;
+      el.classList.remove('drag');
+      var l = parseFloat(el.style.left) || 0;
+      var top = parseFloat(el.style.top) || 0;
+      var cx = l + 8, cy = top + 48;               // the corner of the piece
+      var d = Math.sqrt(Math.pow(cx - VX, 2) + Math.pow(cy - VY, 2));
+      if (d < 46) {
+        var q = freeQuad(t);
+        if (q < 0) { home(t); updateVerdict(); return; }
+        t.quad = q;
+        el.style.left = (VX - 8) + 'px';           // the corner to the vertex
+        el.style.top = (VY - 48) + 'px';
+        el.style.transform = q ? 'rotate(' + (-q * 90) + 'deg)' : '';
+        updateVerdict();
+      } else {
+        home(t);
+        updateVerdict();
+        if (!placed()) {
+          verdict.className = 'verdict warn';
+          vtxt.textContent = 'Drag it close to the vertex.';
+          clearTimeout(warnT);
+          warnT = setTimeout(function () {
+            if (!placed()) {
+              verdict.className = 'verdict';
+              vtxt.textContent = 'The answer appears here after measuring.';
+            }
+          }, 1600);
+        }
+      }
+    });
+  });
+
+  newBtn.addEventListener('click', function () {
+    ai = (ai + 1) % ANGLES.length;
+    drawAngle();
+  });
+
+  drawAngle();
+})();
+</script>
+</body>
+</html>

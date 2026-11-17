@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     29 · Number operations practice — fill in the CO-OP bill
+     ============================================================ */
+  .ttl { font-size: 24px; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 13.5px;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    text-align: left;
+    text-transform: none;
+  }
+
+  /* ---------- the bill ---------- */
+  .bill {
+    position: relative;
+    margin-top: 7px;
+    padding: 7px 10px 8px;
+    border-radius: 9px;
+    background: #fffdf6;
+    border: 1px solid #e2d7be;
+    box-shadow: 0 3px 9px rgba(90, 70, 30, .08), inset 0 0 0 2px #fffef9;
+  }
+  .bhead {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-bottom: 4px;
+    border-bottom: 2px solid #e7dcc2;
+  }
+  .blogo {
+    font-family: Verdana, sans-serif;
+    font-size: 19px;
+    font-weight: bold;
+    line-height: 1;
+    letter-spacing: 1.5px;
+    color: var(--teal);
+  }
+  .blogo span {
+    display: block;
+    margin-top: 3px;
+    font-family: "Iskoola Pota", "Nirmala UI", sans-serif;
+    font-size: 11px;
+    font-weight: normal;
+    line-height: 1.1;
+    letter-spacing: 0;
+    color: #9a8f88;
+  }
+  .bmeta { text-align: right; line-height: 1.15; }
+  .bmeta b {
+    display: block;
+    font-size: 13px;
+    color: #8a5a2b;
+  }
+  .bmeta span {
+    display: block;
+    font-family: Verdana, sans-serif;
+    font-size: 10.5px;
+    color: var(--muted);
+  }
+
+  .bcols, .bitem, .bsum {
+    display: grid;
+    grid-template-columns: 110px 52px 58px 96px 18px;
+    column-gap: 4px;
+    align-items: center;
+  }
+  .bcols {
+    margin-top: 3px;
+    padding: 2px 0 3px;
+    font-size: 10.5px;
+    font-weight: bold;
+    line-height: 1.1;
+    color: #9a8f88;
+  }
+  .bcols span:nth-child(2) { text-align: center; }
+  .bcols span:nth-child(3) { text-align: right; }
+  .bcols span:nth-child(4) { text-align: center; }
+
+  .bitem {
+    min-height: 27px;
+    border-top: 1px dashed #ece3cd;
+  }
+  .bname {
+    font-size: 13.5px;
+    font-weight: bold;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .bqty {
+    font-family: Verdana, sans-serif;
+    font-size: 11.5px;
+    text-align: center;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .bprice {
+    font-family: Verdana, sans-serif;
+    font-size: 12.5px;
+    text-align: right;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+
+  /* ---------- answer boxes ---------- */
+  .ansbox {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 96px;
+    height: 26px;
+    padding: 0 6px 0 9px;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #f7fcf8;
+    border: 1.5px solid #a9d6c6;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--green);
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ansbox.act {
+    background: #fffdf5;
+    border-color: #f0c24f;
+    box-shadow: inset 0 0 0 2px #ffcf3f;
+  }
+  .ansbox.act::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 50%;
+    width: 2px;
+    height: 16px;
+    transform: translateY(-50%);
+    background: #0d8a64;
+    animation: caretblink .9s steps(1) infinite;
+  }
+  @keyframes caretblink { 50% { opacity: 0; } }
+  .ansbox.ok { background: #eaf9f2; border-color: #9fd6c4; }
+  .ansbox.no {
+    background: #fdf1ef;
+    border-color: #f0c7c2;
+    color: #c9483f;
+  }
+
+  .mk {
+    width: 16px;
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1;
+    text-align: center;
+  }
+  .mk.ok { color: var(--green); }
+  .mk.no { color: #d64545; }
+
+  /* ---------- totals ---------- */
+  .bdiv {
+    margin-top: 2px;
+    border-top: 2px dashed #d9c9a6;
+  }
+  .bsum {
+    min-height: 27px;
+    border-top: 1px dashed #ece3cd;
+  }
+  .bdiv + .bsum { border-top: 0; }
+  .blab {
+    grid-column: 1 / 4;
+    padding-right: 7px;
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 1.1;
+    text-align: right;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .bsum.given .blab { font-weight: normal; color: var(--ink-soft); }
+  .bval {
+    font-family: Verdana, sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: right;
+    color: #8a5a2b;
+    white-space: nowrap;
+  }
+  .bval.disc { color: #c9483f; }
+  .bsum.pay .blab, .bsum.pay .ansbox { color: var(--teal); }
+  .bsum.tot .blab { color: var(--green); }
+
+  /* ---------- digit buttons ---------- */
+  .pad {
+    display: flex;
+    gap: 3px;
+    width: 376px;
+    margin: 6px auto 0;
+  }
+  .pad button {
+    flex: 1;
+    height: 35px;
+    border-radius: 8px;
+    border: 1.5px solid #d9e9e3;
+    background: #fff;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--ink);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pad button:active { background: #eaf7f2; transform: scale(.97); }
+  .pad .bksp { border-color: #f0d3b6; background: #fff6ec; color: #bf6427; font-size: 16px; }
+
+  /* ---------- the result bar ---------- */
+  .resbar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 376px;
+    height: 31px;
+    margin: 6px auto 0;
+    padding: 0 10px;
+    border-radius: 9px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 13.5px;
+    font-weight: bold;
+    color: var(--teal);
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .resbar.ok { color: var(--green); background: #eaf9f2; border-color: #bfe8d8; }
+  .resbar.no { color: #c9483f; background: #fdf1ef; border-color: #f4d3cf; }
+  .resbar.barpop { animation: barpop .8s ease; }
+  @keyframes barpop {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.05); }
+    60% { transform: scale(.985); }
+    100% { transform: scale(1); }
+  }
+
+  .acts {
+    display: flex;
+    gap: 8px;
+    width: 376px;
+    margin: 6px auto 0;
+  }
+  .goBtn, .againBtn {
+    height: 38px;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .goBtn {
+    flex: 1.45;
+    border: 0;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(13, 128, 94, .28), inset 0 1px 0 rgba(255, 255, 255, .35);
+  }
+  .againBtn {
+    flex: 1;
+    border: 1.5px solid #9fd6c4;
+    background: #fff;
+    color: var(--teal);
+  }
+  .goBtn:active, .againBtn:active { transform: scale(.99); }
+
+  /* ---------- 100% celebration ---------- */
+  .party {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 30;
+  }
+  .party i {
+    position: absolute;
+    top: -16px;
+    display: block;
+    border-radius: 2px;
+    animation: pfall 1.7s cubic-bezier(.22, .55, .45, 1) forwards;
+  }
+  @keyframes pfall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateY(560px) rotate(640deg); opacity: 0; }
+  }
+
+  .smile {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 31;
+  }
+  .smile.on { animation: smilefade 2.8s ease forwards; }
+  @keyframes smilefade {
+    0% { opacity: 0; }
+    9% { opacity: 1; }
+    84% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .smcard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 196px;
+    padding: 10px 14px 12px;
+    border-radius: 20px;
+    background: #fffdf6;
+    border: 3px solid #ffcf3f;
+    box-shadow: 0 16px 40px rgba(40, 60, 50, .35);
+    transform: scale(.35) rotate(-10deg);
+  }
+  .smile.on .smcard { animation: cardpop 2.8s cubic-bezier(.2, .8, .3, 1) forwards; }
+  @keyframes cardpop {
+    0% { transform: scale(.35) rotate(-10deg); }
+    13% { transform: scale(1.08) rotate(3deg); }
+    22% { transform: scale(.97) rotate(-1deg); }
+    30% { transform: scale(1) rotate(0); }
+    100% { transform: scale(1) rotate(0); }
+  }
+  .face {
+    width: 78px;
+    height: 78px;
+    animation: bob .75s ease-in-out infinite alternate;
+  }
+  @keyframes bob {
+    from { transform: translateY(0) rotate(-2.5deg); }
+    to { transform: translateY(-3px) rotate(2.5deg); }
+  }
+  .mouth {
+    stroke-dasharray: 70;
+    stroke-dashoffset: 70;
+    animation: drawmouth .55s .3s ease forwards;
+  }
+  @keyframes drawmouth { to { stroke-dashoffset: 0; } }
+  .eye {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .eye.wink { animation: wink 2.8s .7s ease; }
+  @keyframes wink {
+    0%, 56%, 76%, 100% { transform: scaleY(1); }
+    64% { transform: scaleY(.12); }
+  }
+  .sm100 {
+    margin-top: 2px;
+    font-family: Verdana, sans-serif;
+    font-size: 29px;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--green);
+    letter-spacing: .5px;
+  }
+  .smtxt {
+    margin-top: 3px;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.2;
+    color: var(--teal);
+  }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Number Operations Practice</h2>
+    <div class="sub">CO-OP bill</div>
+
+    <div class="bill">
+      <div class="bhead">
+        <div class="blogo">CO-OP<span>Co-operative Store</span></div>
+        <div class="bmeta"><b>Fill in the bill</b><span>No. 042</span></div>
+      </div>
+
+      <div class="bcols">
+        <span>Item</span>
+        <span>Qty</span>
+        <span>Unit price</span>
+        <span>Amount (Rs.)</span>
+        <span></span>
+      </div>
+
+      <div class="bitem">
+        <span class="bname">Sugar</span>
+        <span class="bqty">5 kg</span>
+        <span class="bprice">245</span>
+        <span class="ansbox" data-q="0"></span>
+        <span class="mk" id="m0"></span>
+      </div>
+
+      <div class="bitem">
+        <span class="bname">Dhal</span>
+        <span class="bqty">4 kg</span>
+        <span class="bprice">265</span>
+        <span class="ansbox" data-q="1"></span>
+        <span class="mk" id="m1"></span>
+      </div>
+
+      <div class="bitem">
+        <span class="bname">Tea</span>
+        <span class="bqty">&frac12; kg</span>
+        <span class="bprice">2 750</span>
+        <span class="ansbox" data-q="2"></span>
+        <span class="mk" id="m2"></span>
+      </div>
+
+      <div class="bitem">
+        <span class="bname">Milk packets</span>
+        <span class="bqty">2</span>
+        <span class="bprice">1 175</span>
+        <span class="ansbox" data-q="3"></span>
+        <span class="mk" id="m3"></span>
+      </div>
+
+      <div class="bdiv"></div>
+
+      <div class="bsum tot">
+        <span class="blab">Total</span>
+        <span class="ansbox" data-q="4"></span>
+        <span class="mk" id="m4"></span>
+      </div>
+
+      <div class="bsum given">
+        <span class="blab">Discount</span>
+        <span class="bval disc">Rs. 248</span>
+        <span class="mk"></span>
+      </div>
+
+      <div class="bsum pay">
+        <span class="blab">Amount to pay</span>
+        <span class="ansbox" data-q="5"></span>
+        <span class="mk" id="m5"></span>
+      </div>
+
+      <div class="bsum given">
+        <span class="blab">Cash paid</span>
+        <span class="bval">Rs. 10 000</span>
+        <span class="mk"></span>
+      </div>
+
+      <div class="bsum">
+        <span class="blab">Balance</span>
+        <span class="ansbox" data-q="6"></span>
+        <span class="mk" id="m6"></span>
+      </div>
+    </div>
+
+    <div class="pad" id="pad"></div>
+
+    <div class="resbar" id="resbar">Fill in the blanks, tap “Check answers”</div>
+
+    <div class="acts">
+      <button class="goBtn" id="checkBtn">Check answers</button>
+      <button class="againBtn" id="againBtn">Reset</button>
+    </div>
+
+    <div class="party" id="party"></div>
+    <div class="smile" id="smile">
+      <div class="smcard">
+        <svg class="face" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="45" fill="#ffd75e" stroke="#e8a318" stroke-width="3"/>
+          <ellipse class="eye" cx="35" cy="41" rx="5.2" ry="6.4" fill="#5a3d12"/>
+          <ellipse class="eye wink" cx="65" cy="41" rx="5.2" ry="6.4" fill="#5a3d12"/>
+          <circle cx="24" cy="60" r="7" fill="#f79a8e" opacity=".65"/>
+          <circle cx="76" cy="60" r="7" fill="#f79a8e" opacity=".65"/>
+          <path class="mouth" d="M28 58 Q50 82 72 58" fill="none" stroke="#5a3d12" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+        <b class="sm100">100%</b>
+        <span class="smtxt">Well done!</span>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* ============================================================
+     answers: 1 225 · 1 060 · 1 375 · 2 350
+              total 6 010 · discount 248 · to pay 5 762
+              paid 10 000 · balance 4 238
+     marks: items 4 × 1 + (total, to pay, balance) 3 × 2 = 10
+     ============================================================ */
+  var CORRECT = [1225, 1060, 1375, 2350, 6010, 5762, 4238];
+  var MARKS = [1, 1, 1, 1, 2, 2, 2];
+  var MAXLEN = 5;
+
+  var padEl = document.getElementById('pad');
+  var resbar = document.getElementById('resbar');
+  var checkBtn = document.getElementById('checkBtn');
+  var againBtn = document.getElementById('againBtn');
+  var partyEl = document.getElementById('party');
+  var smileEl = document.getElementById('smile');
+
+  var boxes = [], marks = [], answers = ['', '', '', '', '', '', ''];
+  var focusQ = 0, checked = false, audioCtx = null;
+
+  function rnd(n) { return Math.floor(Math.random() * n); }
+  function fmt(s) { return s.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'); }
+
+  function pop(freq, vol) {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.4, audioCtx.currentTime + .1);
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .2);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + .22);
+    } catch (e) {}
+  }
+
+  /* ---------- the typing board ----------
+     digits are added from the ones place — new digit in front, cursor to its left */
+  function paint() {
+    for (var i = 0; i < 7; i++) {
+      boxes[i].textContent = fmt(answers[i]);
+      boxes[i].classList.toggle('act', i === focusQ && !checked);
+    }
+  }
+
+  function clearMarks() {
+    for (var i = 0; i < 7; i++) {
+      marks[i].textContent = '';
+      marks[i].className = 'mk';
+      boxes[i].classList.remove('ok', 'no');
+    }
+  }
+
+  function idleBar() {
+    resbar.className = 'resbar';
+    resbar.textContent = 'Fill in the blanks, tap “Check answers”';
+  }
+
+  function typeDigit(d) {
+    if (focusQ < 0) focusQ = 0;
+    if (answers[focusQ].length >= MAXLEN) return;
+    checked = false;
+    answers[focusQ] = d + answers[focusQ];
+    clearMarks();
+    idleBar();
+    paint();
+    pop(560 + (+d) * 20, .05);
+  }
+
+  function backspace() {
+    if (focusQ < 0) return;
+    checked = false;
+    answers[focusQ] = answers[focusQ].slice(1);
+    clearMarks();
+    idleBar();
+    paint();
+  }
+
+  function buildPad() {
+    var keys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\u2190'];
+    keys.forEach(function (k) {
+      var b = document.createElement('button');
+      b.textContent = k;
+      if (k === '\u2190') b.className = 'bksp';
+      b.addEventListener('click', function () {
+        if (k === '\u2190') backspace(); else typeDigit(k);
+      });
+      padEl.appendChild(b);
+    });
+
+    boxes = Array.prototype.slice.call(document.querySelectorAll('.ansbox'));
+    boxes.forEach(function (b, i) {
+      b.addEventListener('click', function () {
+        focusQ = i;
+        checked = false;
+        clearMarks();
+        idleBar();
+        paint();
+      });
+    });
+    marks = [];
+    for (var i = 0; i < 7; i++) marks.push(document.getElementById('m' + i));
+    focusQ = 0;
+    paint();
+  }
+
+  /* ---------- marks ---------- */
+  function checkAll() {
+    var empty = answers.indexOf('');
+    if (empty !== -1) {
+      focusQ = empty;
+      checked = false;
+      clearMarks();
+      idleBar();
+      paint();
+      resbar.textContent = 'Fill in the empty answer boxes';
+      pop(260, .06);
+      return;
+    }
+
+    var got = 0, total = 0;
+    for (var i = 0; i < 7; i++) {
+      var ok = parseInt(answers[i], 10) === CORRECT[i];
+      if (ok) got += MARKS[i];
+      total += MARKS[i];
+      marks[i].textContent = ok ? '\u2713' : '\u2717';
+      marks[i].className = 'mk ' + (ok ? 'ok' : 'no');
+      boxes[i].classList.add(ok ? 'ok' : 'no');
+    }
+    var pct = Math.round(got / total * 100);
+    resbar.className = 'resbar ' + (pct === 100 ? 'ok' : (pct < 40 ? 'no' : ''));
+    resbar.textContent = 'Score ' + got + ' / ' + total + ' · ' + pct + '%' + (pct === 100 ? ' · Well done!' : '');
+    checked = true;
+    paint();
+    if (pct === 100) party(); else pop(620, .12);
+
+    resbar.classList.remove('barpop');
+    void resbar.offsetWidth;
+    resbar.classList.add('barpop');
+  }
+
+  /* ---------- 100% celebration ---------- */
+  function party() {
+    partyEl.innerHTML = '';
+    var cols = ['#ffcf3f', '#e0457b', '#0d8a64', '#2f8fd8', '#ff9b4a', '#8e6bd6'];
+    for (var i = 0; i < 26; i++) {
+      var s = document.createElement('i');
+      var w = 5 + rnd(5);
+      s.style.left = rnd(98) + '%';
+      s.style.width = w + 'px';
+      s.style.height = (w + 2) + 'px';
+      s.style.background = cols[rnd(cols.length)];
+      s.style.animationDelay = (rnd(28) / 100) + 's';
+      partyEl.appendChild(s);
+    }
+    setTimeout(function () { partyEl.innerHTML = ''; }, 2400);
+
+    smileEl.classList.remove('on');
+    void smileEl.offsetWidth;
+    smileEl.classList.add('on');
+    pop(980, .14);
+  }
+
+  /* ---------- reset ---------- */
+  function resetAll() {
+    answers = ['', '', '', '', '', '', ''];
+    checked = false;
+    focusQ = 0;
+    clearMarks();
+    partyEl.innerHTML = '';
+    smileEl.classList.remove('on');
+    resbar.classList.remove('barpop');
+    idleBar();
+    paint();
+  }
+
+  checkBtn.addEventListener('click', checkAll);
+  againBtn.addEventListener('click', resetAll);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key >= '0' && e.key <= '9') { typeDigit(e.key); e.preventDefault(); }
+    else if (e.key === 'Backspace') { backspace(); e.preventDefault(); }
+    else if (e.key === 'Enter') { checkAll(); e.preventDefault(); }
+  });
+
+  buildPad();
+</script>
+</body>
+</html>

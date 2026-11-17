@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Number Types and Patterns</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     96 · Number Types and Patterns
+     (lesson goals · star-dot patterns)
+     ============================================================ */
+  .ttl { flex: none; font-size: 25px; line-height: 1.1; white-space: nowrap; }
+  .sub { flex: none; margin-top: 2px; font-size: 13px; letter-spacing: 1.6px; }
+
+  /* ---------- lesson goals ---------- */
+  .goal {
+    flex: none;
+    margin-top: 8px;
+    padding: 7px 11px 8px;
+    border-radius: 13px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+    box-shadow: 0 4px 10px rgba(30, 80, 70, .05);
+  }
+  .gh {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--teal);
+  }
+  .gh .spk {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #0d8a64;
+    color: #fff;
+    font-size: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .gl { list-style: none; margin-top: 3px; }
+  .gl li {
+    position: relative;
+    padding-left: 13px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #3f5c5f;
+  }
+  .gl li::before {
+    content: "";
+    position: absolute;
+    left: 1px;
+    top: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #7fd0c6;
+  }
+  .gl li:nth-child(2)::before { background: #f6c945; }
+  .gl li:nth-child(3)::before { background: #f7a1be; }
+  .gl li:nth-child(4)::before { background: #9c6ce5; }
+
+  /* ---------- star-dot stage ---------- */
+  .stagecard {
+    flex: none;
+    margin-top: 7px;
+    padding: 7px 10px 8px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 5px 12px rgba(30, 80, 80, .07);
+  }
+  .ah { display: flex; align-items: center; gap: 7px; min-height: 21px; }
+  .ahb {
+    flex: none;
+    height: 20px;
+    padding: 0 7px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    background: #4b9be8;
+    color: #fff;
+    font-family: Verdana, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+  }
+  .aht { font-size: 13.5px; font-weight: bold; color: var(--teal); }
+  .auto {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 20px;
+    padding: 0 8px;
+    border-radius: 10px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+    font-size: 11px;
+    font-weight: bold;
+    color: #0d8a64;
+  }
+  .auto i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #0d8a64;
+    animation: blip 1.4s ease-in-out infinite;
+  }
+  @keyframes blip {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .35; transform: scale(.7); }
+  }
+
+  .dots {
+    height: 185px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .grid { display: grid; justify-content: center; align-content: center; align-items: center; justify-items: center; }
+  .trow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+  .trow .r { display: flex; gap: 4px; }
+  .st {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-family: "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
+    opacity: 0;
+    transform: scale(.25);
+    transition: opacity .22s ease, transform .3s cubic-bezier(.2, 1.4, .4, 1);
+  }
+  .st.on { opacity: 1; transform: scale(1); }
+  .dots.p4 .st { font-size: 22px; color: #e8a020; text-shadow: 0 1px 0 #fbe7b0; }
+  .dots.p9 .st { font-size: 11px; color: #9c6ce5; }
+  .dots.ptri .st { font-size: 18px; color: #0d8a64; }
+  .dots.p4 .grid { grid-template-columns: repeat(4, 33px); gap: 2px; }
+  .dots.p9 .grid { grid-template-columns: repeat(9, 16px); gap: 0; }
+  .dots.ptri .st { font-size: 17px; }
+
+  .cap {
+    margin-top: 2px;
+    text-align: center;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c4c53;
+  }
+  .cap.sw { animation: capin .35s ease; }
+  @keyframes capin {
+    0% { opacity: 0; transform: translateY(4px); }
+    100% { opacity: 1; transform: none; }
+  }
+  .cap b { color: #0d8a64; }
+  .cap .ct {
+    display: block;
+    margin-top: 2px;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: normal;
+    color: var(--muted);
+    letter-spacing: .2px;
+  }
+
+  /* ---------- footer ---------- */
+  .foot {
+    flex: none;
+    margin-top: 7px;
+    padding: 6px 10px;
+    border-radius: 11px;
+    background: #fffdf4;
+    border: 1px solid #f2e6bd;
+    text-align: center;
+    font-size: 11.5px;
+    line-height: 1.35;
+    color: #6f6650;
+  }
+  .foot b { font-family: Verdana, sans-serif; color: #8a5b00; }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <div class="ttl">3. Number Types and Patterns</div>
+  <div class="sub">3 · TYPES OF NUMBERS &amp; PATTERNS</div>
+
+  <div class="goal">
+    <div class="gh"><span class="spk">✓</span>In this lesson you will learn</div>
+    <ul class="gl">
+      <li>To identify odd and even numbers.</li>
+      <li>To identify prime and composite numbers.</li>
+      <li>To identify square and triangular numbers.</li>
+      <li>To identify odd, even, square and triangular patterns.</li>
+    </ul>
+  </div>
+
+  <div class="stagecard">
+    <div class="ah">
+      <span class="ahb">Patterns</span>
+      <span class="aht">with star dots</span>
+      <span class="auto"><i></i>auto-plays</span>
+    </div>
+    <div class="dots p4" id="dots"></div>
+    <div class="cap" id="cap"></div>
+  </div>
+
+  <div class="foot">Square numbers <b>1, 4, 9, 16</b> &nbsp;·&nbsp; Triangular numbers <b>1, 3, 6, 10, 15</b></div>
+
+</div>
+
+<script>
+(function () {
+  var dots = document.getElementById('dots');
+  var cap = document.getElementById('cap');
+  var token = 0, timers = [];
+
+  var P = {
+    '4':   { cols: 4, rows: 4, star: 22, eq: '4 × 4 = <b>16</b>',  type: 'a square number.', total: 16 },
+    '9':   { cols: 9, rows: 9, star: 11, eq: '9 × 9 = <b>81</b>',  type: 'a square number.', total: 81 },
+    'tri': { rows: 5,         star: 17, eq: '1 + 2 + 3 + 4 + 5 = <b>15</b>', type: 'a triangular number.', total: 15 }
+  };
+
+  function star(size) {
+    var s = document.createElement('span');
+    s.className = 'st';
+    s.textContent = '★';
+    s.style.fontSize = size + 'px';
+    s.style.width = size + 'px';
+    s.style.height = size + 'px';
+    return s;
+  }
+
+  function build(k) {
+    dots.innerHTML = '';
+    dots.className = 'dots p' + (k === 'tri' ? 'tri' : k);
+    var p = P[k], stars = [];
+    if (k === 'tri') {
+      var wrap = document.createElement('div');
+      wrap.className = 'trow';
+      for (var r = 1; r <= p.rows; r++) {
+        var row = document.createElement('div');
+        row.className = 'r';
+        for (var c = 0; c < r; c++) { var t = star(p.star); row.appendChild(t); stars.push(t); }
+        wrap.appendChild(row);
+      }
+      dots.appendChild(wrap);
+    } else {
+      var g = document.createElement('div');
+      g.className = 'grid';
+      for (var i = 0; i < p.rows * p.cols; i++) { var d = star(p.star); g.appendChild(d); stars.push(d); }
+      dots.appendChild(g);
+    }
+    cap.innerHTML = p.eq + '<span class="ct">' + p.total + ' stars · ' + p.type + '</span>';
+    cap.classList.remove('sw');
+    void cap.offsetWidth;
+    cap.classList.add('sw');
+    return stars;
+  }
+
+  function play(k) {
+    timers.forEach(clearTimeout); timers = [];
+    var run = ++token;
+    var stars = build(k);
+    var step = k === '9' ? 16 : 34;
+    stars.forEach(function (s, i) {
+      timers.push(setTimeout(function () {
+        if (run !== token) return;
+        s.classList.add('on');
+      }, 40 + i * step));
+    });
+  }
+
+  /* ---------- auto-playing patterns ---------- */
+  var order = ['4', '9', 'tri'];
+  var hold = { '4': 2200, '9': 3000, 'tri': 2150 };
+  var idx = 0;
+
+  function step() {
+    var k = order[idx];
+    play(k);
+    idx = (idx + 1) % order.length;
+    setTimeout(step, hold[k]);
+  }
+
+  setTimeout(step, 350);
+})();
+</script>
+</body>
+</html>

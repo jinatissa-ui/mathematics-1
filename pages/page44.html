@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ===== the plate on which the angle is drawn ===== */
+  .figcard {
+    margin-top: 6px;
+    padding: 3px 0 1px;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #d5eee6;
+    box-shadow: 0 3px 9px rgba(30, 80, 80, .06);
+  }
+  #fig { display: block; width: 376px; height: 240px; flex: 0 0 auto; }
+  #fig .arm { stroke: #33454c; stroke-width: 4; stroke-linecap: round; }
+  #fig .pt  { fill: #33454c; stroke: #fff; stroke-width: 2.2; }
+  #fig text {
+    font-family: Verdana, "Nirmala UI", sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    fill: #33454c;
+  }
+  #arc { fill: none; stroke: #e0454a; stroke-width: 3; stroke-linecap: round; }
+
+  /* blinking one by one */
+  @keyframes kp { from { opacity: 1; } to { opacity: .28; } }
+  #fig.lit-v #dotB,
+  #fig.lit-v #lblB { animation: kp .42s ease-in-out infinite alternate; }
+  #fig.lit-v #lblB { fill: #0d8a64; }
+
+  #fig.lit-a #armA { stroke: #0d8a64; stroke-width: 6; animation: kp .42s ease-in-out infinite alternate; }
+  #fig.lit-a #lblA,
+  #fig.lit-a #dotA { animation: kp .42s ease-in-out infinite alternate; }
+  #fig.lit-a #lblA { fill: #0d8a64; }
+
+  #fig.lit-c #armC { stroke: #0d8a64; stroke-width: 6; animation: kp .42s ease-in-out infinite alternate; }
+  #fig.lit-c #lblC,
+  #fig.lit-c #dotC { animation: kp .42s ease-in-out infinite alternate; }
+  #fig.lit-c #lblC { fill: #0d8a64; }
+
+  #fig.lit-n1 #arc,
+  #fig.lit-n2 #arc,
+  #fig.lit-n3 #arc { stroke-width: 4.6; animation: kp .42s ease-in-out infinite alternate; }
+
+  /* ===== where the names are written ===== */
+  .names {
+    margin-top: 7px;
+    padding: 6px 10px 7px;
+    border-radius: 14px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+  }
+  .ngrid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 6px; }
+  .nrow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 2px 6px 0;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #45606a;
+    white-space: nowrap;
+  }
+  .nrow i { flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%; background: #ffcf3f; }
+  .nrow:nth-child(2) i { background: #7fd0c6; }
+  .nrow:nth-child(3) i { background: #f7a1be; }
+  .nrow:nth-child(4) i { background: #9c6ce5; }
+  .nrow:nth-child(5) i { background: #0d8a64; }
+  .nrow:nth-child(6) i { background: #e0454a; }
+  .nrow b { font-size: 16px; color: #0d6d74; }
+  .nrow.on { background: #dff4ea; color: #0b6b4e; }
+  .nrow.on i { animation: kp .5s ease-in-out infinite alternate; }
+  .nrow.on b { color: #0b6b4e; }
+
+  /* angle mark above B */
+  .anm {
+    display: inline-flex;
+    align-items: baseline;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: .6px;
+    color: #0d6d74;
+  }
+  .cm { position: relative; display: inline-block; }
+  .cm .hat { position: absolute; left: 50%; top: -6px; transform: translateX(-50%); display: block; }
+
+  .type {
+    margin-top: 3px;
+    padding-top: 5px;
+    border-top: 1px dashed #cfe9df;
+    font-size: 15.5px;
+    color: #0d6d74;
+  }
+  .type b { color: #0d8a64; }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <h2 class="ttl">Naming Angles</h2>
+  <div class="sub">NAMING ANGLES</div>
+
+  <div class="figcard">
+    <svg id="fig" viewBox="0 0 376 240">
+      <g id="scene">
+      <line id="armA" class="arm" x1="188" y1="170" x2="300" y2="170"/>
+      <line id="armC" class="arm" x1="188" y1="170" x2="76" y2="170"/>
+      <path id="arc" d=""/>
+      <circle id="dotA" class="pt" cx="300" cy="170" r="4"/>
+      <circle id="dotC" class="pt" cx="76" cy="170" r="4"/>
+      <circle id="dotB" class="pt" cx="188" cy="170" r="4.6"/>
+      <text id="lblA" x="314" y="160" text-anchor="middle">A</text>
+      <text id="lblC" x="62" y="160" text-anchor="middle">C</text>
+      <text id="lblB" x="188" y="197" text-anchor="middle">B</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="names">
+    <div class="ngrid">
+      <div class="nrow" data-p="v"><i></i><span>Vertex</span><b id="vLbl">B</b></div>
+      <div class="nrow" data-p="n1"><i></i><span id="wordLbl">Angle ABC</span></div>
+      <div class="nrow" data-p="a"><i></i><span id="armALbl">Arm AB</span></div>
+      <div class="nrow" data-p="n2"><i></i><span class="anm" id="nm1"><span class="anc1">A</span><span class="cm"><span class="ch">B</span><svg class="hat" width="11" height="6" viewBox="0 0 11 6"><path d="M1 5 L5.5 1 L10 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="anc3">C</span></span></div>
+      <div class="nrow" data-p="c"><i></i><span id="armCLbl">Arm CB</span></div>
+      <div class="nrow" data-p="n3"><i></i><span class="anm" id="nm2"><span class="anc1">C</span><span class="cm"><span class="ch">B</span><svg class="hat" width="11" height="6" viewBox="0 0 11 6"><path d="M1 5 L5.5 1 L10 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="anc3">A</span></span></div>
+    </div>
+    <div class="type" id="typeTxt">This is <b>an acute angle.</b></div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var VX = 188, VY = 170, ARM = 126, AR = 42;
+
+  var C = { t: 52, L: 'ABC', type: 'an acute angle' };
+
+  var fig  = document.getElementById('fig'),
+      scene = document.getElementById('scene'),
+      arc  = document.getElementById('arc'),
+      armA = document.getElementById('armA'),
+      armC = document.getElementById('armC'),
+      dotA = document.getElementById('dotA'),
+      dotC = document.getElementById('dotC'),
+      lblA = document.getElementById('lblA'),
+      lblB = document.getElementById('lblB'),
+      lblC = document.getElementById('lblC'),
+      vLbl = document.getElementById('vLbl'),
+      armALbl = document.getElementById('armALbl'),
+      armCLbl = document.getElementById('armCLbl'),
+      wordLbl = document.getElementById('wordLbl'),
+      nm1 = document.getElementById('nm1'),
+      nm2 = document.getElementById('nm2'),
+      typeTxt = document.getElementById('typeTxt'),
+      rows = [].slice.call(document.querySelectorAll('.nrow'));
+
+  var PH = ['v', 'a', 'c', 'n1', 'n2', 'n3'], pi = 0, timer = null;
+
+  function px(deg, r) { return VX + r * Math.cos(deg * Math.PI / 180); }
+  function py(deg, r) { return VY - r * Math.sin(deg * Math.PI / 180); }
+
+  function baseOf(t) {
+    return t <= 180 ? 90 - t / 2 : 90 + (360 - t) / 2;
+  }
+
+  function placeEnd(lbl, dot, deg) {
+    var x = px(deg, ARM), y = py(deg, ARM);
+    dot.setAttribute('cx', x.toFixed(1));
+    dot.setAttribute('cy', y.toFixed(1));
+    lbl.setAttribute('x', (x + (x < VX ? -14 : 14)).toFixed(1));
+    lbl.setAttribute('y', (y - 10).toFixed(1));
+  }
+
+  function setAnm(el, s) {
+    el.querySelector('.anc1').textContent = s.charAt(0);
+    el.querySelector('.ch').textContent = s.charAt(1);
+    el.querySelector('.anc3').textContent = s.charAt(2);
+  }
+
+  function draw() {
+    var c = C, t = c.t, b = baseOf(t), e = b + t;
+
+    armA.setAttribute('x2', px(e, ARM).toFixed(1));
+    armA.setAttribute('y2', py(e, ARM).toFixed(1));
+    armC.setAttribute('x2', px(b, ARM).toFixed(1));
+    armC.setAttribute('y2', py(b, ARM).toFixed(1));
+
+    var d = 'M ' + px(b, AR).toFixed(1) + ' ' + py(b, AR).toFixed(1);
+    for (var s = 2; s < t; s += 2) {
+      d += ' L ' + px(b + s, AR).toFixed(1) + ' ' + py(b + s, AR).toFixed(1);
+    }
+    d += ' L ' + px(e, AR).toFixed(1) + ' ' + py(e, AR).toFixed(1);
+    arc.setAttribute('d', d);
+
+    placeEnd(lblA, dotA, e);
+    placeEnd(lblC, dotC, b);
+    lblB.setAttribute('y', t <= 180 ? VY + 27 : VY - 19);
+
+    lblA.textContent = c.L.charAt(0);
+    lblB.textContent = c.L.charAt(1);
+    lblC.textContent = c.L.charAt(2);
+
+    vLbl.textContent = c.L.charAt(1);
+    armALbl.textContent = 'Arm ' + c.L.charAt(0) + c.L.charAt(1);
+    armCLbl.textContent = 'Arm ' + c.L.charAt(2) + c.L.charAt(1);
+    wordLbl.textContent = 'Angle ' + c.L;
+    setAnm(nm1, c.L);
+    setAnm(nm2, c.L.charAt(2) + c.L.charAt(1) + c.L.charAt(0));
+    typeTxt.innerHTML = 'This is <b>' + c.type + '.</b>'
+
+    var bb = scene.getBBox();
+    var dy = 120 - (bb.y + bb.height / 2);
+    scene.setAttribute('transform', 'translate(0 ' + dy.toFixed(1) + ')');
+
+    startLoop();
+  }
+
+  function paint() {
+    var p = PH[pi];
+    fig.setAttribute('class', 'lit-' + p);
+    for (var i = 0; i < rows.length; i++) {
+      rows[i].classList.toggle('on', rows[i].getAttribute('data-p') === p);
+    }
+  }
+
+  function startLoop() {
+    if (timer) clearInterval(timer);
+    pi = 0;
+    paint();
+    timer = setInterval(function () {
+      pi = (pi + 1) % PH.length;
+      paint();
+    }, 1600);
+  }
+
+  draw();
+})();
+</script>
+</body>
+</html>

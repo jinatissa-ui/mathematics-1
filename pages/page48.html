@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     48 · Time — real clock + in this lesson
+     ============================================================ */
+  .ttl { flex: none; font-size: 30px; }
+  .sub { flex: none; margin-top: 0; }
+
+  .clock {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 236px;
+    margin-top: 2px;
+  }
+  .clock svg {
+    width: 236px;
+    height: 236px;
+    filter: drop-shadow(0 6px 11px rgba(13, 109, 116, .16));
+  }
+
+  .digi {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 30px;
+    margin-top: 1px;
+  }
+  .dtime {
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 23px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: var(--teal);
+    font-variant-numeric: tabular-nums;
+  }
+  .dap {
+    font-size: 14px;
+    line-height: 17px;
+    font-weight: bold;
+    color: var(--green);
+    background: #e9f8f2;
+    border: 1px solid #cdeee1;
+    border-radius: 999px;
+    padding: 1px 8px 2px;
+  }
+
+  .box { flex: none; margin-top: 6px; }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+  <div class="ttl">2. Time</div>
+  <div class="sub">TIME</div>
+
+  <div class="clock">
+    <svg id="clk" viewBox="0 0 300 300" aria-hidden="true">
+      <!-- frame -->
+      <circle cx="150" cy="150" r="146" fill="#fffdf8" stroke="#0d6d74" stroke-width="6"></circle>
+      <circle cx="150" cy="150" r="137" fill="none" stroke="#dcefe8" stroke-width="2"></circle>
+
+      <!-- ticks + numbers -->
+      <g id="ticks"></g>
+      <g id="nums"></g>
+
+      <!-- hands -->
+      <g id="hh">
+        <line x1="150" y1="159" x2="150" y2="84" stroke="#2f4a51" stroke-width="7" stroke-linecap="round"></line>
+      </g>
+      <g id="mh">
+        <line x1="150" y1="164" x2="150" y2="50" stroke="#2f4a51" stroke-width="4.4" stroke-linecap="round"></line>
+      </g>
+      <g id="sh">
+        <line x1="150" y1="174" x2="150" y2="46" stroke="#e0454a" stroke-width="1.8" stroke-linecap="round"></line>
+        <circle cx="150" cy="167" r="3" fill="#e0454a"></circle>
+        <circle cx="150" cy="46" r="3.2" fill="#e0454a"></circle>
+      </g>
+
+      <!-- centre -->
+      <circle cx="150" cy="150" r="7" fill="#0d6d74"></circle>
+      <circle cx="150" cy="150" r="2.6" fill="#ffcf3f"></circle>
+    </svg>
+  </div>
+
+  <div class="digi">
+    <span class="dtime" id="dtime">--:--:--</span>
+    <span class="dap" id="dap">p.m.</span>
+  </div>
+
+  <div class="box">
+    <div class="box-t">In this lesson you will learn</div>
+    <ul>
+      <li>The units used to measure time</li>
+      <li>How the units are related to each other</li>
+      <li>How to measure the time taken for a task</li>
+      <li>How to add times</li>
+      <li>How to subtract times</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var CX = 150, CY = 150;
+
+  /* ---------- 60 tick marks ---------- */
+  var ticks = document.getElementById('ticks');
+  for (var i = 0; i < 60; i++) {
+    var a = i * 6 * Math.PI / 180;
+    var hour = (i % 5 === 0);
+    var r1 = hour ? 130 : 135;
+    var r2 = 141;
+    var l = document.createElementNS(NS, 'line');
+    l.setAttribute('x1', (CX + r1 * Math.sin(a)).toFixed(2));
+    l.setAttribute('y1', (CY - r1 * Math.cos(a)).toFixed(2));
+    l.setAttribute('x2', (CX + r2 * Math.sin(a)).toFixed(2));
+    l.setAttribute('y2', (CY - r2 * Math.cos(a)).toFixed(2));
+    l.setAttribute('stroke', hour ? '#5f848a' : '#a9c8c1');
+    l.setAttribute('stroke-width', hour ? 3 : 1.2);
+    l.setAttribute('stroke-linecap', 'round');
+    ticks.appendChild(l);
+  }
+
+  /* ---------- numbers 1–12 ---------- */
+  var nums = document.getElementById('nums');
+  for (var n = 1; n <= 12; n++) {
+    var ang = n * 30 * Math.PI / 180;
+    var t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', (CX + 116 * Math.sin(ang)).toFixed(2));
+    t.setAttribute('y', (CY - 116 * Math.cos(ang)).toFixed(2));
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('dominant-baseline', 'central');
+    t.setAttribute('font-family', 'Verdana, "Nirmala UI", sans-serif');
+    t.setAttribute('font-size', '19');
+    t.setAttribute('font-weight', 'bold');
+    t.setAttribute('fill', '#2f4a51');
+    t.textContent = n;
+    nums.appendChild(t);
+  }
+
+  /* ---------- the real time ---------- */
+  var hh = document.getElementById('hh');
+  var mh = document.getElementById('mh');
+  var sh = document.getElementById('sh');
+  var dtime = document.getElementById('dtime');
+  var dap = document.getElementById('dap');
+  var lastAmpm = '';
+
+  function pad2(v) { return v < 10 ? '0' + v : '' + v; }
+
+  function tick() {
+    var d = new Date();
+    var H = d.getHours(), M = d.getMinutes(), S = d.getSeconds();
+
+    hh.setAttribute('transform', 'rotate(' + ((H % 12) * 30 + M * 0.5) + ' ' + CX + ' ' + CY + ')');
+    mh.setAttribute('transform', 'rotate(' + (M * 6 + S * 0.1) + ' ' + CX + ' ' + CY + ')');
+    sh.setAttribute('transform', 'rotate(' + (S * 6) + ' ' + CX + ' ' + CY + ')');
+
+    var h12 = H % 12;
+    if (h12 === 0) h12 = 12;
+    dtime.textContent = pad2(h12) + ':' + pad2(M) + ':' + pad2(S);
+
+    var ap = H < 12 ? 'a.m.' : 'p.m.';
+    if (ap !== lastAmpm) { dap.textContent = ap; lastAmpm = ap; }
+  }
+
+  tick();
+  setInterval(tick, 200);
+})();
+</script>
+</body>
+</html>

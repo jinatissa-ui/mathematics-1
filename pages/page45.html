@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  .figcard {
+    margin-top: 6px;
+    padding: 2px 0 0;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #d5eee6;
+    box-shadow: 0 3px 9px rgba(30, 80, 80, .06);
+  }
+  #fig { display: block; width: 376px; height: 306px; }
+  #fig .arm { stroke: #33454c; stroke-width: 2.2; stroke-linecap: round; }
+  #fig .pt  { fill: #33454c; stroke: #fff; stroke-width: 1.8; }
+  #fig text {
+    font-family: Verdana, "Nirmala UI", sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    fill: #33454c;
+  }
+
+  /* ===== red arcs: the angle (small) + the reflex (large) ===== */
+  #arc, #refArc {
+    fill: none;
+    stroke: #e0454a;
+    stroke-linecap: round;
+    stroke-width: 3.6;
+    stroke-dasharray: 100 100;
+    stroke-dashoffset: 0;
+  }
+  #refArc { stroke-dashoffset: 100; }
+
+  /* ===== the name shown below ===== */
+  .namebox {
+    margin-top: 8px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border-radius: 14px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+  }
+  .anm {
+    display: inline-flex;
+    align-items: baseline;
+    font-family: Verdana, sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: .8px;
+    color: #0d6d74;
+  }
+  .cm { position: relative; display: inline-block; }
+  .cm .hat { position: absolute; left: 50%; top: -8px; transform: translateX(-50%); display: block; }
+  .typ { display: inline-block; font-size: 23px; font-weight: bold; }
+  .typ.acu { color: #2f6fa8; }
+  .typ.rig { color: #0d8a64; }
+  .typ.obt { color: #b25a13; }
+  .typ.ref { color: #c1267b; }
+
+  /* ===== the bottom button ===== */
+  .pill {
+    margin-top: auto;
+    align-self: center;
+    height: 40px;
+    padding: 0 26px;
+    border: 0;
+    border-radius: 999px;
+    background: #0d6d74;
+    color: #fff;
+    font-family: inherit;
+    font-size: 16.5px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(13, 109, 116, .28);
+  }
+  .pill:active { transform: translateY(1px); }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <h2 class="ttl">Name the Angles</h2>
+  <div class="sub">NAME THE ANGLES</div>
+
+  <div class="figcard">
+    <svg id="fig" viewBox="0 0 376 306">
+      <g id="scene">
+        <line id="armA" class="arm" x1="188" y1="204" x2="300" y2="204"/>
+        <line id="armC" class="arm" x1="188" y1="204" x2="76" y2="204"/>
+        <path id="arc" pathLength="100" d=""/>
+        <path id="refArc" pathLength="100" d=""/>
+        <circle id="dotA" class="pt" cx="300" cy="204" r="3.4"/>
+        <circle id="dotC" class="pt" cx="76" cy="204" r="3.4"/>
+        <circle id="dotB" class="pt" cx="188" cy="204" r="4"/>
+        <text id="lblA" x="314" y="194" text-anchor="middle">A</text>
+        <text id="lblC" x="62" y="194" text-anchor="middle">C</text>
+        <text id="lblB" x="188" y="232" text-anchor="middle">B</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="namebox" id="namebox">
+    <span class="anm"><span id="c0">P</span><span class="cm"><span id="c1">Q</span><svg class="hat" width="13" height="7" viewBox="0 0 13 7"><path d="M1.4 6 L6.5 1.4 L11.6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span id="c2">R</span></span>
+    <b class="typ obt" id="cType">Obtuse angle</b>
+  </div>
+
+  <button class="pill" id="nextAng">Another angle</button>
+</div>
+
+<script>
+(function () {
+  var VX = 188, VY = 204, ARM = 150, AR = 48, RR = 84;
+
+  /* alternating acute → right → obtuse */
+  var ANG = [
+    { t: 56,  L: 'ABC', k: 'acu' },
+    { t: 90,  L: 'PQR', k: 'rig' },
+    { t: 131, L: 'DEF', k: 'obt' },
+    { t: 44,  L: 'KLM', k: 'acu' },
+    { t: 90,  L: 'STU', k: 'rig' },
+    { t: 155, L: 'XYZ', k: 'obt' },
+    { t: 74,  L: 'NOP', k: 'acu' },
+    { t: 90,  L: 'RST', k: 'rig' },
+    { t: 119, L: 'UVW', k: 'obt' }
+  ];
+  var TYPE = { acu: 'Acute angle', rig: 'Right angle', obt: 'Obtuse angle' };
+  var idx = 0, tmr = 0;
+
+  var fig = document.getElementById('fig'),
+      scene = document.getElementById('scene'),
+      arc = document.getElementById('arc'),
+      refArc = document.getElementById('refArc'),
+      armA = document.getElementById('armA'),
+      armC = document.getElementById('armC'),
+      dotA = document.getElementById('dotA'),
+      dotC = document.getElementById('dotC'),
+      lblA = document.getElementById('lblA'),
+      lblB = document.getElementById('lblB'),
+      lblC = document.getElementById('lblC'),
+      c0 = document.getElementById('c0'),
+      c1 = document.getElementById('c1'),
+      c2 = document.getElementById('c2'),
+      cType = document.getElementById('cType'),
+      btn = document.getElementById('nextAng');
+
+  function px(deg, r) { return VX + r * Math.cos(deg * Math.PI / 180); }
+  function py(deg, r) { return VY - r * Math.sin(deg * Math.PI / 180); }
+
+  /* the angle is symmetrical about the vertical axis */
+  function baseOf(t) { return 90 - t / 2; }
+
+  function arcD(a0, a1, r) {
+    var d = 'M ' + px(a0, r).toFixed(1) + ' ' + py(a0, r).toFixed(1);
+    for (var s = 2; a0 + s < a1; s += 2) {
+      d += ' L ' + px(a0 + s, r).toFixed(1) + ' ' + py(a0 + s, r).toFixed(1);
+    }
+    return d + ' L ' + px(a1, r).toFixed(1) + ' ' + py(a1, r).toFixed(1);
+  }
+
+  function placeEnd(lbl, dot, deg) {
+    var x = px(deg, ARM), y = py(deg, ARM);
+    dot.setAttribute('cx', x.toFixed(1));
+    dot.setAttribute('cy', y.toFixed(1));
+    lbl.setAttribute('x', (x + (x < VX ? -16 : 16)).toFixed(1));
+    lbl.setAttribute('y', (y - 11).toFixed(1));
+  }
+
+  function drawArc(el, dur) {
+    el.style.transition = 'none';
+    el.style.strokeDashoffset = '100';
+    void el.getBoundingClientRect();
+    el.style.transition = 'stroke-dashoffset ' + dur + 'ms ease-out';
+    el.style.strokeDashoffset = '0';
+  }
+
+  function hideArc(el) {
+    el.style.transition = 'none';
+    el.style.strokeDashoffset = '100';
+  }
+
+  function setType(txt, cls, fade) {
+    cType.textContent = txt;
+    cType.className = 'typ ' + cls;
+    if (fade) {
+      cType.style.transition = 'none';
+      cType.style.opacity = '0';
+      void cType.offsetWidth;
+      cType.style.transition = 'opacity .25s ease';
+      cType.style.opacity = '1';
+    }
+  }
+
+  function show(c) {
+    var t = c.t, b = baseOf(t), e = b + t;
+
+    armA.setAttribute('x2', px(e, ARM).toFixed(1));
+    armA.setAttribute('y2', py(e, ARM).toFixed(1));
+    armC.setAttribute('x2', px(b, ARM).toFixed(1));
+    armC.setAttribute('y2', py(b, ARM).toFixed(1));
+
+    arc.setAttribute('d', arcD(b, e, AR));
+    refArc.setAttribute('d', arcD(e, b + 360, RR));
+
+    placeEnd(lblA, dotA, e);
+    placeEnd(lblC, dotC, b);
+    lblB.setAttribute('y', VY + 28);
+
+    lblA.textContent = c.L.charAt(0);
+    lblB.textContent = c.L.charAt(1);
+    lblC.textContent = c.L.charAt(2);
+
+    c0.textContent = c.L.charAt(0);
+    c1.textContent = c.L.charAt(1);
+    c2.textContent = c.L.charAt(2);
+
+    setType(TYPE[c.k], c.k, false);
+    hideArc(refArc);
+    drawArc(arc, 900);
+
+    var bb = scene.getBBox();
+    scene.setAttribute('transform', 'translate(0 ' + (153 - (bb.y + bb.height / 2)).toFixed(1) + ')');
+
+    fig.style.transition = 'none';
+    fig.style.opacity = '.2';
+    void fig.getBoundingClientRect();
+    fig.style.transition = 'opacity .24s ease';
+    fig.style.opacity = '1';
+
+    clearTimeout(tmr);
+    tmr = setTimeout(showRef, 2200);
+  }
+
+  function showRef() {
+    drawArc(refArc, 1400);
+    setType('Reflex angle', 'ref', true);
+  }
+
+  btn.addEventListener('click', function () {
+    idx = (idx + 1) % ANG.length;
+    show(ANG[idx]);
+  });
+
+  show(ANG[0]);
+})();
+</script>
+</body>
+</html>

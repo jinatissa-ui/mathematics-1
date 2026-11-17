@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     49 · time-measuring instruments — small pictures + a big one with details
+     ============================================================ */
+  .ttl { flex: none; font-size: 24px; }
+  .sub { flex: none; margin-top: 0; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- small picture grid ---------- */
+  .grid {
+    flex: 1;
+    min-height: 0;
+    margin-top: 4px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 7px;
+  }
+  .tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 5px 4px 6px;
+    border-radius: 12px;
+    border: 1px solid #d5eee6;
+    background: #fff;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .tile:hover, .tile:focus-visible {
+    border-color: #9fd6c4;
+    background: #f9fefc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(13, 109, 116, .12);
+    outline: none;
+  }
+  .tile:active { transform: translateY(0) scale(.97); }
+  .tile.on {
+    border-color: #35a58c;
+    background: #f4fdf9;
+    box-shadow: 0 0 0 2px rgba(53, 165, 140, .2);
+  }
+  .tile .art {
+    width: 100%;
+    height: 94px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .tile .art svg {
+    width: 100%;
+    height: 94px;
+    display: block;
+  }
+  .tile .cap {
+    font-size: 14px;
+    line-height: 17px;
+    font-weight: bold;
+    color: #33525a;
+    text-align: center;
+    pointer-events: none;
+  }
+  .tile.on .cap { color: var(--teal); }
+
+  /* last tile — hint */
+  .tile.hint {
+    grid-column: span 2;
+    height: 100%;
+    cursor: default;
+    background: var(--mint);
+    border-color: #d5eee6;
+    flex-direction: row;
+    gap: 9px;
+    padding: 0 14px;
+  }
+  .tile.hint:hover { transform: none; box-shadow: none; background: var(--mint); border-color: #d5eee6; }
+  .tile.hint .mouse { width: 30px; height: 30px; flex: none; }
+  .tile.hint .htxt {
+    max-width: 190px;
+    font-size: 14px;
+    line-height: 19px;
+    color: #3f6a70;
+    text-align: left;
+  }
+
+  /* ---------- big picture (overlay) ---------- */
+  .pop {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 45, 45, .3);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s ease;
+  }
+  .pop.on { opacity: 1; }
+  .pcard {
+    position: relative;
+    width: 318px;
+    padding: 13px 15px 15px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, .32);
+    transform: translateY(10px) scale(.97);
+    transition: transform .2s ease;
+    pointer-events: none;
+  }
+  .pop.on .pcard { transform: translateY(0) scale(1); pointer-events: auto; }
+  .pimg {
+    height: 186px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: #f5fbf8;
+    border: 1px solid #dff0e9;
+    overflow: hidden;
+  }
+  .pimg svg { width: 100%; height: 100%; display: block; }
+  .pname {
+    margin-top: 8px;
+    font-size: 21px;
+    line-height: 1.25;
+    font-weight: bold;
+    color: var(--teal);
+    text-align: center;
+  }
+  .pdesc {
+    margin-top: 4px;
+    padding: 0 2px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    text-align: left;
+  }
+  .px {
+    position: absolute;
+    right: 9px;
+    top: 9px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 0;
+    background: #eef4f2;
+    color: #5d7f83;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .px:hover { background: #e2ece9; }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+  <div class="ttl">Instruments That Measure Time</div>
+  <div class="sub">TIMEKEEPERS</div>
+
+  <div class="grid" id="grid">
+    <!-- 1 · sand timer -->
+    <div class="tile" data-k="0" role="button" tabindex="0" aria-label="Sand timer">
+      <span class="art">
+        <svg viewBox="0 0 120 96" aria-hidden="true">
+          <g stroke="#33454c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+            <rect x="28" y="7" width="64" height="8" rx="3" fill="#c08a55"></rect>
+            <rect x="28" y="81" width="64" height="8" rx="3" fill="#c08a55"></rect>
+            <path d="M34 15H86L62 48L86 81H34L58 48Z" fill="#f2fbf7"></path>
+            <path d="M40 19H80L61 44Z" fill="#f3cf6b" stroke="none"></path>
+            <path d="M45 81L60 62L75 81Z" fill="#e8b84b" stroke="none"></path>
+            <line x1="60" y1="45" x2="60" y2="74" stroke="#e8b84b" stroke-width="2"></line>
+            <path d="M34 15H86L62 48L86 81H34L58 48Z" fill="none"></path>
+            <path d="M40 24V35" stroke="#ffffff" stroke-width="2.4" opacity=".75"></path>
+          </g>
+        </svg>
+      </span>
+      <span class="cap">Sand timer</span>
+    </div>
+
+    <!-- 2 · old clock -->
+    <div class="tile" data-k="1" role="button" tabindex="0" aria-label="Old clock">
+      <span class="art">
+        <svg viewBox="0 0 120 96" aria-hidden="true">
+          <g stroke="#33454c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+            <path d="M45 10L60 2L75 10Z" fill="#9a6a3e"></path>
+            <path d="M45 10h30l3 8v68H42V18z" fill="#c08a55"></path>
+            <rect x="48" y="16" width="24" height="66" rx="2" fill="#e8c39a"></rect>
+            <circle cx="60" cy="32" r="12" fill="#fff8e8"></circle>
+            <g stroke="#2f4a51" stroke-width="1.6">
+              <line x1="60" y1="32" x2="60" y2="23"></line>
+              <line x1="60" y1="32" x2="67" y2="35"></line>
+            </g>
+            <circle cx="60" cy="32" r="1.8" fill="#0d6d74" stroke="none"></circle>
+            <rect x="51" y="49" width="18" height="28" rx="9" fill="#f2fbf7"></rect>
+            <line x1="60" y1="52" x2="60" y2="66" stroke="#7c8f94" stroke-width="1.4"></line>
+            <circle cx="60" cy="68" r="4" fill="#ffcf3f"></circle>
+            <path d="M42 86v5M78 86v5" stroke-width="3"></path>
+          </g>
+        </svg>
+      </span>
+      <span class="cap">Old clock</span>
+    </div>
+
+    <!-- 3 · Big Ben -->
+    <div class="tile" data-k="2" role="button" tabindex="0" aria-label="Big Ben">
+      <span class="art">
+        <svg viewBox="0 0 120 96" aria-hidden="true">
+          <g stroke="#33454c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+            <line x1="60" y1="4" x2="60" y2="0" stroke="#7c8f94" stroke-width="1.6"></line>
+            <path d="M52 24L60 4L68 24Z" fill="#8e5f39"></path>
+            <rect x="50" y="24" width="20" height="40" fill="#d3bc95"></rect>
+            <rect x="45" y="64" width="30" height="24" fill="#c3ab85"></rect>
+            <line x1="50" y1="48" x2="70" y2="48" stroke="#9b8462" stroke-width="1.4"></line>
+            <line x1="50" y1="52" x2="70" y2="52" stroke="#9b8462" stroke-width="1.4"></line>
+            <circle cx="60" cy="36" r="9" fill="#fff8e8"></circle>
+            <circle cx="60" cy="36" r="8" fill="none" stroke="#0d6d74" stroke-width="1.2"></circle>
+            <g stroke="#2f4a51" stroke-width="1.5">
+              <line x1="60" y1="36" x2="60" y2="29.5"></line>
+              <line x1="60" y1="36" x2="66" y2="36"></line>
+            </g>
+            <circle cx="60" cy="36" r="1.4" fill="#0d6d74" stroke="none"></circle>
+            <path d="M55 72h10v16H55z" fill="#33454c"></path>
+            <path d="M58 72v-5M62 72v-5" stroke="#33454c" stroke-width="1.4"></path>
+          </g>
+        </svg>
+      </span>
+      <span class="cap">Big Ben</span>
+    </div>
+
+    <!-- 4 · wall clock -->
+    <div class="tile" data-k="3" role="button" tabindex="0" aria-label="Wall clock">
+      <span class="art">
+        <svg viewBox="0 0 120 96" aria-hidden="true">
+          <line x1="60" y1="8" x2="60" y2="25" stroke="#7c8f94" stroke-width="2.2"></line>
+          <circle cx="60" cy="9" r="2.6" fill="#7c8f94"></circle>
+          <circle cx="60" cy="53" r="30" fill="#fff8e8" stroke="#0d6d74" stroke-width="4"></circle>
+          <circle cx="60" cy="53" r="24.5" fill="none" stroke="#dcefe8" stroke-width="1.5"></circle>
+          <g class="wticks" stroke="#5f848a" stroke-width="1.6" stroke-linecap="round"></g>
+          <g stroke="#2f4a51" stroke-width="2.4" stroke-linecap="round">
+            <line x1="60" y1="53" x2="49.4" y2="45.5"></line>
+            <line x1="60" y1="53" x2="76.5" y2="43.5"></line>
+          </g>
+          <circle cx="60" cy="53" r="2.6" fill="#0d6d74"></circle>
+        </svg>
+      </span>
+      <span class="cap">Wall clock</span>
+    </div>
+
+    <!-- 5 · table clock -->
+    <div class="tile" data-k="4" role="button" tabindex="0" aria-label="Table clock">
+      <span class="art">
+        <svg viewBox="0 0 120 96" aria-hidden="true">
+          <g stroke="#33454c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+            <line x1="45" y1="18" x2="45" y2="12" stroke-width="2"></line>
+            <line x1="75" y1="18" x2="75" y2="12" stroke-width="2"></line>
+            <circle cx="45" cy="27" r="9" fill="#ffcf3f"></circle>
+            <circle cx="75" cy="27" r="9" fill="#ffcf3f"></circle>
+            <circle cx="60" cy="55" r="26" fill="#c08a55"></circle>
+            <circle cx="60" cy="55" r="19" fill="#fff8e8" stroke="#7c8f94" stroke-width="1.6"></circle>
+            <g stroke="#2f4a51" stroke-width="1.8" stroke-linecap="round">
+              <line x1="60" y1="55" x2="52" y2="48"></line>
+              <line x1="60" y1="55" x2="71" y2="46"></line>
+            </g>
+            <circle cx="60" cy="55" r="2" fill="#0d6d74" stroke="none"></circle>
+            <path d="M47 80l-3 8M73 80l3 8" stroke-width="3"></path>
+          </g>
+        </svg>
+      </span>
+      <span class="cap">Table clock</span>
+    </div>
+
+    <!-- 6 · digital clock -->
+    <div class="tile" data-k="5" role="button" tabindex="0" aria-label="Digital clock">
+      <span class="art">
+        <svg viewBox="0 0 120 96" aria-hidden="true">
+          <g stroke="#33454c" stroke-width="2" stroke-linejoin="round">
+            <rect x="22" y="30" width="76" height="42" rx="7" fill="#2f4a51"></rect>
+            <rect x="28" y="36" width="58" height="24" rx="3" fill="#0b1f22" stroke="none"></rect>
+            <text x="57" y="54" font-family="Verdana, sans-serif" font-size="15" font-weight="bold"
+                  fill="#ff6a5e" text-anchor="middle" stroke="none">12:45</text>
+            <circle cx="92" cy="42" r="2" fill="#ffcf3f" stroke="none"></circle>
+            <circle cx="92" cy="50" r="2" fill="#7fd0c6" stroke="none"></circle>
+            <path d="M40 72l-3 8M80 72l3 8" stroke-width="3"></path>
+          </g>
+        </svg>
+      </span>
+      <span class="cap">Digital clock</span>
+    </div>
+
+    <!-- 7 · wristwatch -->
+    <div class="tile" data-k="6" role="button" tabindex="0" aria-label="Wristwatch">
+      <span class="art">
+        <svg viewBox="0 0 120 96" aria-hidden="true">
+          <g stroke="#33454c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+            <path d="M46 6h28l-3 24H49Z" fill="#0d6d74"></path>
+            <path d="M49 66h25l3 24H46Z" fill="#0d6d74"></path>
+            <line x1="50" y1="13" x2="70" y2="13" stroke="#7fd0c6" stroke-width="2"></line>
+            <line x1="52" y1="82" x2="68" y2="82" stroke="#7fd0c6" stroke-width="2"></line>
+            <circle cx="60" cy="48" r="21" fill="#7c8f94"></circle>
+            <circle cx="60" cy="48" r="17.5" fill="#fff8e8"></circle>
+            <circle cx="60" cy="48" r="14" fill="none" stroke="#dcefe8" stroke-width="1.4"></circle>
+            <g stroke="#2f4a51" stroke-width="1.8" stroke-linecap="round">
+              <line x1="60" y1="48" x2="52" y2="41"></line>
+              <line x1="60" y1="48" x2="71" y2="39"></line>
+            </g>
+            <circle cx="60" cy="48" r="2" fill="#0d6d74" stroke="none"></circle>
+            <rect x="81" y="43" width="5" height="10" rx="2" fill="#7c8f94"></rect>
+          </g>
+        </svg>
+      </span>
+      <span class="cap">Wristwatch</span>
+    </div>
+
+    <!-- hint -->
+    <div class="tile hint" aria-hidden="true">
+      <svg class="mouse" viewBox="0 0 28 28" aria-hidden="true">
+        <circle cx="8.4" cy="7.2" r="5" fill="none" stroke="#35a58c" stroke-width="1.5" opacity=".6"></circle>
+        <path d="M7 3l13 9-5.6 1.2L11 20z" fill="#0d6d74" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"></path>
+      </svg>
+      <span class="htxt">Click a picture to read about it</span>
+    </div>
+  </div>
+
+  <!-- big picture -->
+  <div class="pop" id="pop">
+    <div class="pcard" id="pcard">
+      <button class="px" id="px" type="button" aria-label="Close">×</button>
+      <div class="pimg" id="pimg"></div>
+      <div class="pname" id="pname"></div>
+      <div class="pdesc" id="pdesc"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  /* second/minute ticks of the wall clock */
+  (function () {
+    var g = document.querySelector('.wticks');
+    if (!g) return;
+    for (var i = 0; i < 12; i++) {
+      var a = i * 30 * Math.PI / 180;
+      var l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      l.setAttribute('x1', (60 + 19 * Math.sin(a)).toFixed(2));
+      l.setAttribute('y1', (53 - 19 * Math.cos(a)).toFixed(2));
+      l.setAttribute('x2', (60 + 23 * Math.sin(a)).toFixed(2));
+      l.setAttribute('y2', (53 - 23 * Math.cos(a)).toFixed(2));
+      g.appendChild(l);
+    }
+  })();
+
+  var DATA = [
+    { name: 'Sand timer',
+      desc: 'An instrument used to measure time in ancient days. It counts time until the sand in the upper chamber runs out.' },
+    { name: 'Old clock',
+      desc: 'Measures time by the swinging of a pendulum hanging inside a wooden case. A type of clock found in houses of the past.' },
+    { name: 'Big Ben',
+      desc: 'The famous clock tower in London. It has a large clock face and a bell.' },
+    { name: 'Wall clock',
+      desc: 'A clock hung on a wall. Commonly seen in homes, schools and offices.' },
+    { name: 'Table clock',
+      desc: 'A clock kept on a table for use. Most of them have a bell and an alarm.' },
+    { name: 'Digital clock',
+      desc: 'A clock that shows the time with digits. Hours, minutes and seconds can be read directly.' },
+    { name: 'Wristwatch',
+      desc: 'A watch worn on the wrist. The time can be checked easily while travelling or working.' }
+  ];
+
+  var tiles = Array.prototype.slice.call(document.querySelectorAll('.tile[data-k]'));
+  var pop = document.getElementById('pop');
+  var pcard = document.getElementById('pcard');
+  var pimg = document.getElementById('pimg');
+  var pname = document.getElementById('pname');
+  var pdesc = document.getElementById('pdesc');
+  var px = document.getElementById('px');
+
+  var cur = -1;
+
+  function show(i) {
+    if (i < 0 || i >= tiles.length) return;
+    var d = DATA[i];
+    var art = tiles[i].querySelector('.art svg');
+    pimg.innerHTML = '';
+    pimg.appendChild(art.cloneNode(true));
+    pname.textContent = d.name;
+    pdesc.textContent = d.desc;
+    cur = i;
+    pop.classList.add('on');
+    for (var k = 0; k < tiles.length; k++) {
+      tiles[k].classList.toggle('on', k === i);
+    }
+  }
+
+  function close() {
+    pop.classList.remove('on');
+    cur = -1;
+    for (var k = 0; k < tiles.length; k++) tiles[k].classList.remove('on');
+  }
+
+  tiles.forEach(function (t, i) {
+    t.addEventListener('click', function (e) {
+      e.preventDefault();
+      show(i);
+    });
+    t.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(i); }
+    });
+  });
+
+  px.addEventListener('click', function (e) {
+    e.stopPropagation();
+    close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+  document.addEventListener('pointerdown', function (e) {
+    if (!pop.classList.contains('on')) return;
+    if (pcard.contains(e.target)) return;
+    close();
+  }, true);
+})();
+</script>
+</body>
+</html>

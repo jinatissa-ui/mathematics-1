@@ -1,0 +1,885 @@
+﻿<!doctype html>
+<!--[if lt IE 7 ]> <html lang="en" class="ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mathematics 1 — Grade 6</title>
+<meta name="theme-color" content="#5b2a86">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mathematics 1">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<style>
+
+   
+	.up:hover{
+		background:#ccc;cursor:pointer
+		
+		
+		
+}
+</style>
+<script type="text/javascript" src="js/jquery.min.1.7.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.8.20.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery.mousewheel.min.js"></script>
+<script type="text/javascript" src="js/modernizr.2.5.3.min.js"></script>
+<script type="text/javascript" src="js/hash.js"></script>
+<script type="text/javascript" src="js/mybook.js"></script>
+<script type="text/javascript" src="js/drag.js"></script>
+<script type="text/javascript" src="js/showModalDialog.js"></script>
+</head>
+<body onload="lod()" style="background-image:url('pics/bg.png');
+    background-repeat:repeat;">
+	
+	<script>
+	var pn=118;
+	function lod(){
+	
+	back1.setAttribute('class','hard fixed back-side p'+(pn-1));
+back2.setAttribute('class','hard p'+pn);	
+	}
+	
+	</script>
+	
+	<style>
+    * {
+      box-sizing: border-box;
+    }
+
+    .book-navigation {
+  position: fixed;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: auto;
+  height: auto;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, .95);
+  border: 1px solid #cfe1dc;
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .22);
+  z-index: 9999;
+}
+    .book-navigation button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      width: 44px;
+      height: 34px;
+      padding: 0;
+      border: 1px solid #9a7900;
+      border-radius: 8px;
+      background: #fff4bd;
+      cursor: pointer;
+    }
+
+    .book-navigation button:hover {
+      background: #fff;
+    }
+
+    .triangle {
+      width: 0;
+      height: 0;
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+    }
+
+    .triangle.left {
+      border-right: 11px solid #222;
+    }
+
+    .triangle.right {
+      border-left: 11px solid #222;
+    }
+
+    .end-bar {
+      width: 2px;
+      height: 16px;
+      background: #222;
+    }
+
+    .book-page[hidden] {
+      display: none;
+    }
+
+    /* page 8 is the blank facing page of the module divider */
+    .sj-book .p8 p,
+    .sj-book .p8 div.up {
+      display: none !important;
+    }
+
+    /* English text for the front matter */
+    .own-size.en {
+      font-family: "Segoe UI", "Nirmala UI", "Iskoola Pota", sans-serif;
+    }
+
+    /* ---------- Contents · with page numbers ---------- */
+    .tocbox {
+      position: absolute;
+      top: 78px;
+      left: 38px;
+      width: 380px;
+      font-size: 19px;
+      color: #40504d;
+    }
+    .tocbox .mod {
+      margin: 11px 0 3px;
+      padding: 5px 11px;
+      border-radius: 9px;
+      background: linear-gradient(180deg, #fb71b0, #ef4f96);
+      color: #fff;
+      font-size: 16.5px;
+      font-weight: bold;
+      letter-spacing: .1px;
+      box-shadow: 0 2px 0 rgba(170, 26, 92, .16);
+    }
+    .tocbox .mod:first-child { margin-top: 0; }
+    .tocbox ol { list-style: none; margin: 0; padding: 0 0 2px; }
+    .tocbox li {
+      display: flex;
+      align-items: baseline;
+      padding: 4px 5px;
+      border-radius: 7px;
+      cursor: pointer;
+      line-height: 1.3;
+    }
+    .tocbox li:hover { background: #fff2f8; }
+    .tocbox li .no {
+      flex: none;
+      width: 21px;
+      color: #c1267b;
+      font-weight: bold;
+      font-size: 15px;
+    }
+    .tocbox li .tx { flex: none; }
+    .tocbox li .ld {
+      flex: 1 1 auto;
+      min-width: 6px;
+      margin: 0 6px 4px;
+      border-bottom: 1.5px dotted #eab3cf;
+    }
+    .tocbox li .pg {
+      flex: none;
+      font-family: Verdana, sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      color: #b3246f;
+    }
+
+    /* ---------- enlarge-page button and zoom screen ---------- */
+    .zoomb {
+      position: absolute;
+      left: 50%;
+      bottom: 4px;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 34px;
+      padding: 0;
+      border: 1px solid #cfe1dc;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, .92) url('pics/zoom.png') no-repeat center / 26px 26px;
+      font-size: 0;
+      line-height: 1;
+      cursor: pointer;
+      z-index: 6;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, .10);
+    }
+    .zoomb:hover {
+      background-color: #fff;
+      border-color: #b9dad2;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, .18);
+    }
+
+    .zoom-layer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 30000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      box-sizing: border-box;
+      background: rgba(18, 36, 36, .62);
+    }
+    .zoom-layer.on { display: flex; }
+    .zoom-card {
+      position: relative;
+      padding: 6px;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 26px 70px rgba(0, 0, 0, .4);
+    }
+    .zoom-stage {
+      position: relative;
+      overflow: auto;
+      overscroll-behavior: contain;
+      max-width: calc(100vw - 40px);
+      max-height: calc(100vh - 40px);
+      border-radius: 10px;
+      background: #fff;
+    }
+    .zoom-stage::-webkit-scrollbar { width: 10px; height: 10px; }
+    .zoom-stage::-webkit-scrollbar-thumb {
+      background: #cfe3e0;
+      border-radius: 6px;
+    }
+    .zoom-inner {
+      position: relative;
+      width: 0;
+      height: 0;
+      background: #fff;
+    }
+    .zoom-page {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: top left;
+      background: #fff;
+      overflow: hidden;
+    }
+    .zoom-page .own-size {
+      position: relative !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 500px !important;
+      height: 620px !important;
+      box-shadow: none !important;
+    }
+    .zoom-x {
+      position: absolute;
+      top: -13px;
+      right: -8px;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      background: #e0457b;
+      color: #fff;
+      font-size: 17px;
+      line-height: 1;
+      cursor: pointer;
+      z-index: 3;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, .32);
+    }
+    .zoom-x:hover { background: #c22a5e; }
+
+    /* ---------- install as an app ---------- */
+    #installBtn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 9500;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 15px;
+      border: 1px solid #bb92d9;
+      border-radius: 999px;
+      background: #fff;
+      color: #5b2a86;
+      font: bold 14px/1 "Segoe UI", "Nirmala UI", "Iskoola Pota", sans-serif;
+      box-shadow: 0 6px 16px rgba(40, 20, 60, .22);
+      cursor: pointer;
+    }
+    #installBtn[hidden] { display: none; }
+    #installBtn::before {
+      content: "";
+      flex: none;
+      width: 15px;
+      height: 15px;
+      background: no-repeat center / 15px 15px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b2a86' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3v12'/%3E%3Cpath d='M7 10l5 5 5-5'/%3E%3Cpath d='M4 21h16'/%3E%3C/svg%3E");
+    }
+
+    /* ---------- phone screens ---------- */
+    @media (max-width: 820px), (max-height: 540px) {
+      .book-navigation {
+        bottom: calc(8px + env(safe-area-inset-bottom));
+        padding: 6px 7px;
+        gap: 5px;
+      }
+      .book-navigation button {
+        width: 46px;
+        height: 36px;
+      }
+      .zoomb {
+        width: 64px;
+        height: 38px;
+        background-size: 28px 28px;
+      }
+      #installBtn {
+        top: calc(8px + env(safe-area-inset-top));
+        right: 8px;
+      }
+    }
+  </style>
+	
+	
+<input style="display:none" type="file"  id="inputSaveAsFile" nwsaveas="Page.html" />
+
+	<textarea id = "txt"  rows=2 name="markdown"  style="display:none" ></textarea>
+
+<div id="canvas">
+
+
+<div id="book-zoom">
+		<div class="sj-book">
+			<div depth="5" class="hard"> <div class="side"></div> </div>
+			<div depth="5" class="hard front-side"> <div class="depth"></div> 
+		
+<img src='pics/pcgirl2.png'   style="position:absolute;top:250px;left:170px;width:200px;box-shadow:10px 10px 12px #cccccc" />
+		
+			
+			</div>
+
+	
+	<div class="own-size en">
+ 	<div style="position:absolute;top:118px;left:70px;width:360px">
+<h1 style="text-align:center;margin-bottom:16px;">Preface</h1>
+ <p style="font-size:20px;line-height:1.55;text-align:justify;color:#2f4242;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;These activity-based lessons have been prepared according to the new Mathematics syllabus for Grade&nbsp;6, which begins in 2027 under the new education reforms. </p>
+ <p style="font-size:20px;text-align:center;margin-top:24px;">Upali Jinatissa<br>Retired Mathematics Teacher</p>
+</div>
+<button type="button" class="zoomb" title="Enlarge page" aria-label="Enlarge page"></button>
+</div>
+
+<div class="own-size even en">
+<h2 style="position:absolute;top:30px;left:150px;margin:0;">Contents</h2>	
+<div class="tocbox">
+<p class="mod">Module 1 — Numbers I</p>
+<ol>
+<li class='up' onclick="$('.sj-book').turn('page',6)"><span class="no">1.</span><span class="tx">Place Value</span><span class="ld"></span><span class="pg">2</span></li>
+<li class='up' onclick="$('.sj-book').turn('page',15)"><span class="no">2.</span><span class="tx">Numbers and Operations</span><span class="ld"></span><span class="pg">11</span></li>
+<li class='up' onclick="$('.sj-book').turn('page',36)"><span class="no">3.</span><span class="tx">Number Line</span><span class="ld"></span><span class="pg">32</span></li>
+</ol>
+<p class="mod">Module 2 — Geometry and Measurement</p>
+<ol>
+<li class='up' onclick="$('.sj-book').turn('page',44)"><span class="no">1.</span><span class="tx">Angles</span><span class="ld"></span><span class="pg">40</span></li>
+<li class='up' onclick="$('.sj-book').turn('page',52)"><span class="no">2.</span><span class="tx">Time</span><span class="ld"></span><span class="pg">48</span></li>
+</ol>
+<p class="mod">Module 3 — Numbers II</p>
+<ol>
+<li class='up' onclick="$('.sj-book').turn('page',80)"><span class="no">1.</span><span class="tx">Estimation and Rounding</span><span class="ld"></span><span class="pg">76</span></li>
+<li class='up' onclick="$('.sj-book').turn('page',89)"><span class="no">2.</span><span class="tx">Factors and Multiples</span><span class="ld"></span><span class="pg">85</span></li>
+<li class='up' onclick="$('.sj-book').turn('page',100)"><span class="no">3.</span><span class="tx">Number Types and Patterns</span><span class="ld"></span><span class="pg">96</span></li>
+</ol>
+</div>
+<button type="button" class="zoomb" title="Enlarge page" aria-label="Enlarge page"></button>
+</div>		
+			
+			
+	<div class=""  id='back1'> 
+<img src='pics/call.jpg'   style="position:absolute;top:100px;left:80px;" />
+
+
+
+
+<div class="depth"></div> </div>
+			<div class=""  id='back2' style="background-image:url('pics/back2.png') ">
+	<img src='pics/pcgirl.png' width='200px'  style="position:absolute;top:240px;left:150px;" />
+	<img src='pics/happy.png' width='200px'  style="position:absolute;top:140px;left:150px;" />
+	
+	<h2 style="position:absolute;top:460px;left:185px;color:white;">Upali Jinatissa</h2>	
+			</div>
+			
+			
+			</div>
+		</div>
+	</div>
+
+<nav class="book-navigation" aria-label="Book page controls">
+	<button type="button" title="First page" aria-label="First page" onclick="gofirst()">
+		<span class="end-bar"></span><span class="triangle left"></span>
+	</button>
+	<button type="button" title="Previous page" aria-label="Previous page" onclick="goback()">
+		<span class="triangle left"></span>
+	</button>
+	<button type="button" title="Next page" aria-label="Next page" onclick="gonext()">
+		<span class="triangle right"></span>
+	</button>
+	<button type="button" title="Last page" aria-label="Last page" onclick="golast()">
+		<span class="triangle right"></span><span class="end-bar"></span>
+	</button>
+</nav>
+
+<button type="button" id="installBtn" hidden>Install app</button>
+
+<div class="zoom-layer" id="zoomLayer" aria-hidden="true">
+	<div class="zoom-card">
+		<button type="button" class="zoom-x" id="zoomX" title="Close" aria-label="Close">✕</button>
+		<div class="zoom-stage" id="zoomStage">
+			<div class="zoom-inner" id="zoomInner"></div>
+		</div>
+	</div>
+</div>
+
+<script>
+	// on a phone the book opens one page at a time (much easier to read)
+	var SINGLE = !!(window.matchMedia && window.matchMedia('(max-width: 820px), (max-height: 540px)').matches);
+
+	// scale the book so the whole page always fits in the window
+	function fitBook() {
+		var c = document.getElementById('canvas');
+		if (!c) return;
+		var base = SINGLE ? 520 : 1040;
+		var reserve = 64;
+		c.style.width = base + 'px';
+		var z = Math.min((window.innerWidth - 10) / base, (window.innerHeight - reserve) / 650, 1);
+		if (!isFinite(z) || z <= 0) z = 1;
+		c.style.zoom = z;
+		c.style.margin = '0';
+		// offsets are inside the zoomed canvas, so divide by z
+		c.style.top = (Math.max(0, (window.innerHeight - reserve - 650 * z) / 2) / z) + 'px';
+		c.style.left = (Math.max(0, (window.innerWidth - base * z) / 2) / z) + 'px';
+	}
+	window.addEventListener('resize', fitBook);
+	setTimeout(fitBook, 60);
+	window.addEventListener('load', fitBook);
+</script>
+	
+
+
+<script type="text/javascript">
+
+
+
+function loadApp() {
+var pn=116;
+back1.setAttribute('class','hard fixed back-side p'+(pn-1));
+back2.setAttribute('class','hard p'+pn);
+
+
+	var flipbook = $('.sj-book');
+
+	// Check if the CSS was already loaded
+	
+	if (flipbook.width()==0 || flipbook.height()==0) {
+		setTimeout(loadApp, 10);
+		return;
+	}
+
+	// Mousewheel
+
+	$('#book-zoom').mousewheel(function(event, delta, deltaX, deltaY) {
+
+		var data = $(this).data(),
+			step = 30,
+			flipbook = $('.sj-book'),
+			actualPos = $('#slider').slider('value')*step;
+
+		if (typeof(data.scrollX)==='undefined') {
+			data.scrollX = actualPos;
+			data.scrollPage = flipbook.turn('page');
+			
+			
+		}
+
+		data.scrollX = Math.min($( "#slider" ).slider('option', 'max')*step,
+			Math.max(0, data.scrollX + deltaX));
+
+		var actualView = Math.round(data.scrollX/step),
+			page = Math.min(flipbook.turn('pages'), Math.max(1, actualView*2 - 2));
+
+		if ($.inArray(data.scrollPage, flipbook.turn('view', page))==-1) {
+			data.scrollPage = page;
+			flipbook.turn('page', page);
+		}
+
+		if (data.scrollTimer)
+			clearInterval(data.scrollTimer);
+		
+		data.scrollTimer = setTimeout(function(){
+			data.scrollX = undefined;
+			data.scrollPage = undefined;
+			data.scrollTimer = undefined;
+		}, 1000);
+
+	});
+
+	
+	Hash.on('^page\/([0-9]*)$', {
+		yep: function(path, parts) {
+
+			var page = parts[1];
+
+			if (page!==undefined) {
+				if ($('.sj-book').turn('is'))
+					$('.sj-book').turn('page', page);
+			}
+
+		},
+		nop: function(path) {
+
+			if ($('.sj-book').turn('is'))
+				$('.sj-book').turn('page', 1);
+		}
+	});
+
+	// Arrows
+
+	$(document).keydown(function(e){
+
+		if ($('#zoomLayer').hasClass('on')) return;
+
+		var previous = 37, next = 39;
+
+		switch (e.keyCode) {
+			case previous:
+
+				$('.sj-book').turn('previous');
+			break;
+			case next:
+				
+				$('.sj-book').turn('next');
+			break;
+		}
+
+	});
+
+
+	// Flipbook
+var pn2=pn-1;
+	flipbook.bind(($.isTouch) ? 'touchend' : 'click', zoomHandle);
+
+	var turnOptions = {
+		elevation: 50,
+		acceleration: !isChrome(),
+		autoCenter: true,
+		gradients: true,
+		duration: 1000,
+		pages: pn,
+		
+		
+		
+		when: {
+			turning: function(e, page, view) {
+				var book = $(this),
+					currentPage = book.turn('page'),
+					pages = book.turn('pages');
+
+				if (currentPage>3 && currentPage<pages-3) {
+				
+					if (page==1) {
+						book.turn('page', 2).turn('stop').turn('page', page);
+						e.preventDefault();
+						return;
+						
+					} else if (page==pages) {
+						book.turn('page', pages-1).turn('stop').turn('page', page);
+						e.preventDefault();
+						return;
+					}
+				} else if (page>3 && page<pages-3) {
+					if (currentPage==1) {
+						book.turn('page', 2).turn('stop').turn('page', page);
+						e.preventDefault();
+						return;
+						
+						
+					} else if (currentPage==pages) {
+						book.turn('page', pages-1).turn('stop').turn('page', page);
+						e.preventDefault();
+						return;
+					}
+				}
+
+				updateDepth(book, page);
+				
+				if (page>=2)
+					$('.sj-book .p2').addClass('fixed');
+				else
+					$('.sj-book .p2').removeClass('fixed');
+
+				if (page<book.turn('pages'))
+					$('.sj-book .p'+pn2).addClass('fixed');
+				else
+					$('.sj-book .p'+pn2).removeClass('fixed');
+
+				Hash.go('page/'+page).update();
+					
+			},
+
+			turned: function(e, page, view) {
+
+				var book = $(this);
+				
+
+				if (page==2 || page==3) {
+					book.turn('peel', 'br');
+					
+					
+				}
+
+				updateDepth(book);
+				
+				$('#slider').slider('value', getViewNumber(book, page));
+
+				book.turn('center');
+
+			},
+
+			start: function(e, pageObj) {
+		
+				moveBar(true);
+
+			},
+
+			end: function(e, pageObj) {
+			
+				var book = $(this);
+
+				updateDepth(book);
+
+				setTimeout(function() {
+					
+					$('#slider').slider('value', getViewNumber(book));
+
+				}, 1);
+
+				moveBar(false);
+
+			},
+
+			missing: function (e, pages) {
+
+				for (var i = 0; i < pages.length; i++) {
+					addPage(pages[i], $(this));
+				}
+
+			}
+		}
+		
+	};
+
+	if (SINGLE) {
+		turnOptions.display = 'single';
+		turnOptions.width = 500;
+		turnOptions.height = 650;
+	}
+
+	flipbook.turn(turnOptions);
+
+
+	$('#slider').slider('option', 'max', numberOfViews(flipbook));
+
+	flipbook.addClass('animated');
+
+	// Show canvas
+
+	$('#canvas').css({visibility: ''});
+}
+
+// Hide canvas
+
+$('#canvas').css({visibility: 'hidden'});
+
+// Load turn.js
+
+yepnope({
+	test : Modernizr.csstransforms,
+	yep: ['js/turn.min.js'],
+	nope: ['js/turn.html4.min.js', 'css/jquery.ui.html4.css', 'css/mybook-html4.css'],
+	both: ['js/mybook.js', 'css/jquery.ui.css', 'css/mybook.css'],
+	complete: loadApp
+});
+
+function gofirst(){
+$('.sj-book').turn('page',1);	
+		 
+}
+function goback(){
+$('.sj-book').turn('previous');	
+		 
+}
+function gonext(){
+$('.sj-book').turn('next');	
+
+		 
+}
+function golast(){
+$('.sj-book').turn('page',pn-2);	
+		 
+}
+
+function patu(){
+	
+	$('.sj-book').turn('page',4);
+}
+
+// buttons inside book pages post messages to the parent window
+window.addEventListener('message', function (e) {
+	var d = e.data;
+	if (d === 'turnnext') { $('.sj-book').turn('next'); }
+	else if (d === 'turnprev') { $('.sj-book').turn('previous'); }
+});
+
+// ---------- enlarge page button ----------
+(function () {
+	var layer = document.getElementById('zoomLayer');
+	var stage = document.getElementById('zoomStage');
+	var inner = document.getElementById('zoomInner');
+	var cur = null;
+
+	function closeZoom() {
+		layer.className = 'zoom-layer';
+		layer.setAttribute('aria-hidden', 'true');
+		inner.innerHTML = '';
+		cur = null;
+	}
+
+	function fitZoom() {
+		if (!cur) return;
+		var maxW = window.innerWidth - 40;
+		var maxH = window.innerHeight - 40;
+		var fit = Math.min(maxW / cur.bw, maxH / cur.bh);
+		// a little larger than the size that fits — scroll inside when needed
+		var s = Math.min(fit * 1.22, maxW / cur.bw, 2.8);
+		if (!isFinite(s) || s < 0.3) s = 1;
+		cur.page.style.transform = 'scale(' + s + ')';
+		var w = Math.round(cur.bw * s);
+		var h = Math.round(cur.bh * s);
+		inner.style.width = w + 'px';
+		inner.style.height = h + 'px';
+		stage.style.width = Math.min(w, maxW) + 'px';
+		stage.style.height = Math.min(h, maxH) + 'px';
+	}
+
+	function openZoom(pageEl) {
+		if (!pageEl) return;
+		var obj = pageEl.querySelector ? pageEl.querySelector('object[data], iframe[src]') : null;
+		var src = obj ? (obj.getAttribute('data') || obj.getAttribute('src')) : null;
+		var bw = src ? 420 : 500;
+		var bh = src ? 540 : 620;
+
+		inner.innerHTML = '';
+		inner.className = 'zoom-inner';
+		var box = document.createElement('div');
+		box.className = 'zoom-page';
+		box.style.width = bw + 'px';
+		box.style.height = bh + 'px';
+		inner.appendChild(box);
+		cur = { bw: bw, bh: bh, page: box };
+
+		if (src) {
+			var o = document.createElement('iframe');
+			o.setAttribute('src', src);
+			o.setAttribute('scrolling', 'no');
+			o.setAttribute('title', 'Page');
+			o.style.cssText = 'display:block;width:420px;height:540px;border:0;background:#fff;';
+			box.appendChild(o);
+		} else {
+			var clone = pageEl.cloneNode(true);
+			var b = clone.querySelector('.zoomb');
+			if (b && b.parentNode) b.parentNode.removeChild(b);
+			clone.style.position = 'relative';
+			clone.style.top = '0';
+			clone.style.left = '0';
+			clone.style.width = '500px';
+			clone.style.height = '620px';
+			clone.style.margin = '0';
+			box.appendChild(clone);
+		}
+
+		fitZoom();
+		stage.scrollTop = 0;
+		stage.scrollLeft = 0;
+		layer.className = 'zoom-layer on';
+		layer.setAttribute('aria-hidden', 'false');
+	}
+
+	document.addEventListener('click', function (e) {
+		var t = e.target;
+		if (!t || !t.closest) return;
+
+		var zb = t.closest('.zoomb');
+		if (zb) {
+			e.preventDefault();
+			e.stopPropagation();
+			var page = zb.closest('.own-size');
+			if (page) openZoom(page);
+			return;
+		}
+
+		if (!layer.classList.contains('on')) return;
+
+		if (t.closest('#zoomX') || t === layer) {
+			e.preventDefault();
+			closeZoom();
+			return;
+		}
+
+		// tapping a Contents row turns the page, so close the zoom
+		if (t.closest('.up')) {
+			setTimeout(closeZoom, 30);
+		}
+	}, true);
+
+	document.addEventListener('keydown', function (e) {
+		if (e.key === 'Escape' && layer.classList.contains('on')) {
+			closeZoom();
+			e.preventDefault();
+		}
+	});
+
+	window.addEventListener('resize', function () {
+		if (layer.classList.contains('on')) fitZoom();
+	});
+
+	window.openZoomPage = openZoom;
+	window.closeZoomPage = closeZoom;
+})();
+
+</script>
+<span id="snd"></span>
+
+<script>
+(function () {
+	var btn = document.getElementById('installBtn');
+	var deferred = null;
+	var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+	if (standalone) btn.hidden = true;
+
+	window.addEventListener('beforeinstallprompt', function (e) {
+		e.preventDefault();
+		deferred = e;
+		btn.hidden = false;
+	});
+
+	btn.addEventListener('click', function () {
+		if (!deferred) return;
+		deferred.prompt();
+		deferred.userChoice.then(function () {
+			deferred = null;
+			btn.hidden = true;
+		});
+	});
+
+	window.addEventListener('appinstalled', function () {
+		btn.hidden = true;
+	});
+
+	// offline copy of the book
+	if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+		window.addEventListener('load', function () {
+			navigator.serviceWorker.register('sw.js').catch(function () {});
+		});
+	}
+})();
+</script>
+</body>
+</html>

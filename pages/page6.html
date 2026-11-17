@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     6 · Number Zones
+     ============================================================ */
+  :root {
+    --z-m: #7b3fc4;  --zb-m: #f5eeff;   /* millions */
+    --z-k: #2a68c1;  --zb-k: #ecf4fe;   /* thousands */
+    --z-u: #e2541f;  --zb-u: #fff3eb;   /* units */
+  }
+
+  .ttl { font-size: 27px; }
+  .sub { font-size: 14px; letter-spacing: 3px; }
+
+  .lead {
+    margin-top: 6px;
+    font-size: 16px;
+    line-height: 1.25;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- zone box ---------- */
+  .zcard {
+    margin-top: 8px;
+    padding: 9px 11px 11px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1.5px solid #dbe9e6;
+    box-shadow: 0 4px 10px rgba(30, 80, 80, .07);
+  }
+  .method {
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.2;
+    color: var(--muted);
+  }
+
+  .raw {
+    text-align: center;
+    font-family: Verdana, sans-serif;
+    font-size: 31px;
+    font-weight: bold;
+    line-height: 1.15;
+    letter-spacing: 1.2px;
+    color: var(--teal);
+    white-space: nowrap;
+  }
+
+  .zrow { display: flex; gap: 8px; margin-top: 7px; }
+  .zone { flex: 1 1 0; text-align: center; }
+  .zone b {
+    display: block;
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: bold;
+  }
+  .zone span {
+    display: block;
+    margin-top: 1px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: .4px;
+    opacity: .75;
+  }
+  .zone.th b, .zone.th span { color: var(--z-m); }
+  .zone.h  b, .zone.h  span { color: var(--z-k); }
+  .zone.o  b, .zone.o  span { color: var(--z-u); }
+
+  .znum {
+    flex: 1 1 0;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    font-family: Verdana, sans-serif;
+    font-size: 34px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    border-bottom: 3px solid;
+    user-select: none;
+  }
+  .znum.th { color: var(--z-m); background: var(--zb-m); border-color: var(--z-m); }
+  .znum.h  { color: var(--z-k); background: var(--zb-k); border-color: var(--z-k); }
+  .znum.o  { color: var(--z-u); background: var(--zb-u); border-color: var(--z-u); }
+  .znum.pop { animation: zpop .34s ease-out; }
+  @keyframes zpop {
+    0%   { transform: scale(1); }
+    45%  { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
+
+  /* ---------- how to read it ---------- */
+  .read {
+    margin-top: 8px;
+    padding: 9px 12px 10px;
+    border-radius: 12px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+  }
+  .read-t {
+    font-size: 14px;
+    line-height: 1.2;
+    font-weight: bold;
+    color: var(--green);
+  }
+  .sent {
+    margin-top: 3px;
+    min-height: 57px;
+    font-size: 18px;
+    line-height: 1.42;
+    font-weight: bold;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .sent b { font-weight: bold; }
+  .sent b.th { color: var(--z-m); }
+  .sent b.h  { color: var(--z-k); }
+  .sent b.o  { color: var(--z-u); }
+
+  /* ---------- button ---------- */
+  .actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .nextBtn {
+    width: 178px;
+    height: 40px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #17b183, #0b8058);
+    color: #fff;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: .3px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(9, 110, 79, .3), 0 6px 12px rgba(13, 138, 100, .18);
+  }
+  .nextBtn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgba(9, 110, 79, .3);
+  }
+  .counter {
+    height: 26px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    border-radius: 999px;
+    background: #eef7f4;
+    border: 1px solid #d5e9e2;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--teal);
+  }
+
+  .hint b { color: var(--green); }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h5 class="ttl">Number Zones</h5>
+    <div class="sub">NUMBER ZONE</div>
+    <div class="lead">Let's write and read a number in standard form</div>
+
+    <div class="zcard">
+      <div class="raw" id="raw">6547328</div>
+      <div class="method">Split into groups of 3 digits from the left</div>
+      <div class="zrow" id="zhead"></div>
+      <div class="zrow" id="znums"></div>
+    </div>
+
+    <div class="read">
+      <div class="read-t">How to read it</div>
+      <div class="sent" id="sent"></div>
+    </div>
+
+    <div class="actions">
+      <button class="nextBtn" id="nextBtn">Next number</button>
+      <span class="counter" id="counter">1 / 10</span>
+    </div>
+
+    <div class="hint">Each zone has <b>3 digits</b> only · write 0 for an empty place</div>
+  </div>
+
+<script>
+  /* ================= zones ================= */
+  var ZONES = {
+    m: { si: 'Millions zone', en: 'MILLIONS',  cls: 'th' },
+    k: { si: 'Thousands zone', en: 'THOUSANDS', cls: 'h'  },
+    u: { si: 'Units zone',   en: 'UNITS',     cls: 'o'  }
+  };
+
+  var NUMBERS = [
+    6547328,
+    23045,
+    1000000,
+    405000,
+    87654321,
+    12000500,
+    99999999,
+    7040600,
+    50800007,
+    100000000
+  ];
+
+  var idx = 0;
+
+  function d(id) { return document.getElementById(id); }
+  function pad3(x) { return ('00' + x).slice(-3); }
+
+  /* ---------- English words ---------- */
+  var CU = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+  var CT = ['', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+  var TC = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+  var HUND = ['', 'one hundred', 'two hundred', 'three hundred', 'four hundred', 'five hundred', 'six hundred', 'seven hundred', 'eight hundred', 'nine hundred'];
+
+  function comb2(n) {                       /* 1-99 · joining form */
+    if (n < 10) return CU[n];
+    if (n < 20) return n === 10 ? 'ten' : CT[n - 10];
+    var t = Math.floor(n / 10), u = n % 10;
+    return u ? TC[t] + '-' + CU[u] : TC[t];
+  }
+  function comb(n) {                        /* 1-999 */
+    var h = Math.floor(n / 100), r = n % 100;
+    if (!h) return comb2(r);
+    return r ? HUND[h] + ' and ' + comb2(r) : HUND[h];
+  }
+  function abs2(n) {                        /* 1-99 · standalone */
+    return comb2(n);
+  }
+  function abs(n) {                         /* 1-999 */
+    return comb(n);
+  }
+
+  /* ================= drawing the page ================= */
+  function parts(n) {
+    var m = Math.floor(n / 1000000),
+        k = Math.floor(n / 1000) % 1000,
+        u = n % 1000,
+        out = [];
+    if (n < 1000) {
+      out.push({ key: 'u', txt: String(n), val: n });
+      return out;
+    }
+    if (m > 0) {
+      out.push({ key: 'm', txt: String(m), val: m });
+      out.push({ key: 'k', txt: pad3(k), val: k });
+    } else {
+      out.push({ key: 'k', txt: String(k), val: k });
+    }
+    out.push({ key: 'u', txt: pad3(u), val: u });
+    return out;
+  }
+
+  function words(n) {
+    var m = Math.floor(n / 1000000),
+        k = Math.floor(n / 1000) % 1000,
+        u = n % 1000,
+        out = [];
+    if (n === 0) return [{ cls: 'o', t: 'zero' }];
+    if (m > 0) {
+      out.push({ cls: 'th', t: comb(m) + ' million' });
+    }
+    if (k > 0) out.push({ cls: 'h', t: comb(k) + ' thousand' });
+    if (u > 0) out.push({ cls: 'o', t: abs(u) });
+    return out;
+  }
+
+  function show(i, animate) {
+    idx = (i + NUMBERS.length) % NUMBERS.length;
+    var n = NUMBERS[idx];
+    var gs = parts(n);
+
+    var headHtml = '', numHtml = '';
+    for (var x = 0; x < gs.length; x++) {
+      var z = ZONES[gs[x].key];
+      headHtml += '<div class="zone ' + z.cls + '"><b>' + z.si + '</b><span>' + z.en + '</span></div>';
+      numHtml += '<div class="znum ' + z.cls + '">' + gs[x].txt + '</div>';
+    }
+    d('zhead').innerHTML = headHtml;
+    d('znums').innerHTML = numHtml;
+    d('raw').textContent = String(n);
+
+    var ws = words(n), sHtml = '';
+    for (var y = 0; y < ws.length; y++) {
+      if (y) sHtml += ' ';
+      sHtml += '<b class="' + ws[y].cls + '">' + ws[y].t + '</b>';
+    }
+    d('sent').innerHTML = sHtml;
+
+    d('counter').textContent = (idx + 1) + ' / ' + NUMBERS.length;
+
+    if (animate) {
+      var boxes = document.querySelectorAll('.znum');
+      for (var b = 0; b < boxes.length; b++) {
+        boxes[b].classList.remove('pop');
+        void boxes[b].offsetWidth;
+        boxes[b].classList.add('pop');
+      }
+    }
+  }
+
+  d('nextBtn').addEventListener('click', function () {
+    show(idx + 1, true);
+    pop(620, .12);
+  });
+
+  /* ================= sound ================= */
+  var actx = null;
+  function pop(freq, vol) {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, actx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.5, actx.currentTime + .1);
+      g.gain.setValueAtTime(vol, actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, actx.currentTime + .2);
+      o.connect(g);
+      g.connect(actx.destination);
+      o.start();
+      o.stop(actx.currentTime + .22);
+    } catch (e) {}
+  }
+
+  /* ================= start ================= */
+  show(0, false);
+</script>
+</body>
+</html>

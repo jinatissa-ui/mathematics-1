@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maths for Fun</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #e0f2fe, #f5e8ff);
+      color: #243047;
+      font-family: "Segoe UI", "Nirmala UI", "Iskoola Pota", sans-serif;
+    }
+
+    .game {
+      width: min(100%, 560px);
+      padding: 28px;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 18px 50px #26365720;
+    }
+
+    h1 {
+      margin: 0;
+      color: #5b42b5;
+      text-align: center;
+      font-size: clamp(1.6rem, 6vw, 2.2rem);
+    }
+
+    .subtitle {
+      margin: 8px 0 24px;
+      color: #667085;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    select, button {
+      font: inherit;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ded9f4;
+      border-radius: 12px;
+      background: white;
+      color: #243047;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform .15s, background .15s;
+    }
+
+    button:hover:not(:disabled) { transform: translateY(-2px); }
+    button:focus-visible, select:focus-visible {
+      outline: 3px solid #f5a623;
+      outline-offset: 3px;
+    }
+
+    .primary {
+      width: 100%;
+      margin-top: 16px;
+      padding: 13px 18px;
+      background: #654bd1;
+      color: white;
+      font-weight: 700;
+    }
+
+    .primary:hover:not(:disabled) { background: #5138b8; }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      color: #667085;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: #eeeaf8;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: #26b58a;
+      transition: width .3s ease;
+    }
+
+    .question {
+      margin: 28px 0 20px;
+      text-align: center;
+      font-size: clamp(1.4rem, 7vw, 2.2rem);
+      font-weight: 800;
+      color: #25345b;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .option {
+      min-height: 54px;
+      padding: 12px;
+      border: 2px solid #e6e2f1;
+      background: #faf9fd;
+      color: #29334b;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .option:hover:not(:disabled) {
+      border-color: #8c78df;
+      background: #f2efff;
+    }
+
+    .option:disabled { cursor: default; opacity: .88; }
+    .option.correct { border-color: #26a879; background: #e5f8ef; }
+    .option.wrong { border-color: #e36a70; background: #fff0f0; }
+
+    .feedback {
+      min-height: 32px;
+      margin: 16px 0 0;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .feedback.good { color: #16845e; }
+    .feedback.bad { color: #c23e4a; }
+
+    .score {
+      margin: 18px 0 0;
+      text-align: center;
+      color: #667085;
+      font-weight: 700;
+    }
+
+    .hidden { display: none; }
+
+    .result {
+      padding: 18px 0 4px;
+      text-align: center;
+    }
+
+    .result .emoji { font-size: 3.5rem; }
+    .result h2 { color: #5b42b5; }
+
+    @media (max-width: 420px) {
+      body { padding: 14px; }
+      .game { padding: 22px 18px; }
+      .options { gap: 9px; }
+    }
+  </style>
+</head>
+<body class="en">
+  <main class="game">
+    <h1>Maths for Fun 🎲</h1>
+    <p class="subtitle">Think it through… pick the right answer!</p>
+
+    <section id="startScreen">
+      <label for="grade">Choose your grade</label>
+      <select id="grade">
+        <option value="6">Grade 6</option>
+        <option value="7">Grade 7</option>
+      </select>
+      <button class="primary" id="startBtn">Let’s start the game!</button>
+    </section>
+
+    <section id="quizScreen" class="hidden" aria-live="polite">
+      <div class="topline">
+        <span id="questionCount">Question 1 / 10</span>
+        <span id="scoreLabel">Score: 0</span>
+      </div>
+      <div class="progress-track" aria-label="progress">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div class="question" id="questionText"></div>
+      <div class="options" id="options"></div>
+      <p class="feedback" id="feedback" aria-live="polite"></p>
+      <button class="primary hidden" id="nextBtn">Next question</button>
+    </section>
+
+    <section id="resultScreen" class="hidden result" aria-live="polite">
+      <div class="emoji" id="resultEmoji">🎉</div>
+      <h2>Game over!</h2>
+      <p id="resultText"></p>
+      <button class="primary" id="againBtn">Play again</button>
+    </section>
+  </main>
+
+  <script>
+    const TOTAL_QUESTIONS = 10;
+    let grade = 6;
+    let questionNumber = 0;
+    let score = 0;
+    let currentAnswer = 0;
+
+    const startScreen = document.getElementById("startScreen");
+    const quizScreen = document.getElementById("quizScreen");
+    const resultScreen = document.getElementById("resultScreen");
+    const questionText = document.getElementById("questionText");
+    const optionsBox = document.getElementById("options");
+    const feedback = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function makeQuestion() {
+      let a, b, c, answer, text;
+      const types = grade === 6
+        ? ["add", "subtract", "multiply", "divide"]
+        : ["add", "subtract", "multiply", "divide", "brackets"];
+      const type = types[randomInt(0, types.length - 1)];
+
+      if (type === "add") {
+        a = randomInt(grade === 6 ? 20 : 100, grade === 6 ? 500 : 999);
+        b = randomInt(10, grade === 6 ? 300 : 999);
+        answer = a + b;
+        text = `${a} + ${b} = ?`;
+      } else if (type === "subtract") {
+        a = randomInt(grade === 6 ? 100 : 300, 1200);
+        b = randomInt(10, a);
+        answer = a - b;
+        text = `${a} − ${b} = ?`;
+      } else if (type === "multiply") {
+        a = grade === 6 ? randomInt(2, 12) : randomInt(11, 35);
+        b = randomInt(grade === 6 ? 2 : 3, grade === 6 ? 12 : 9);
+        answer = a * b;
+        text = `${a} × ${b} = ?`;
+      } else if (type === "divide") {
+        b = randomInt(2, 12);
+        const quotient = randomInt(grade === 6 ? 2 : 12, grade === 6 ? 12 : 50);
+        a = b * quotient;
+        answer = quotient;
+        text = `${a} ÷ ${b} = ?`;
+      } else {
+        a = randomInt(4, 20);
+        b = randomInt(2, 15);
+        c = randomInt(2, 8);
+        answer = (a + b) * c;
+        text = `(${a} + ${b}) × ${c} = ?`;
+      }
+
+      return { text, answer };
+    }
+
+    function makeOptions(answer) {
+      const choices = new Set([answer]);
+
+      while (choices.size < 4) {
+        let wrongAnswer = answer + randomInt(-15, 15);
+        if (wrongAnswer < 0 || wrongAnswer === answer) {
+          wrongAnswer = answer + randomInt(1, 20);
+        }
+        choices.add(wrongAnswer);
+      }
+
+      return [...choices].sort(() => Math.random() - 0.5);
+    }
+
+    function showQuestion() {
+      questionNumber++;
+      const question = makeQuestion();
+      currentAnswer = question.answer;
+
+      document.getElementById("questionCount").textContent =
+        `Question ${questionNumber} / ${TOTAL_QUESTIONS}`;
+      document.getElementById("scoreLabel").textContent = `Score: ${score}`;
+      document.getElementById("progressBar").style.width =
+        `${((questionNumber - 1) / TOTAL_QUESTIONS) * 100}%`;
+
+      questionText.textContent = question.text;
+      feedback.textContent = "";
+      feedback.className = "feedback";
+      nextBtn.classList.add("hidden");
+      optionsBox.innerHTML = "";
+
+      makeOptions(currentAnswer).forEach(value => {
+        const button = document.createElement("button");
+        button.className = "option";
+        button.textContent = value;
+        button.addEventListener("click", () => chooseAnswer(button, value));
+        optionsBox.appendChild(button);
+      });
+    }
+
+    function chooseAnswer(selectedButton, chosenValue) {
+      const allOptions = optionsBox.querySelectorAll(".option");
+      allOptions.forEach(button => {
+        button.disabled = true;
+        if (Number(button.textContent) === currentAnswer) {
+          button.classList.add("correct");
+        }
+      });
+
+      if (chosenValue === currentAnswer) {
+        score++;
+        feedback.textContent = "Correct! 🌟";
+        feedback.classList.add("good");
+      } else {
+        selectedButton.classList.add("wrong");
+        feedback.textContent = `Good try! The correct answer is ${currentAnswer}.`;
+        feedback.classList.add("bad");
+      }
+
+      document.getElementById("scoreLabel").textContent = `Score: ${score}`;
+      document.getElementById("progressBar").style.width =
+        `${(questionNumber / TOTAL_QUESTIONS) * 100}%`;
+      nextBtn.textContent = questionNumber === TOTAL_QUESTIONS
+        ? "See results"
+        : "Next question";
+      nextBtn.classList.remove("hidden");
+    }
+
+    function startGame() {
+      grade = Number(document.getElementById("grade").value);
+      questionNumber = 0;
+      score = 0;
+      startScreen.classList.add("hidden");
+      resultScreen.classList.add("hidden");
+      quizScreen.classList.remove("hidden");
+      showQuestion();
+    }
+
+    function showResult() {
+      quizScreen.classList.add("hidden");
+      resultScreen.classList.remove("hidden");
+      document.getElementById("resultText").textContent =
+        `You answered ${score} of ${TOTAL_QUESTIONS} questions correctly!`;
+
+      const emoji = score >= 8 ? "🏆" : score >= 5 ? "👏" : "💪";
+      document.getElementById("resultEmoji").textContent = emoji;
+    }
+
+    document.getElementById("startBtn").addEventListener("click", startGame);
+    document.getElementById("againBtn").addEventListener("click", () => {
+      resultScreen.classList.add("hidden");
+      startScreen.classList.remove("hidden");
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (questionNumber >= TOTAL_QUESTIONS) {
+        showResult();
+      } else {
+        showQuestion();
+      }
+    });
+  </script>
+</body>
+</html>

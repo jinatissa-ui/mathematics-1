@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     33 · Integers — number line from -5 to 5
+     ============================================================ */
+  .ttl { font-size: 26px; line-height: 1.2; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 13.5px;
+    line-height: 1.2;
+    letter-spacing: 2.5px;
+    text-align: left;
+  }
+  .intro {
+    margin-top: 5px;
+    font-size: 14.5px;
+    line-height: 1.3;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- line card ---------- */
+  .linecard {
+    margin-top: 9px;
+    padding: 6px 9px 8px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #fdfffe, #f4fbf8);
+    border: 1px solid #d9eee7;
+    box-shadow: 0 3px 9px rgba(30, 80, 80, .07);
+  }
+  .ch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 22px;
+    padding: 0 3px;
+  }
+  .ch-t {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--teal);
+  }
+  .ch-dot {
+    flex: 0 0 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #0d8a64;
+  }
+  .ch-r { font-size: 12px; line-height: 1; color: #93a1a6; }
+
+  .nline-svg {
+    display: block;
+    width: 356px;
+    height: 96px;
+    margin: 2px auto 0;
+  }
+  .axis-line { stroke: #8b9ba0; stroke-width: 1.8; stroke-linecap: round; }
+  .arrow {
+    fill: none;
+    stroke: #8b9ba0;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .tick { stroke: #b9c5c9; stroke-width: 1.6; stroke-linecap: round; }
+  .num {
+    font-family: Verdana, sans-serif;
+    font-size: 13px;
+    fill: #7d8e94;
+  }
+  .side {
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: .5px;
+  }
+  .side.neg { fill: #7aa6cb; }
+  .side.pos { fill: #67b295; }
+
+  /* ---------- facts ---------- */
+  .facts {
+    margin-top: 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .fact {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 8px 10px 9px;
+    background: #ffffff;
+    border: 1px solid #e9e3d5;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(30, 80, 80, .05);
+  }
+  .ic {
+    flex: 0 0 24px;
+    height: 24px;
+    margin-top: 1px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+  .fact.pos .ic { background: #0d8a64; }
+  .fact.neg .ic { background: #2f6fa8; }
+  .fact.int .ic { background: #0d6d74; }
+  .fact.dir .ic { background: #b8890f; }
+  .fact p {
+    font-size: 15px;
+    line-height: 1.35;
+    color: var(--ink-soft);
+  }
+  .fact b { color: var(--ink); }
+  .fact .seq {
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .fact.pos .seq { color: #0d8a64; }
+  .fact.neg .seq { color: #2f6fa8; }
+  .fact.int .seq { color: #0d6d74; }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Integers</h2>
+    <div class="sub">INTEGERS</div>
+    <p class="intro">Let’s learn to recognise integers on the number line.</p>
+
+    <div class="linecard">
+      <div class="ch">
+        <span class="ch-t"><span class="ch-dot"></span>From -5 to 5</span>
+        <span class="ch-r">Number line</span>
+      </div>
+      <svg class="nline-svg" viewBox="0 0 356 96" aria-label="Number line from -5 to 5">
+        <line class="axis-line" x1="24" y1="50" x2="330" y2="50"/>
+        <path class="arrow" d="M330 44.5 L338 50 L330 55.5"/>
+        <text class="side neg" x="98" y="24" text-anchor="middle">Negative</text>
+        <text class="side pos" x="258" y="24" text-anchor="middle">Positive</text>
+        <g class="axis"></g>
+      </svg>
+    </div>
+
+    <div class="facts">
+      <div class="fact pos">
+        <span class="ic">+</span>
+        <p><b class="seq">1, 2, 3 …</b> these are <b>positive integers</b>. You need not write the <b>+</b> sign.</p>
+      </div>
+      <div class="fact neg">
+        <span class="ic">−</span>
+        <p><b class="seq">-4, -3, -2, -1</b> these are <b>negative integers</b>. The <b>-</b> sign must be written in front of them.</p>
+      </div>
+      <div class="fact int">
+        <span class="ic">0</span>
+        <p><b class="seq">… -4, -3, -2, -1, 0, 1, 2, 3 …</b> all of these are <b>integers</b>.</p>
+      </div>
+      <div class="fact dir">
+        <span class="ic">↔</span>
+        <p>Going right along the line, the <b>value increases</b>. Going left, the <b>value decreases</b>.</p>
+      </div>
+    </div>
+  </div>
+
+<script>
+  var NS = 'http://www.w3.org/2000/svg';
+  var X0 = 40, STEP = 28, LY = 50;
+
+  (function () {
+    var axis = document.querySelector('.axis');
+    for (var i = 0; i <= 10; i++) {
+      var x = X0 + i * STEP;
+
+      var tick = document.createElementNS(NS, 'line');
+      tick.setAttribute('class', 'tick');
+      tick.setAttribute('x1', x);
+      tick.setAttribute('y1', LY - 12);
+      tick.setAttribute('x2', x);
+      tick.setAttribute('y2', LY + 12);
+      axis.appendChild(tick);
+
+      var lab = document.createElementNS(NS, 'text');
+      lab.setAttribute('class', 'num');
+      lab.setAttribute('x', x);
+      lab.setAttribute('y', 82);
+      lab.setAttribute('text-anchor', 'middle');
+      lab.textContent = i - 5;
+      axis.appendChild(lab);
+    }
+  })();
+</script>
+</body>
+</html>

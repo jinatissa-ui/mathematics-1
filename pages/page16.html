@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     16 · Addition practice 2 — speed drill + word problems
+     ============================================================ */
+  .ttl { font-size: 25px; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    text-align: left;
+    text-transform: none;
+  }
+
+  /* ---------- question cards ---------- */
+  .qcard {
+    margin-top: 4px;
+    padding: 7px 10px 8px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #e6e0d2;
+    box-shadow: 0 2px 6px rgba(60, 80, 80, .05);
+  }
+  .q1card {
+    background: linear-gradient(180deg, #fcfffd, #f5fbf8);
+    border-color: #dcece6;
+  }
+  .qhead {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .qn {
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ffe9c9;
+    color: #b25a1d;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 20px;
+    text-align: center;
+  }
+  .qt {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--teal);
+  }
+  .clock {
+    margin-left: auto;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--teal);
+    background: #e7f6f1;
+    border: 1px solid #cfeadf;
+    padding: 1px 9px 2px;
+    border-radius: 999px;
+    letter-spacing: .5px;
+  }
+  .clock.run { background: #fff4e2; border-color: #f3d8b3; color: #bf6427; }
+
+  /* ---------- speed drill card ---------- */
+  .startBtn {
+    height: 26px;
+    padding: 0 12px 1px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(13, 128, 94, .25);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .startBtn:active { transform: scale(.98); }
+  .startBtn.hide { display: none; }
+  .qt.late { color: #c9483f; }
+  .q1ans {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  .q1ans.show { display: flex; }
+  .q1ans b {
+    min-width: 48px;
+    padding: 1px 7px 2px;
+    border-radius: 6px;
+    background: #eefaf4;
+    border: 1.5px solid #bfe3d5;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    color: var(--green);
+    text-align: center;
+  }
+  .q1ans b.bad { border-color: #f0c7c2; background: #fdf3f1; color: #c9483f; }
+
+  /* ---------- question text ---------- */
+  .qtext {
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--ink-soft);
+  }
+  .qtext .qn { display: inline-block; vertical-align: -4px; margin-right: 6px; }
+  .sumline {
+    margin-top: 3px;
+    font-size: 15.5px;
+    line-height: 1.4;
+    color: var(--ink);
+    font-family: Verdana, "Iskoola Pota", sans-serif;
+  }
+  .sumline .qn {
+    display: inline-block;
+    vertical-align: -4px;
+    margin-right: 6px;
+    font-family: Verdana, sans-serif;
+  }
+
+  /* ---------- answer box ---------- */
+  .ansbox {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    vertical-align: -7px;
+    min-width: 74px;
+    height: 28px;
+    margin-left: 4px;
+    padding: 0 8px;
+    border-radius: 7px;
+    background: #f5fcf9;
+    border: 1.5px solid #a9d6c6;
+    box-shadow: inset 0 1px 2px rgba(20, 70, 60, .05);
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--green);
+    cursor: pointer;
+  }
+  .ansbox.act {
+    background: #fffdf5;
+    border-color: #f0c24f;
+    box-shadow: inset 0 0 0 2px #ffcf3f;
+  }
+  .ansbox.act::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 50%;
+    width: 2px;
+    height: 17px;
+    transform: translateY(-50%);
+    background: #0d8a64;
+    animation: caretblink .9s steps(1) infinite;
+  }
+  @keyframes caretblink { 50% { opacity: 0; } }
+  .ansline {
+    display: flex;
+    align-items: center;
+    margin-top: 3px;
+    padding-left: 24px;
+  }
+  .ansline .ansbox { margin-left: 0; min-width: 88px; }
+  .ansline .lead {
+    flex: 1;
+    margin-left: 10px;
+    border-bottom: 1.5px dotted #cfe3dc;
+  }
+  .mk {
+    display: inline-block;
+    min-width: 16px;
+    margin-left: 4px;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    vertical-align: -3px;
+    line-height: 1;
+  }
+  .mk.ok { color: var(--green); }
+  .mk.no { color: #d64545; }
+
+  /* ---------- digit keys ---------- */
+  .pad {
+    display: flex;
+    gap: 3px;
+    width: 376px;
+    margin: 6px auto 0;
+  }
+  .pad button {
+    flex: 1;
+    height: 34px;
+    border-radius: 8px;
+    border: 1.5px solid #d9e9e3;
+    background: #fff;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--ink);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pad button:active { background: #eaf7f2; transform: scale(.97); }
+  .pad .bksp { border-color: #f0d3b6; background: #fff6ec; color: #bf6427; font-size: 16px; }
+
+  /* ---------- result bar ---------- */
+  .resbar {
+    position: relative;
+    width: 376px;
+    height: 32px;
+    margin: 5px auto 0;
+    padding: 6px 12px 0;
+    border-radius: 10px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 14.5px;
+    font-weight: bold;
+    color: var(--teal);
+    text-align: left;
+  }
+  .resbar.ok { color: var(--green); background: #eaf9f2; border-color: #bfe8d8; }
+  .resbar.no { color: #c9483f; background: #fdf1ef; border-color: #f4d3cf; }
+  .resbar.barpop { animation: barpop .8s ease; }
+  @keyframes barpop {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.05); }
+    60% { transform: scale(.985); }
+    100% { transform: scale(1); }
+  }
+
+  /* ---------- 100% celebration ---------- */
+  .party {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 30;
+  }
+  .party i {
+    position: absolute;
+    top: -16px;
+    display: block;
+    border-radius: 2px;
+    animation: pfall 1.7s cubic-bezier(.22, .55, .45, 1) forwards;
+  }
+  @keyframes pfall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateY(560px) rotate(640deg); opacity: 0; }
+  }
+  .cheer {
+    position: absolute;
+    left: 50%;
+    top: 44%;
+    transform: translate(-50%, -50%) scale(.5);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 31;
+    padding: 9px 22px 11px;
+    border-radius: 16px;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 12px 30px rgba(8, 70, 54, .35);
+  }
+  .cheer b {
+    display: block;
+    font-family: Verdana, sans-serif;
+    font-size: 32px;
+    letter-spacing: 1px;
+  }
+  .cheer span { display: block; margin-top: 1px; font-size: 14px; font-weight: bold; }
+  .cheer.on { animation: cheerpop 2.1s ease forwards; }
+  @keyframes cheerpop {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.5); }
+    14% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+    24% { transform: translate(-50%, -50%) scale(1); }
+    78% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -57%) scale(.96); }
+  }
+
+  .acts {
+    display: flex;
+    gap: 8px;
+    width: 376px;
+    margin: 5px auto 0;
+  }
+  .goBtn, .againBtn {
+    height: 38px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 15.5px;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .goBtn {
+    flex: 1.45;
+    border: 0;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(13, 128, 94, .28), inset 0 1px 0 rgba(255, 255, 255, .35);
+  }
+  .againBtn {
+    flex: 1;
+    border: 1.5px solid #9fd6c4;
+    background: #fff;
+    color: var(--teal);
+  }
+  .goBtn:active, .againBtn:active { transform: scale(.99); }
+
+  /* ---------- speed drill popup ---------- */
+  .dtop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dclock {
+    margin-left: auto;
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    color: #bf6427;
+    background: #fff4e2;
+    border: 1px solid #f3d8b3;
+    padding: 1px 10px 2px;
+    border-radius: 999px;
+    letter-spacing: .5px;
+  }
+  .dsumbox {
+    margin-top: 9px;
+    padding: 7px 4px 9px;
+    border-radius: 10px;
+    background: #f6fbf9;
+    border: 1px solid #e2f0ea;
+    text-align: center;
+    text-wrap: balance;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    line-height: 1.6;
+    color: var(--ink);
+    letter-spacing: .2px;
+  }
+  .dansbox {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 178px;
+    height: 48px;
+    margin: 10px auto 0;
+    padding: 0 12px;
+    border-radius: 10px;
+    background: #eefaf4;
+    border: 1.5px solid #a9d6c6;
+    box-shadow: inset 0 1px 3px rgba(20, 70, 60, .05);
+  }
+  .dcaret {
+    width: 2px;
+    height: 26px;
+    margin-right: 4px;
+    background: #0d8a64;
+    animation: caretblink .9s steps(1) infinite;
+  }
+  .dnum {
+    font-family: Verdana, sans-serif;
+    font-size: 27px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: var(--green);
+    line-height: 1;
+  }
+  .dansbox.shake { animation: boxshake .32s ease; }
+  @keyframes boxshake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    60% { transform: translateX(5px); }
+    80% { transform: translateX(-3px); }
+  }
+  .dpad {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    margin-top: 9px;
+  }
+  .dpad button {
+    height: 31px;
+    border-radius: 8px;
+    border: 1.5px solid #d9e9e3;
+    background: #fff;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .dpad button:active { background: #eaf7f2; }
+  .dacts {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .dacts .bksp {
+    width: 52px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1.5px solid #f0d3b6;
+    background: #fff6ec;
+    color: #bf6427;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .dacts .done {
+    flex: 1;
+    height: 34px;
+    border-radius: 8px;
+    border: 0;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    font-family: inherit;
+    font-size: 15.5px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Addition practice 2</h2>
+    <div class="sub">Addition practice 2</div>
+
+    <div class="qcard q1card">
+      <div class="qhead">
+        <b class="qn">1</b>
+        <span class="qt" id="q1title">Speed drill</span>
+        <span class="q1ans" id="q1ans">
+          <span>Your answer</span><b id="q1num">0</b><span class="mk" id="m1"></span>
+        </span>
+        <button class="startBtn" id="startBtn">1-minute drill</button>
+        <span class="clock" id="clock">1:00</span>
+      </div>
+    </div>
+
+    <div class="qcard">
+      <div class="sumline"><b class="qn">2</b>3&nbsp;456 + 874 + 1&nbsp;560 + 98 =<span class="ansbox" data-q="0"></span><span class="mk" id="m2"></span></div>
+    </div>
+
+    <div class="qcard">
+      <p class="qtext"><b class="qn">3</b>The population of one district is 23&nbsp;670. Another district has 5&nbsp;878. A third has 12&nbsp;594. What is the total population of the three districts?</p>
+      <div class="ansline"><span class="ansbox" data-q="1"></span><span class="mk" id="m3"></span><span class="lead"></span></div>
+    </div>
+
+    <div class="qcard">
+      <p class="qtext"><b class="qn">4</b>A packet of milk costs Rs. 1&nbsp;250. One kilogram of sugar costs Rs. 245. How much do 5 kilograms of sugar and 2 packets of milk cost?</p>
+      <div class="ansline"><span class="ansbox" data-q="2"></span><span class="mk" id="m4"></span><span class="lead"></span></div>
+    </div>
+
+    <div class="pad" id="pad"></div>
+
+    <div class="resbar" id="resbar">Type answers and tap “Check answers”</div>
+
+    <div class="acts">
+      <button class="goBtn" id="checkBtn">Check answers</button>
+      <button class="againBtn" id="againBtn">Reset</button>
+    </div>
+
+    <!-- speed drill popup -->
+    <div class="alert" id="alert">
+      <div class="alert-card">
+        <div class="dtop">
+          <span class="alert-badge" id="dbadge">Speed drill · 1 minute</span>
+          <span class="dclock" id="dclock">1:00</span>
+          <button class="alert-x" id="dx">✕</button>
+        </div>
+        <div class="dsumbox">23 + 45 + 8 + 54 + 70 + 62 + 6 + 15 + 87 + 39 =</div>
+        <div class="dansbox" id="dansbox"><span class="dcaret"></span><span class="dnum" id="dnum"></span></div>
+        <div class="dpad" id="dpad"></div>
+        <div class="dacts">
+          <button class="bksp" id="dbksp">←</button>
+          <button class="done" id="ddone">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="party" id="party"></div>
+    <div class="cheer" id="cheer"><b>100%</b><span>Excellent!</span></div>
+  </div>
+
+<script>
+  /* ============================================================
+     Answers: 1) 409   2) 5 988   3) 42 142   4) 3 725
+     25 marks per problem · 100 total
+     ============================================================ */
+  var CORRECT = [5988, 42142, 3725];
+  var Q1_KEY = 409;
+
+  var clockEl = document.getElementById('clock');
+  var startBtn = document.getElementById('startBtn');
+  var q1title = document.getElementById('q1title');
+  var q1ans = document.getElementById('q1ans');
+  var q1num = document.getElementById('q1num');
+  var m1 = document.getElementById('m1');
+  var padEl = document.getElementById('pad');
+  var resbar = document.getElementById('resbar');
+  var checkBtn = document.getElementById('checkBtn');
+  var againBtn = document.getElementById('againBtn');
+  var alertEl = document.getElementById('alert');
+  var dclock = document.getElementById('dclock');
+  var dansbox = document.getElementById('dansbox');
+  var dnum = document.getElementById('dnum');
+  var dpad = document.getElementById('dpad');
+  var dx = document.getElementById('dx');
+  var dbksp = document.getElementById('dbksp');
+  var ddone = document.getElementById('ddone');
+  var partyEl = document.getElementById('party');
+  var cheerEl = document.getElementById('cheer');
+
+  var boxes = [], marks = [], answers = ['', '', ''];
+  var focusQ = 0;
+
+  var q1Ans = '', q1Done = false;
+  var drAns = '', drLeft = 60, drTimer = null;
+  var checked = false;
+  var audioCtx = null;
+
+  function rnd(n) { return Math.floor(Math.random() * n); }
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function timeText(s) { return Math.floor(s / 60) + ':' + pad2(s % 60); }
+  function fmt(s) { return s.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'); }
+
+  function pop(freq, vol) {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.4, audioCtx.currentTime + .1);
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .2);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + .22);
+    } catch (e) {}
+  }
+
+  /* ---------- typing pad ----------
+     digits are added from the ones place — new digit goes in front, cursor to its left */
+  function paint() {
+    for (var i = 0; i < 3; i++) {
+      boxes[i].textContent = fmt(answers[i]);
+      boxes[i].classList.toggle('act', i === focusQ && !q1Open() && !checked);
+    }
+  }
+
+  function typeDigit(d) {
+    if (q1Open()) return;
+    if (focusQ < 0) focusQ = 0;
+    if (answers[focusQ].length >= 7) return;
+    checked = false;
+    answers[focusQ] = d + answers[focusQ];
+    marks[focusQ].textContent = '';
+    marks[focusQ].className = 'mk';
+    resbar.className = 'resbar';
+    resbar.textContent = 'Type answers and tap “Check answers”';
+    paint();
+    pop(560 + (+d) * 20, .05);
+  }
+  function backspace() {
+    if (q1Open()) return;
+    if (focusQ < 0) return;
+    checked = false;
+    answers[focusQ] = answers[focusQ].slice(1);
+    marks[focusQ].textContent = '';
+    marks[focusQ].className = 'mk';
+    paint();
+  }
+
+  function buildPad() {
+    var keys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '←'];
+    keys.forEach(function (k) {
+      var b = document.createElement('button');
+      b.textContent = k;
+      if (k === '←') b.className = 'bksp';
+      b.addEventListener('click', function () {
+        if (k === '←') backspace(); else typeDigit(k);
+      });
+      padEl.appendChild(b);
+    });
+
+    boxes = Array.prototype.slice.call(document.querySelectorAll('.ansbox'));
+    boxes.forEach(function (b, i) {
+      b.addEventListener('click', function () {
+        if (q1Open()) return;
+        focusQ = i;
+        checked = false;
+        paint();
+      });
+    });
+    marks = [document.getElementById('m2'), document.getElementById('m3'), document.getElementById('m4')];
+    focusQ = 0;
+    paint();
+  }
+
+  /* ---------- speed drill (one minute) ---------- */
+  function q1Open() { return alertEl.classList.contains('on'); }
+
+  function startDrill() {
+    if (drTimer || q1Done) return;
+    drAns = '';
+    drLeft = 60;
+    dnum.textContent = '';
+    dclock.textContent = '1:00';
+    clockEl.textContent = '1:00';
+    clockEl.classList.add('run');
+    q1title.textContent = 'Speed drill';
+    q1title.classList.remove('late');
+    alertEl.classList.add('on');
+    drTimer = setInterval(tick, 1000);
+  }
+
+  /* digits shift left one by one — cursor sits behind the typed digit */
+  function drType(d) {
+    if (drAns.length >= 3) return;
+    drAns = d + drAns;
+    dnum.textContent = drAns;
+    pop(580 + (+d) * 18, .05);
+  }
+  function drBack() {
+    drAns = drAns.slice(1);
+    dnum.textContent = drAns;
+  }
+
+  function tick() {
+    drLeft--;
+    dclock.textContent = timeText(Math.max(drLeft, 0));
+    clockEl.textContent = timeText(Math.max(drLeft, 0));
+    if (drLeft <= 0) stopDrill(true);
+  }
+
+  /* when time is up, remove the popup */
+  function stopDrill(timeUp) {
+    if (drTimer) { clearInterval(drTimer); drTimer = null; }
+    alertEl.classList.remove('on');
+    if (timeUp) {
+      drAns = '';
+      dnum.textContent = '';
+      dclock.textContent = '0:00';
+      idleQ1(true);
+      pop(240, .1);
+    }
+  }
+
+  function finishDrill() {
+    if (!drAns) {
+      dansbox.classList.remove('shake');
+      void dansbox.offsetWidth;
+      dansbox.classList.add('shake');
+      pop(240, .06);
+      return;
+    }
+    if (drTimer) { clearInterval(drTimer); drTimer = null; }
+    alertEl.classList.remove('on');
+    q1Ans = drAns;
+    q1Done = true;
+    q1title.style.display = 'none';
+    q1ans.classList.add('show');
+    q1num.textContent = fmt(q1Ans);
+    q1num.classList.remove('bad');
+    m1.textContent = '';
+    m1.className = 'mk';
+    startBtn.classList.add('hide');
+    clockEl.textContent = timeText(Math.max(drLeft, 0));
+    clockEl.classList.remove('run');
+    pop(940, .12);
+  }
+
+  function abandonDrill() {
+    if (drTimer) { clearInterval(drTimer); drTimer = null; }
+    alertEl.classList.remove('on');
+    drAns = '';
+    dnum.textContent = '';
+    dclock.textContent = '1:00';
+    idleQ1(false);
+  }
+
+  function idleQ1(late) {
+    q1title.style.display = '';
+    q1title.textContent = late ? 'Time is up' : 'Speed drill';
+    q1title.classList.toggle('late', late);
+    q1ans.classList.remove('show');
+    startBtn.classList.remove('hide');
+    startBtn.textContent = late ? 'Try again' : '1-minute drill';
+    clockEl.textContent = late ? '0:00' : '1:00';
+    clockEl.classList.remove('run');
+  }
+
+  /* ---------- scoring ---------- */
+  function checkAll() {
+    if (q1Open()) return;
+    var filled = answers.some(function (a) { return a !== ''; });
+    if (!filled && !q1Done) {
+      resbar.className = 'resbar';
+      resbar.textContent = 'Type answers and check';
+      pop(260, .06);
+      return;
+    }
+    var score = 0;
+    var ok1 = q1Done && parseInt(q1Ans, 10) === Q1_KEY;
+    if (ok1) score += 25;
+    if (q1Done) {
+      m1.textContent = ok1 ? '✓' : '✗';
+      m1.className = 'mk ' + (ok1 ? 'ok' : 'no');
+      q1num.classList.toggle('bad', !ok1);
+    }
+    for (var i = 0; i < 3; i++) {
+      var ok = answers[i] !== '' && parseInt(answers[i], 10) === CORRECT[i];
+      if (ok) score += 25;
+      marks[i].textContent = ok ? '✓' : '✗';
+      marks[i].className = 'mk ' + (ok ? 'ok' : 'no');
+    }
+    var pct = score;
+    resbar.className = 'resbar ' + (pct === 100 ? 'ok' : (pct < 40 ? 'no' : ''));
+    resbar.textContent = 'Score ' + score + ' / 100 · ' + pct + '%' + (pct === 100 ? ' · Excellent!' : '');
+    checked = true;
+    paint();
+    if (pct === 100) party(); else pop(620, .12);
+  }
+
+  /* ---------- 100% celebration ---------- */
+  function party() {
+    partyEl.innerHTML = '';
+    var cols = ['#ffcf3f', '#e0457b', '#0d8a64', '#2f8fd8', '#ff9b4a', '#8e6bd6'];
+    for (var i = 0; i < 26; i++) {
+      var s = document.createElement('i');
+      var w = 5 + rnd(5);
+      s.style.left = rnd(98) + '%';
+      s.style.width = w + 'px';
+      s.style.height = (w + 2) + 'px';
+      s.style.background = cols[rnd(cols.length)];
+      s.style.animationDelay = (rnd(28) / 100) + 's';
+      partyEl.appendChild(s);
+    }
+    setTimeout(function () { partyEl.innerHTML = ''; }, 2400);
+    cheerEl.classList.remove('on');
+    void cheerEl.offsetWidth;
+    cheerEl.classList.add('on');
+    resbar.classList.remove('barpop');
+    void resbar.offsetWidth;
+    resbar.classList.add('barpop');
+    pop(980, .14);
+  }
+
+  /* ---------- reset ---------- */
+  function resetAll() {
+    if (q1Open()) abandonDrill();
+    if (drTimer) { clearInterval(drTimer); drTimer = null; }
+    q1Ans = ''; q1Done = false;
+    drAns = ''; drLeft = 60;
+    checked = false;
+    answers = ['', '', ''];
+    focusQ = 0;
+    for (var i = 0; i < 3; i++) {
+      marks[i].textContent = '';
+      marks[i].className = 'mk';
+    }
+    m1.textContent = '';
+    m1.className = 'mk';
+    q1num.textContent = '0';
+    q1num.classList.remove('bad');
+    q1title.style.display = '';
+    idleQ1(false);
+    partyEl.innerHTML = '';
+    cheerEl.classList.remove('on');
+    resbar.classList.remove('barpop');
+    resbar.className = 'resbar';
+    resbar.textContent = 'Type answers and tap “Check answers”';
+    paint();
+  }
+
+  /* ---------- popup buttons ---------- */
+  var dkeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+  dkeys.forEach(function (k) {
+    var b = document.createElement('button');
+    b.textContent = k;
+    b.addEventListener('click', function () { drType(k); });
+    dpad.appendChild(b);
+  });
+  dbksp.addEventListener('click', drBack);
+  ddone.addEventListener('click', finishDrill);
+  dx.addEventListener('click', abandonDrill);
+  startBtn.addEventListener('click', startDrill);
+
+  checkBtn.addEventListener('click', checkAll);
+  againBtn.addEventListener('click', resetAll);
+
+  document.addEventListener('keydown', function (e) {
+    if (q1Open()) {
+      if (e.key >= '0' && e.key <= '9') { drType(e.key); e.preventDefault(); }
+      else if (e.key === 'Backspace') { drBack(); e.preventDefault(); }
+      else if (e.key === 'Enter') { finishDrill(); e.preventDefault(); }
+      return;
+    }
+    if (e.key >= '0' && e.key <= '9') { typeDigit(e.key); e.preventDefault(); }
+    else if (e.key === 'Backspace') { backspace(); e.preventDefault(); }
+  });
+
+  buildPad();
+</script>
+</body>
+</html>

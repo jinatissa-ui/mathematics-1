@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     14 · Adding Whole Numbers — column addition with carrying
+     ============================================================ */
+  .ttl { font-size: 27px; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    text-align: left;
+    text-transform: none;
+  }
+  .intro {
+    margin-top: 5px;
+    font-size: 15px;
+    line-height: 1.3;
+    text-align: left;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- calculation board ---------- */
+  .board {
+    position: relative;
+    width: 320px;
+    margin: 9px auto 0;
+    padding: 12px 10px 14px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #ffffff, #fdfbf5);
+    border: 1px solid #e6e0d2;
+    box-shadow: 0 4px 12px rgba(60, 80, 80, .10), inset 0 0 0 3px #fffdf8;
+  }
+  .qno {
+    position: absolute;
+    top: 5px;
+    left: 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-family: Verdana, sans-serif;
+    line-height: 1;
+  }
+  .qno b {
+    font-size: 19px;
+    color: #dd8422;
+  }
+  .qno span {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  /* gap between the thousands digit and the last 3 digits */
+  .grid {
+    display: grid;
+    grid-template-columns: 34px 58px 14px repeat(3, 50px);
+    grid-template-rows: 26px 22px 58px 58px 14px 58px 12px;
+    justify-content: center;
+  }
+  .cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+  }
+  .plus { font-size: 30px; font-weight: bold; color: var(--ink); }
+  .acell, .bcell, .rcell {
+    font-size: 42px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .acell.on, .bcell.on {
+    background: #fff3cc;
+    border-radius: 9px;
+    box-shadow: inset 0 0 0 2px #ffcf3f;
+  }
+  .rcell { color: var(--green); }
+  .rcell.drop { animation: dropin .32s ease; }
+  @keyframes dropin {
+    0%   { opacity: 0; transform: translateY(-14px) scale(1.25); }
+    100% { opacity: 1; transform: none; }
+  }
+  .ccell {
+    font-size: 16px;
+    font-weight: bold;
+    color: #dd8422;
+    align-items: flex-end;
+    padding-bottom: 1px;
+    transition: opacity .35s ease;
+  }
+  .ccell.off { opacity: 0; }
+  .ccell.popin { animation: cpopin .3s ease; }
+  @keyframes cpopin {
+    0%   { opacity: 0; transform: scale(.4); }
+    100% { opacity: 1; transform: none; }
+  }
+  .wcell { align-items: flex-end; padding-bottom: 2px; }
+  .wchip {
+    display: inline-block;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 18px;
+    padding: 0 6px;
+    border-radius: 6px;
+    background: #fff3df;
+    border: 1px solid #f1d3a6;
+    color: #bf6427;
+    opacity: 0;
+    transform: translateY(4px) scale(.85);
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  .wchip.on { opacity: 1; transform: none; }
+  .eline {
+    border-top: 2.5px solid #33454c;
+    margin-top: 4px;
+  }
+  .dline {
+    height: 8px;
+    margin-top: 3px;
+    border-top: 2px solid #33454c;
+    border-bottom: 2px solid #33454c;
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform .4s ease;
+  }
+  .dline.on { transform: scaleX(1); }
+
+  /* ---------- step strip ---------- */
+  .step {
+    width: 376px;
+    height: 58px;
+    margin: 10px auto 0;
+    padding: 6px 12px 7px;
+    border-radius: 11px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    overflow: hidden;
+  }
+  .slabel {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.2;
+    color: var(--muted);
+  }
+  .sline2 {
+    margin-top: 2px;
+    font-size: 15.5px;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .sline2 b { color: var(--green); }
+
+  /* ---------- buttons ---------- */
+  .btns {
+    display: flex;
+    gap: 9px;
+    width: 376px;
+    margin: 10px auto 0;
+  }
+  .startBtn, .newBtn {
+    flex: 1;
+    height: 42px;
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: 16.5px;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .startBtn {
+    border: 0;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(13, 128, 94, .28), inset 0 1px 0 rgba(255, 255, 255, .35);
+  }
+  .startBtn:active { transform: scale(.99); }
+  .newBtn {
+    border: 1.5px solid #9fd6c4;
+    background: #fff;
+    color: var(--teal);
+  }
+  .newBtn:active { transform: scale(.99); }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Adding Whole Numbers</h2>
+    <div class="sub">COLUMN ADDITION · CARRYING</div>
+    <p class="intro">Add one place at a time. If a column makes 10, carry 1.</p>
+
+    <div class="board">
+      <div class="qno" id="qno"><b>(1).</b><span>/ 10</span></div>
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <div class="step">
+      <div class="slabel" id="slabel">Problem 1</div>
+      <div class="sline2" id="sline2">Tap Start</div>
+    </div>
+
+    <div class="btns">
+      <button class="startBtn" id="startBtn">Start</button>
+      <button class="newBtn" id="newBtn">New problems</button>
+    </div>
+  </div>
+
+<script>
+  /* ============================================================
+     10 problems — change the numbers here
+     ============================================================ */
+  var PROBLEMS = [
+    /*  1 */ { a: 3154, b: 578  },   /* = 3732 */
+    /*  2 */ { a: 2638, b: 495  },   /* = 3133 */
+    /*  3 */ { a: 1427, b: 869  },   /* = 2296 */
+    /*  4 */ { a: 4078, b: 356  },   /* = 4434 */
+    /*  5 */ { a: 275,  b: 148  },   /* = 423  */
+    /*  6 */ { a: 3896, b: 1247 },   /* = 5143 */
+    /*  7 */ { a: 5182, b: 794  },   /* = 5976 */
+    /*  8 */ { a: 936,  b: 587  },   /* = 1523 */
+    /*  9 */ { a: 2047, b: 3859 },   /* = 5906 */
+    /* 10 */ { a: 689,  b: 452  }    /* = 1141 */
+  ];
+  var PLACES = ['thousands place', 'hundreds place', 'tens place', 'ones place'];
+
+  var grid = document.getElementById('grid');
+  var qno = document.getElementById('qno');
+  var slabel = document.getElementById('slabel');
+  var sline2 = document.getElementById('sline2');
+  var startBtn = document.getElementById('startBtn');
+  var newBtn = document.getElementById('newBtn');
+  var aCells = [], bCells = [], rCells = [], cCells = [], wChips = [];
+  var dline, plusCell;
+  var idx = 0, cur = null, timers = [], runId = 0, audioCtx = null;
+
+  function nb(s) { return String(s).replace(/ /g, '\u00a0'); }
+  function fmt(n) { return nb(String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')); }
+
+  function pop(freq, vol) {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.4, audioCtx.currentTime + .1);
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .2);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + .22);
+    } catch (e) {}
+  }
+
+  function cell(cls, col, row) {
+    var e = document.createElement('div');
+    e.className = 'cell ' + cls;
+    e.style.gridColumn = col;
+    e.style.gridRow = row;
+    grid.appendChild(e);
+    return e;
+  }
+
+  function buildBoard() {
+    plusCell = cell('plus', 1, 4);
+    plusCell.textContent = '+';
+    for (var i = 0; i < 4; i++) {
+      /* i: 0 = thousands, 1 = hundreds, 2 = tens, 3 = ones · skip the gap column (3) */
+      var col = i === 0 ? 2 : i + 3;
+      var w = cell('wcell', col, 1);
+      var chip = document.createElement('span');
+      chip.className = 'wchip';
+      w.appendChild(chip);
+      wChips.push(chip);
+      cCells.push(cell('ccell', col, 2));
+      aCells.push(cell('acell', col, 3));
+      bCells.push(cell('bcell', col, 4));
+      rCells.push(cell('rcell', col, 6));
+    }
+    var rule = cell('', '2 / 7', 5);
+    rule.className = 'cell eline';
+    dline = cell('dline', '2 / 7', 7);
+  }
+
+  function digitsOf(n) {
+    var s = ('    ' + n).slice(-4);
+    var out = [];
+    for (var i = 0; i < 4; i++) out.push(s.charAt(i) === ' ' ? '' : s.charAt(i));
+    return out;
+  }
+
+  function solve(a, b) {
+    var sa = String(a), sb = String(b), carry = 0, steps = [];
+    var len = Math.max(sa.length, sb.length);
+    for (var k = 0; k < len; k++) {
+      var da = +(sa.charAt(sa.length - 1 - k) || 0);
+      var db = +(sb.charAt(sb.length - 1 - k) || 0);
+      var s = da + db + carry;
+      steps.push({ col: 3 - k, da: da, db: db, cin: carry, sum: s, cout: Math.floor(s / 10), rd: s % 10 });
+      carry = Math.floor(s / 10);
+    }
+    if (carry) {
+      steps.push({ col: 3 - len, da: 0, db: 0, cin: carry, sum: carry, cout: 0, rd: carry });
+    }
+    return steps;
+  }
+
+  function loadProblem(n) {
+    runId++; timers.forEach(clearTimeout); timers = [];
+    idx = ((n % PROBLEMS.length) + PROBLEMS.length) % PROBLEMS.length;
+    var p = PROBLEMS[idx];
+    cur = { a: p.a, b: p.b, steps: solve(p.a, p.b) };
+    var da = digitsOf(p.a), db = digitsOf(p.b);
+    for (var i = 0; i < 4; i++) {
+      aCells[i].textContent = da[i];
+      bCells[i].textContent = db[i];
+      rCells[i].textContent = '';
+      cCells[i].textContent = '';
+      cCells[i].classList.remove('off');
+      wChips[i].textContent = '';
+      wChips[i].classList.remove('on');
+      aCells[i].classList.remove('on');
+      bCells[i].classList.remove('on');
+    }
+    dline.classList.remove('on');
+    qno.querySelector('b').textContent = '(' + (idx + 1) + ').';
+    slabel.textContent = 'Problem ' + (idx + 1);
+    sline2.textContent = 'Tap Start';
+  }
+
+  function later(ms, fn) { timers.push(setTimeout(fn, ms)); }
+
+  function clearHighlight() {
+    for (var i = 0; i < 4; i++) {
+      aCells[i].classList.remove('on');
+      bCells[i].classList.remove('on');
+    }
+  }
+
+  function stepText(st) {
+    if (st.da === 0 && st.db === 0) return 'carry 1 above · write 1';
+    if (st.db === 0) return 'write ' + st.da;
+    var head = st.da + ' + ' + st.db + (st.cin ? ' + ' + st.cin : '') + ' = ' + st.sum;
+    var tail = 'write ' + st.rd + (st.cout ? ', carry ' + st.cout : '');
+    return head + ' · ' + tail;
+  }
+
+  function startAnim() {
+    runId++; var my = runId;
+    timers.forEach(clearTimeout); timers = [];
+
+    for (var i = 0; i < 4; i++) {
+      rCells[i].textContent = '';
+      cCells[i].textContent = '';
+      cCells[i].classList.remove('off');
+      wChips[i].textContent = '';
+      wChips[i].classList.remove('on');
+      aCells[i].classList.remove('on');
+      bCells[i].classList.remove('on');
+    }
+    dline.classList.remove('on');
+    sline2.textContent = '';
+
+    var t = 450;
+    cur.steps.forEach(function (st, n) {
+      later(t, function () {
+        if (my !== runId) return;
+        clearHighlight();
+        aCells[st.col].classList.add('on');
+        bCells[st.col].classList.add('on');
+        slabel.textContent = 'Step ' + (n + 1) + ' · ' + PLACES[st.col];
+        sline2.textContent = stepText(st);
+        pop(520 + n * 60, .08);
+      });
+      if (st.sum >= 10) {
+        later(t + 340, function () {
+          if (my !== runId) return;
+          wChips[st.col].textContent = st.sum;
+          wChips[st.col].classList.add('on');
+          pop(660, .1);
+        });
+      }
+      later(t + 800, function () {
+        if (my !== runId) return;
+        var rc = rCells[st.col];
+        rc.textContent = st.rd;
+        rc.classList.remove('drop');
+        void rc.offsetWidth;
+        rc.classList.add('drop');
+        if (st.cout && st.col > 0) {
+          var cc = cCells[st.col - 1];
+          cc.textContent = st.cout;
+          cc.classList.remove('popin');
+          void cc.offsetWidth;
+          cc.classList.add('popin');
+          pop(780, .1);
+        }
+      });
+      if (st.sum >= 10) {
+        later(t + 1240, function () {
+          if (my !== runId) return;
+          wChips[st.col].classList.remove('on');
+        });
+      }
+      t += 1400;
+    });
+
+    later(t, function () {
+      if (my !== runId) return;
+      clearHighlight();
+      dline.classList.add('on');
+      slabel.textContent = 'Final' ;
+      sline2.innerHTML = 'Answer: <b>' + fmt(cur.a + cur.b) + '</b>';
+      pop(980, .14);
+      for (var i = 0; i < 4; i++) cCells[i].classList.add('off');
+      later(450, function () {
+        if (my !== runId) return;
+        for (var i = 0; i < 4; i++) {
+          cCells[i].textContent = '';
+          cCells[i].classList.remove('off');
+          wChips[i].textContent = '';
+          wChips[i].classList.remove('on');
+        }
+      });
+    });
+  }
+
+  buildBoard();
+  loadProblem(0);
+
+  startBtn.addEventListener('click', startAnim);
+  newBtn.addEventListener('click', function () { loadProblem(idx + 1); });
+</script>
+</body>
+</html>

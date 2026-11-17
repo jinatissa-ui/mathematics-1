@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     63 · Hours as days
+     (top: box + 10 examples with the "=" button · bottom: Start — 10 questions in one minute)
+     ============================================================ */
+  .ttl { flex: none; font-size: 23px; }
+  .sub { flex: none; margin-top: 0; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- examples strip ---------- */
+  .tstrip {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  .tstrip b { font-size: 15px; color: var(--teal); }
+  .tcnt {
+    padding: 2px 10px 3px;
+    border-radius: 999px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 14px;
+    color: var(--teal);
+  }
+  .tcnt b { font-size: 14px; }
+
+  /* "Hours 24 = Days 1" box */
+  .onebox {
+    flex: none;
+    margin-top: 8px;
+    padding: 8px 10px 9px;
+    border-radius: 12px;
+    background: #fff6d8;
+    border: 1.5px solid #f0d47a;
+    text-align: center;
+    font-size: 21px;
+    line-height: 1.15;
+  }
+  .onebox .u { color: #a45600; font-weight: bold; }
+  .onebox .v { font-family: Verdana, Garamond, sans-serif; color: #a45600; font-weight: bold; }
+  .onebox .eqs { color: #8b9ba0; font-weight: bold; padding: 0 6px; }
+
+  /* ---------- example card ---------- */
+  .excard {
+    flex: none;
+    margin-top: 8px;
+    padding: 10px 12px 9px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #dff0e9;
+  }
+  .eq { display: flex; align-items: center; gap: 9px; }
+  .eq .lab { font-size: 21px; font-weight: bold; color: var(--teal); }
+  .eq .lab b { font-family: Verdana, Garamond, sans-serif; }
+  .eqbtn {
+    flex: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1.5px solid #ecd07c;
+    background: #fff1c9;
+    color: #a45600;
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 21px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform .12s ease, opacity .12s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .eqbtn:active { transform: scale(.94); }
+  .eqbtn:disabled { opacity: .38; cursor: default; }
+  .ebox {
+    flex: none;
+    width: 66px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    border: 1.5px dashed #b9ddd2;
+    background: #f7fdfa;
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 22px;
+    font-weight: bold;
+    color: #17a879;
+  }
+  .ebox.empty { color: #c2d8d1; }
+  .eq .sp { flex: 1; }
+  .enxt {
+    flex: none;
+    width: 92px;
+    height: 38px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(140deg, #12a08c, #0d6d74);
+    color: #fff;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(13, 109, 116, .25);
+    transition: opacity .15s ease, box-shadow .15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .enxt:active { transform: translateY(1px); }
+  .enxt:disabled { opacity: .38; cursor: default; box-shadow: none; }
+  .ework {
+    margin-top: 6px;
+    height: 22px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 22px;
+    color: var(--muted);
+  }
+  .ework .wk {
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--ink-soft);
+  }
+  .ework .wes { color: #8b9ba0; padding: 0 5px; }
+  .ework .wv { color: #0d8a64; }
+
+  /* ---------- exercise ---------- */
+  .xstrip {
+    flex: none;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .xstrip b { font-size: 15px; color: var(--teal); }
+  .xstrip i { font-style: normal; font-size: 14px; color: var(--muted); }
+  .tchip {
+    min-width: 92px;
+    text-align: center;
+    padding: 4px 10px 5px;
+    border-radius: 999px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .tchip.run { background: #fff1c9; border-color: #f0d47a; color: #a45600; }
+  .tchip.hot { background: #ffe3ea; border-color: #f3b1c6; color: #d2416f; animation: tpulse 1s ease-in-out infinite; }
+  @keyframes tpulse { 50% { transform: scale(1.07); } }
+
+  .qcard {
+    flex: none;
+    margin-top: 10px;
+    padding: 14px 14px 12px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #dff0e9;
+  }
+  .qcard.shake { animation: qshake .34s ease; }
+  @keyframes qshake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+  .qrow { display: flex; align-items: center; gap: 8px; }
+  .qlab { font-size: 23px; font-weight: bold; color: var(--teal); white-space: nowrap; }
+  .qlab b { font-family: Verdana, Garamond, sans-serif; }
+  .qlab .es { color: #8b9ba0; padding: 0 2px; }
+  .qbox {
+    flex: none;
+    width: 66px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    border: 1.5px dashed #b9ddd2;
+    background: #f7fdfa;
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 25px;
+    font-weight: bold;
+    color: var(--teal);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .qbox.empty { color: #c2d8d1; }
+  .qbox.on {
+    border-style: solid;
+    border-color: #0d6d74;
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(13, 109, 116, .16);
+  }
+  .qbox.ok { border-style: solid; border-color: #17a879; background: #f2fbf7; }
+  .qbox.no { border-style: solid; border-color: #e0457a; background: #fff7f9; }
+  .qmk {
+    flex: none;
+    width: 24px;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+  }
+  .qmk.ok { color: #0d8a64; }
+  .qmk.no { color: #d2416f; }
+  .qcnt {
+    flex: none;
+    padding: 3px 10px 4px;
+    border-radius: 999px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 14px;
+    color: var(--teal);
+    white-space: nowrap;
+  }
+  .qline {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 9px;
+  }
+  .qmsg {
+    flex: 1;
+    min-height: 20px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--muted);
+  }
+  .qmsg.good { color: #0d8a64; font-weight: bold; }
+  .qmsg.bad { color: #d2416f; font-weight: bold; }
+
+  /* ---------- 0–9 keys ---------- */
+  .pad {
+    flex: none;
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 10px;
+    transition: opacity .15s ease;
+  }
+  .pad.off { opacity: .45; pointer-events: none; }
+  .key {
+    width: 31px;
+    height: 36px;
+    border: 1px solid #cfe6de;
+    border-radius: 8px;
+    background: #fff;
+    color: var(--teal);
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 1px 0 #dceee7;
+    transition: background .12s ease, transform .12s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .key:hover { background: #f1fbf6; }
+  .key:active { transform: translateY(1px); background: #e7f7f0; }
+  .key.del { color: #a45600; font-family: inherit; font-size: 17px; }
+
+  /* ---------- buttons + score ---------- */
+  .acts {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 14px;
+  }
+  .chk, .go {
+    height: 44px;
+    border: 0;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 16.5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform .15s ease, opacity .15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .chk {
+    width: 148px;
+    color: #fff;
+    background: linear-gradient(140deg, #17b183, #0d8a64);
+    box-shadow: 0 5px 12px rgba(13, 138, 100, .28);
+  }
+  .go {
+    width: 118px;
+    color: #fff;
+    background: linear-gradient(140deg, #f7b32b, #de8f0f);
+    box-shadow: 0 5px 12px rgba(222, 143, 15, .3);
+  }
+  .chk:active, .go:active { transform: translateY(1px); }
+  .chk:disabled, .go:disabled { opacity: .42; cursor: default; box-shadow: none; }
+  .bar {
+    flex: 1;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .bar.gold { background: #f2fbf7; color: #0d8a64; }
+
+  /* ---------- applause card ---------- */
+  .res {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 45, 45, .36);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+  }
+  .res.on { opacity: 1; pointer-events: auto; }
+  .rcard {
+    position: relative;
+    width: 280px;
+    padding: 15px 18px 17px;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, .34);
+    text-align: center;
+    overflow: hidden;
+    transform: translateY(10px) scale(.97);
+    transition: transform .2s ease;
+  }
+  .res.on .rcard { transform: none; }
+  .rcard > * { position: relative; z-index: 1; }
+  .rtop { font-size: 15px; font-weight: bold; letter-spacing: .6px; color: var(--green); }
+  .rpct {
+    margin-top: 2px;
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 42px;
+    line-height: 1.05;
+    font-weight: bold;
+    color: var(--teal);
+  }
+  .rscore { margin-top: 1px; font-size: 15.5px; color: var(--ink-soft); }
+  .clap { width: 116px; height: 96px; margin: 8px auto 0; }
+  .clap svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .clap .hl { animation: clL .4s ease-in-out infinite alternate; transform-origin: 38px 66px; }
+  .clap .hr { animation: clR .4s ease-in-out infinite alternate; transform-origin: 82px 66px; }
+  @keyframes clL {
+    from { transform: translateX(0) rotate(0deg); }
+    to   { transform: translateX(9px) rotate(5deg); }
+  }
+  @keyframes clR {
+    from { transform: translateX(0) rotate(0deg); }
+    to   { transform: translateX(-9px) rotate(-5deg); }
+  }
+  .clap .arc { animation: aflash .4s ease-in-out infinite alternate; }
+  @keyframes aflash { from { opacity: 0; } to { opacity: 1; } }
+  .praise { margin-top: 3px; font-size: 16px; font-weight: bold; color: #d2416f; }
+  .confetti { position: absolute; inset: 0; z-index: 0 !important; pointer-events: none; }
+  .confetti span {
+    position: absolute;
+    top: -16px;
+    width: 7px;
+    height: 11px;
+    border-radius: 2px;
+    animation: fall 1.5s linear infinite;
+  }
+  @keyframes fall {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(320px) rotate(340deg); }
+  }
+  .rbtn {
+    margin-top: 11px;
+    width: 160px;
+    height: 42px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(140deg, #12a08c, #0d6d74);
+    color: #fff;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 5px 13px rgba(13, 109, 116, .3);
+  }
+  .rbtn:active { transform: translateY(1px); }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+  <div class="ttl">Hours into Days</div>
+  <div class="sub">HOURS TO DAYS</div>
+
+  <div class="tstrip">
+    <b>Examples</b>
+    <span class="tcnt"><b id="tcn">1</b> / 10</span>
+  </div>
+
+  <div class="onebox"><span class="u">Hours <span class="v">24</span></span><span class="eqs">=</span><span class="u">Days <span class="v">1</span></span></div>
+
+  <div class="excard">
+    <div class="eq">
+      <span class="lab">Hours <b id="eqn">48</b></span>
+      <button class="eqbtn" type="button" id="eqbtn" aria-label="Show the answer">=</button>
+      <div class="ebox empty" id="ebox">?</div>
+      <span class="sp"></span>
+      <button class="enxt" type="button" id="enxt">Another</button>
+    </div>
+    <div class="ework" id="ework">Tap the button to see the answer</div>
+  </div>
+
+  <div class="xstrip">
+    <b>Exercise</b>
+    <i>10 questions in one minute</i>
+    <span class="tchip" id="tchip">60 s</span>
+  </div>
+
+  <div class="qcard" id="qcard">
+    <div class="qrow">
+      <span class="qlab">Hours <b id="qn">24</b> <span class="es">=</span> days</span>
+      <div class="qbox empty" id="qbox">&ndash;</div>
+      <span class="qmk" id="qmk"></span>
+    </div>
+    <div class="qline">
+      <span class="qcnt" id="qcnt">1 / 10</span>
+      <div class="qmsg" id="qmsg">Tap “Start” — the seconds count down</div>
+    </div>
+  </div>
+
+  <div class="pad off" id="pad">
+    <button class="key" type="button" data-k="0">0</button>
+    <button class="key" type="button" data-k="1">1</button>
+    <button class="key" type="button" data-k="2">2</button>
+    <button class="key" type="button" data-k="3">3</button>
+    <button class="key" type="button" data-k="4">4</button>
+    <button class="key" type="button" data-k="5">5</button>
+    <button class="key" type="button" data-k="6">6</button>
+    <button class="key" type="button" data-k="7">7</button>
+    <button class="key" type="button" data-k="8">8</button>
+    <button class="key" type="button" data-k="9">9</button>
+    <button class="key del" type="button" id="del" aria-label="Erase">←</button>
+  </div>
+
+  <div class="acts">
+    <button class="chk" type="button" id="chk" disabled>Check</button>
+    <div class="bar" id="bar">Score 0 / 10</div>
+    <button class="go" type="button" id="go">Start</button>
+  </div>
+
+  <div class="res" id="res">
+    <div class="rcard">
+      <div class="confetti">
+        <span style="left:6%; background:#e0457b; animation-delay:.05s;"></span>
+        <span style="left:16%; background:#ffcf3f; animation-delay:.55s;"></span>
+        <span style="left:26%; background:#0d8a64; animation-delay:.25s;"></span>
+        <span style="left:36%; background:#9c6ce5; animation-delay:.8s;"></span>
+        <span style="left:46%; background:#ff9250; animation-delay:.4s;"></span>
+        <span style="left:56%; background:#0d6d74; animation-delay:.95s;"></span>
+        <span style="left:66%; background:#e0457b; animation-delay:.2s;"></span>
+        <span style="left:76%; background:#ffcf3f; animation-delay:.7s;"></span>
+        <span style="left:86%; background:#0d8a64; animation-delay:.35s;"></span>
+        <span style="left:93%; background:#9c6ce5; animation-delay:.9s;"></span>
+      </div>
+      <div class="rtop">Your score</div>
+      <div class="rpct" id="rpct">100%</div>
+      <div class="rscore" id="rscore">Score 10 / 10</div>
+      <div class="clap">
+        <svg viewBox="0 0 120 100" aria-hidden="true">
+          <g class="arc" stroke="#de8f0f" stroke-width="3" fill="none" stroke-linecap="round">
+            <path d="M52 18 Q60 10 68 18"></path>
+            <path d="M46 26 Q60 12 74 26" opacity=".55"></path>
+          </g>
+          <g class="hl">
+            <rect x="14" y="26" width="30" height="48" rx="14" fill="#ffcf3f" stroke="#e2a92f" stroke-width="3"></rect>
+            <line x1="24" y1="30" x2="24" y2="46" stroke="#e2a92f" stroke-width="2.4" stroke-linecap="round"></line>
+            <line x1="31" y1="29" x2="31" y2="46" stroke="#e2a92f" stroke-width="2.4" stroke-linecap="round"></line>
+            <line x1="38" y1="30" x2="38" y2="46" stroke="#e2a92f" stroke-width="2.4" stroke-linecap="round"></line>
+            <ellipse cx="16" cy="58" rx="7" ry="10" fill="#ffcf3f" stroke="#e2a92f" stroke-width="3" transform="rotate(18 16 58)"></ellipse>
+          </g>
+          <g class="hr">
+            <rect x="76" y="26" width="30" height="48" rx="14" fill="#ffcf3f" stroke="#e2a92f" stroke-width="3"></rect>
+            <line x1="82" y1="30" x2="82" y2="46" stroke="#e2a92f" stroke-width="2.4" stroke-linecap="round"></line>
+            <line x1="89" y1="29" x2="89" y2="46" stroke="#e2a92f" stroke-width="2.4" stroke-linecap="round"></line>
+            <line x1="96" y1="30" x2="96" y2="46" stroke="#e2a92f" stroke-width="2.4" stroke-linecap="round"></line>
+            <ellipse cx="104" cy="58" rx="7" ry="10" fill="#ffcf3f" stroke="#e2a92f" stroke-width="3" transform="rotate(-18 104 58)"></ellipse>
+          </g>
+        </svg>
+      </div>
+      <div class="praise">All 10 right within the minute!</div>
+      <button class="rbtn" type="button" id="rbtn">Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  /* ---------- common ---------- */
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  /* ================= examples ================= */
+  var eqn  = document.getElementById('eqn');
+  var eqbtn = document.getElementById('eqbtn');
+  var ebox = document.getElementById('ebox');
+  var enxt = document.getElementById('enxt');
+  var ework = document.getElementById('ework');
+  var tcn = document.getElementById('tcn');
+
+  var ei = 0;
+  var cur = 0;
+
+  function newExample(keepCount) {
+    var n;
+    do { n = 24 * (2 + Math.floor(Math.random() * 3)); } while (n === cur);
+    cur = n;
+    eqn.textContent = n;
+    ebox.textContent = '?';
+    ebox.classList.add('empty');
+    ework.innerHTML = 'Tap the button to see the answer';
+    eqbtn.disabled = false;
+    if (!keepCount) {
+      ei = (ei % 10) + 1;
+      tcn.textContent = ei;
+    }
+  }
+
+  eqbtn.addEventListener('click', function () {
+    if (eqbtn.disabled) return;
+    ebox.textContent = cur / 24;
+    ebox.classList.remove('empty');
+    ework.innerHTML = '<span class="wk">' + cur + ' &divide; 24</span><span class="wes">=</span><span class="wk wv">' + (cur / 24) + '</span>';
+    eqbtn.disabled = true;
+  });
+
+  enxt.addEventListener('click', function () { newExample(false); });
+
+  /* ================= exercise ================= */
+  var tchip = document.getElementById('tchip');
+  var qcard = document.getElementById('qcard');
+  var qn = document.getElementById('qn');
+  var qbox = document.getElementById('qbox');
+  var qmk = document.getElementById('qmk');
+  var qcnt = document.getElementById('qcnt');
+  var qmsg = document.getElementById('qmsg');
+  var pad = document.getElementById('pad');
+  var chk = document.getElementById('chk');
+  var bar = document.getElementById('bar');
+  var go = document.getElementById('go');
+  var res = document.getElementById('res');
+  var rpct = document.getElementById('rpct');
+  var rscore = document.getElementById('rscore');
+  var rbtn = document.getElementById('rbtn');
+
+  var N = 10;
+  var TOTAL = 60;
+  var hours = [];
+  var qi = 0, score = 0;
+  var run = false, qlock = false;
+  var left = TOTAL, timer = null;
+  var pendingNext = null, pendingEnd = null;
+  var MSG0 = 'Tap “Start” — the seconds count down';
+
+  function buildQs() { hours = shuffle([24, 48, 72, 96, 120, 144, 168, 192, 216, 240]); }
+
+  function showQ(i) {
+    qi = i;
+    qn.textContent = hours[i];
+    qcnt.textContent = (i + 1) + ' / ' + N;
+    qbox.textContent = '–';
+    qbox.className = 'qbox empty' + (run && !qlock ? ' on' : '');
+    qmk.textContent = '';
+    qmk.className = 'qmk';
+    chk.disabled = !run || qlock;
+  }
+
+  function setMsg(t, cls) {
+    qmsg.textContent = t;
+    qmsg.className = 'qmsg' + (cls ? ' ' + cls : '');
+  }
+
+  function paintBox() {
+    qbox.textContent = qboxVal || '–';
+    qbox.classList.toggle('empty', !qboxVal);
+  }
+
+  var qboxVal = '';
+
+  function typeDigit(d) {
+    if (!run || qlock) return;
+    if (qboxVal.length >= 2) return;
+    qboxVal += d;
+    paintBox();
+  }
+
+  function backspace() {
+    if (!run || qlock) return;
+    qboxVal = qboxVal.slice(0, -1);
+    paintBox();
+  }
+
+  function nextQ() {
+    if (!run) return;
+    qlock = false;
+    qboxVal = '';
+    showQ(qi + 1);
+    paintBox();
+  }
+
+  function check() {
+    if (!run || qlock) return;
+    if (!qboxVal) {
+      qcard.classList.remove('shake');
+      void qcard.offsetWidth;
+      qcard.classList.add('shake');
+      return;
+    }
+    qlock = true;
+    var ok = parseInt(qboxVal, 10) === hours[qi] / 24;
+    if (ok) score++;
+    qmk.textContent = ok ? '✓' : '✗';
+    qmk.className = 'qmk ' + (ok ? 'ok' : 'no');
+    qbox.classList.remove('on');
+    qbox.classList.add(ok ? 'ok' : 'no');
+    chk.disabled = true;
+    bar.textContent = 'Score ' + score + ' / ' + N;
+    if (qi === N - 1) pendingEnd = setTimeout(endRun, 900);
+    else pendingNext = setTimeout(nextQ, 900);
+  }
+
+  function tick() {
+    left--;
+    tchip.textContent = left + ' s';
+    if (left <= 10) tchip.classList.add('hot');
+    if (left <= 0) timeUp();
+  }
+
+  function start() {
+    buildQs();
+    score = 0; qlock = false; qboxVal = '';
+    left = TOTAL;
+    tchip.textContent = left + ' s';
+    tchip.classList.add('run');
+    tchip.classList.remove('hot');
+    run = true;
+    pad.classList.remove('off');
+    go.disabled = true;
+    enxt.disabled = true;
+    eqbtn.disabled = true;
+    bar.textContent = 'Score 0 / ' + N;
+    bar.classList.remove('gold');
+    setMsg('');
+    showQ(0);
+    paintBox();
+    timer = setInterval(tick, 1000);
+  }
+
+  function stopTimer() {
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  function cancelPending() {
+    if (pendingNext) { clearTimeout(pendingNext); pendingNext = null; }
+    if (pendingEnd) { clearTimeout(pendingEnd); pendingEnd = null; }
+  }
+
+  function endRun() {
+    if (!run) return;
+    pendingEnd = null;
+    run = false;
+    stopTimer();
+    pad.classList.add('off');
+    enxt.disabled = false;
+    eqbtn.disabled = false;
+    tchip.classList.remove('run', 'hot');
+    var pct = Math.round(score / N * 100);
+    bar.textContent = 'Score ' + score + ' / ' + N + ' · ' + pct + '%' + (pct === 100 ? ' · Super!' : '');
+    if (pct === 100) {
+      bar.classList.add('gold');
+      rpct.textContent = '100%';
+      rscore.textContent = 'Score 10 / 10';
+      setTimeout(function () { res.classList.add('on'); }, 350);
+    } else {
+      setMsg('Try again — tap “Again”', 'bad');
+    }
+    go.disabled = false;
+    go.textContent = 'Again';
+  }
+
+  function timeUp() {
+    cancelPending();
+    run = false;
+    qlock = true;
+    stopTimer();
+    tchip.textContent = '0 s';
+    tchip.classList.remove('run');
+    tchip.classList.add('hot');
+    pad.classList.add('off');
+    chk.disabled = true;
+    enxt.disabled = false;
+    eqbtn.disabled = false;
+    var pct = Math.round(score / N * 100);
+    bar.textContent = 'Score ' + score + ' / ' + N + ' · ' + pct + '%';
+    setMsg('Time is up! Tap “Again”', 'bad');
+    go.disabled = false;
+    go.textContent = 'Again';
+  }
+
+  function resetAll() {
+    res.classList.remove('on');
+    cancelPending();
+    stopTimer();
+    run = false; qlock = false; qboxVal = ''; score = 0; left = TOTAL;
+    tchip.textContent = TOTAL + ' s';
+    tchip.classList.remove('run', 'hot');
+    pad.classList.add('off');
+    bar.textContent = 'Score 0 / ' + N;
+    bar.classList.remove('gold');
+    setMsg(MSG0, '');
+    go.textContent = 'Start';
+    go.disabled = false;
+    enxt.disabled = false;
+    eqbtn.disabled = false;
+    buildQs();
+    showQ(0);
+    paintBox();
+  }
+
+  pad.addEventListener('click', function (e) {
+    var k = e.target.closest ? e.target.closest('.key') : null;
+    if (!k) return;
+    if (k.id === 'del') backspace();
+    else typeDigit(k.getAttribute('data-k'));
+  });
+
+  qbox.addEventListener('click', function () {
+    if (!run || qlock) return;
+    qbox.classList.add('on');
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (res.classList.contains('on')) return;
+    if (e.key >= '0' && e.key <= '9') { e.preventDefault(); typeDigit(e.key); }
+    else if (e.key === 'Backspace') { e.preventDefault(); backspace(); }
+    else if (e.key === 'Enter') { e.preventDefault(); check(); }
+  });
+
+  chk.addEventListener('click', check);
+  go.addEventListener('click', function () {
+    if (go.textContent === 'Start') start();
+    else resetAll();
+  });
+  rbtn.addEventListener('click', resetAll);
+
+  newExample(true);
+  ei = 1; tcn.textContent = 1;
+  buildQs();
+  showQ(0);
+})();
+</script>
+</body>
+</html>

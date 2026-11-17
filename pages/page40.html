@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* small settings needed only for this page */
+  .sheet .box { flex: 0 0 auto; margin-top: 10px; }
+  .sheet .box li { line-height: 1.38; }
+
+  /* animation box */
+  .stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    margin-top: 10px;
+    display: flex;
+    border-radius: 14px;
+    border: 1px solid #d5eee6;
+    background: linear-gradient(160deg, #fffdf7 0%, #f2fbf7 100%);
+    box-shadow: inset 0 1px 0 #fff, 0 3px 9px rgba(30, 80, 80, .06);
+    overflow: hidden;
+  }
+  .clockwrap {
+    flex: 0 0 148px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px dashed #d5eee6;
+  }
+  .angwrap {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cap {
+    position: absolute;
+    top: 9px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.2;
+    color: var(--teal);
+    font-weight: bold;
+  }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">1. Angles</h2>
+    <div class="sub">ANGLES</div>
+
+    <div class="box">
+      <div class="box-t">In this lesson you will learn</div>
+      <ul>
+        <li>Identifying angles in the environment</li>
+        <li>Identifying the arms and vertex of an angle</li>
+        <li>Knowing whether an angle is static or dynamic</li>
+        <li>Seeing right angles around you</li>
+        <li>Recognising acute, obtuse, straight and reflex angles using the right angle</li>
+        <li>Naming angles</li>
+      </ul>
+    </div>
+
+    <div class="stage">
+      <!-- left · clock -->
+      <div class="clockwrap">
+        <svg width="150" height="150" viewBox="0 0 150 150" aria-hidden="true">
+          <circle cx="75" cy="75" r="61" fill="#fff" stroke="#d5eee6" stroke-width="3"/>
+          <circle cx="75" cy="75" r="55" fill="#fffdf6" stroke="#cfe0e6" stroke-width="1.2"/>
+          <g id="cticks" stroke="#6d8a90" stroke-linecap="round"></g>
+          <g fill="#45606a" font-size="12" font-weight="bold" text-anchor="middle">
+            <text x="75" y="42">12</text>
+            <text x="109" y="79">3</text>
+            <text x="75" y="117">6</text>
+            <text x="41" y="79">9</text>
+          </g>
+
+          <g id="hh">
+            <line x1="75" y1="75" x2="75" y2="45" stroke="#0d6d74" stroke-width="5.6" stroke-linecap="round"/>
+          </g>
+          <line x1="75" y1="75" x2="75" y2="26" stroke="#33454c" stroke-width="3.4" stroke-linecap="round"/>
+          <circle cx="75" cy="75" r="4.4" fill="#0d6d74"/>
+          <circle cx="75" cy="75" r="1.7" fill="#fff"/>
+        </svg>
+      </div>
+
+      <!-- right · the angle -->
+      <div class="angwrap">
+        <div class="cap">The angle between the hands</div>
+        <svg width="210" height="180" viewBox="0 0 210 180" aria-hidden="true">
+          <line x1="105" y1="112" x2="105" y2="46" stroke="#33454c" stroke-width="2.8" stroke-linecap="round"/>
+          <g id="ah">
+            <line x1="105" y1="112" x2="105" y2="46" stroke="#33454c" stroke-width="2.8" stroke-linecap="round"/>
+          </g>
+          <path id="arc" d="" fill="none" stroke="#e0454a" stroke-width="2.8" stroke-linecap="round"/>
+          <circle cx="105" cy="112" r="3" fill="#33454c"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(n, a) {
+    var e = document.createElementNS(NS, n);
+    for (var k in a) { e.setAttribute(k, a[k]); }
+    return e;
+  }
+
+  /* ---------- clock ticks ---------- */
+  var tg = document.getElementById('cticks');
+  for (var i = 0; i < 12; i++) {
+    var a = i * Math.PI / 6, long = (i % 3 === 0);
+    tg.appendChild(el('line', {
+      x1: (75 + (long ? 47 : 50) * Math.sin(a)).toFixed(2),
+      y1: (75 - (long ? 47 : 50) * Math.cos(a)).toFixed(2),
+      x2: (75 + 54 * Math.sin(a)).toFixed(2),
+      y2: (75 - 54 * Math.cos(a)).toFixed(2),
+      'stroke-width': long ? 2.2 : 1.2
+    }));
+  }
+
+  /* ---------- hands of the clock and of the angle ---------- */
+  var hh = document.getElementById('hh');
+  var ah = document.getElementById('ah');
+  var arc = document.getElementById('arc');
+  var CX = 75, CY = 75;                 /* clock centre */
+  var VX = 105, VY = 112;               /* vertex of the angle */
+  var RR = 25;                          /* radius of the red arc */
+
+  var HOURS = [3, 2, 5, 6, 8];          /* 3.00 · 2.00 · 5.00 · 6.00 · 8.00 */
+  var STEP = 3400, MOVE = 850;          /* time per one · hand-rotation time */
+  var t0 = Date.now() - MOVE;
+
+  function ease(k) { return k * k * (3 - 2 * k); }
+
+  setInterval(function () {
+    var elapsed = Date.now() - t0;
+    var idx = Math.floor(elapsed / STEP) % HOURS.length;
+    var prev = (idx === 0 && elapsed < STEP) ? HOURS[0]
+             : HOURS[(idx + HOURS.length - 1) % HOURS.length];
+    var local = elapsed % STEP;
+    var k = local < MOVE ? ease(local / MOVE) : 1;
+    var ha = prev * 30 + (HOURS[idx] * 30 - prev * 30) * k;
+
+    hh.setAttribute('transform', 'rotate(' + ha.toFixed(2) + ' ' + CX + ' ' + CY + ')');
+    ah.setAttribute('transform', 'rotate(' + ha.toFixed(2) + ' ' + VX + ' ' + VY + ')');
+
+    /* red arc from 12 to the hour hand — reflex angle at 8 (the other side) */
+    var a1 = 0, span = ha;
+    var r1 = a1 * Math.PI / 180, r2 = (a1 + span) * Math.PI / 180;
+    var x1 = VX + RR * Math.sin(r1), y1 = VY - RR * Math.cos(r1);
+    var x2 = VX + RR * Math.sin(r2), y2 = VY - RR * Math.cos(r2);
+    arc.setAttribute('d',
+      'M ' + x1.toFixed(2) + ' ' + y1.toFixed(2) +
+      ' A ' + RR + ' ' + RR + ' 0 ' + (span > 180 ? 1 : 0) + ' 1 ' +
+      x2.toFixed(2) + ' ' + y2.toFixed(2));
+  }, 33);
+})();
+</script>
+</body>
+</html>

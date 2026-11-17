@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Rounding to the Nearest Ten</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     81 · Rounding to the nearest ten
+     (rule + list 45–54 + round any/random number)
+     ============================================================ */
+  .ttl { flex: none; font-size: 25px; line-height: 1.1; white-space: nowrap; }
+  .sub { flex: none; margin-top: 2px; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- the rule ---------- */
+  .rulecard {
+    flex: none;
+    margin-top: 7px;
+    padding: 9px 12px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 6px 14px rgba(30, 80, 80, .07);
+  }
+  .rulecard .rhead {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--ink-soft);
+    margin-bottom: 5px;
+  }
+  .rrow {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 14px;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  .rrow + .rrow { margin-top: 3px; }
+  .rno {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    background: var(--teal);
+    transform: translateY(3px);
+  }
+  .rrow.amb .rno { background: #e8a020; }
+  .hlo { color: #e8a020; font-weight: bold; font-family: Verdana, sans-serif; }
+  .hlt { color: #0d8a64; font-weight: bold; font-family: Verdana, sans-serif; }
+
+  /* ---------- the 45–54 list ---------- */
+  .tcard {
+    flex: none;
+    margin-top: 7px;
+    padding: 9px 12px 10px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 6px 14px rgba(30, 80, 80, .07);
+  }
+  .tcard .thead {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .numline {
+    padding: 6px 8px;
+    border-radius: 10px;
+    background: #f7fbfa;
+    border: 1px solid #dcebe7;
+    text-align: center;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    word-spacing: 2px;
+  }
+  .numline b { color: #0d8a64; }
+
+  /* table row — the child’s number on the left */
+  .irow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    height: 42px;
+  }
+  .irow .abox {
+    width: 90px;
+    height: 38px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #fffdf4;
+    border: 2px solid #ffe08a;
+    box-shadow: inset 0 2px 4px rgba(120, 100, 40, .06);
+    font-family: Verdana, sans-serif;
+    font-size: 21px;
+    font-weight: bold;
+    color: var(--teal);
+    letter-spacing: 1px;
+  }
+  .abox .car {
+    display: inline-block;
+    width: 2px;
+    height: 22px;
+    background: #c9d6d2;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .del {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #dbe7e6;
+    border-radius: 10px;
+    background: #f7fbfa;
+    cursor: pointer;
+  }
+  .del:active { background: #e9f4f1; }
+  .irow .arrow { flex: none; font-size: 18px; color: #9ab4af; padding: 0 2px; }
+  .ans {
+    flex: 1;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: 2px dashed #cfe0dd;
+    font-family: Verdana, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    color: #9ab4af;
+    transition: all .25s;
+  }
+  .ans.ok {
+    border: 2px solid #0d8a64;
+    background: #effaf4;
+    color: #0d8a64;
+  }
+  .ans .ae { font-size: 14px; color: #9ab4af; margin-right: 4px; }
+
+  /* ---------- message / buttons ---------- */
+  .status {
+    flex: none;
+    min-height: 36px;
+    margin-top: 6px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .status.ok { color: #0d8a64; font-weight: bold; }
+  .btns { flex: none; margin-top: 4px; display: flex; gap: 8px; }
+  .btn {
+    height: 46px;
+    border-radius: 12px;
+    border: 1px solid #c6e5da;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #f2fbf7;
+    color: var(--teal);
+  }
+  .btn.go { flex: 1.5; }
+  .btn.alt {
+    flex: 1;
+    background: #fff;
+    border-color: #dbe7e6;
+    color: var(--ink-soft);
+  }
+  .btn.live { animation: pulse 1.4s ease infinite; }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(13, 138, 100, .35); }
+    50% { box-shadow: 0 0 0 7px rgba(13, 138, 100, 0); }
+  }
+  .btn:disabled { opacity: .55; cursor: default; animation: none; }
+  .btn:active:not(:disabled) { background: #e6f7f0; }
+  .btn.alt:active:not(:disabled) { background: #f4f9f8; }
+
+  /* ---------- keys ---------- */
+  .pad {
+    flex: none;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 9px;
+  }
+  .key {
+    height: 48px;
+    border-radius: 12px;
+    border: 1px solid #dcebe7;
+    background: linear-gradient(180deg, #ffffff, #f4fbf8);
+    font-family: Verdana, sans-serif;
+    font-size: 21px;
+    font-weight: bold;
+    color: #2c4c53;
+    cursor: pointer;
+    box-shadow: 0 2px 3px rgba(30, 70, 70, .06);
+  }
+  .key:active { transform: translateY(1px); background: #e9f7f1; }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <div class="ttl">Rounding to the Nearest Ten</div>
+  <div class="sub">ROUNDING TO THE NEAREST TEN</div>
+
+  <div class="rulecard">
+    <div class="rhead">How to write a number as a multiple of 10 (ending in 0)</div>
+    <div class="rrow"><span class="rno">1</span><span>Put a <span class="hlo">0</span> in place of the last digit.</span></div>
+    <div class="rrow amb"><span class="rno">2</span><span>If the ones digit is <span class="hlo">5</span> or more — add <span class="hlt">1</span> to the tens.</span></div>
+    <div class="rrow"><span class="rno">3</span><span>If the ones digit is under <span class="hlo">5</span> — keep the tens as it is.</span></div>
+  </div>
+
+  <div class="tcard">
+    <div class="thead">Numbers that round to 50 — they round to <b style="color:#0d8a64">50</b></div>
+    <div class="numline">45, 46, 47, 48, 49, <b>50</b>, 51, 52, 53, 54</div>
+    <div class="irow">
+      <div class="abox" id="abox"><span class="car"></span></div>
+      <button class="del" id="del" type="button" aria-label="Erase">
+        <svg viewBox="0 0 24 18" width="22" height="17" aria-hidden="true">
+          <path d="M7 2h13a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7L1 9z" fill="none" stroke="#5c7378" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M10 6l6 6M16 6l-6 6" stroke="#5c7378" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <span class="arrow">→</span>
+      <div class="ans" id="ans">?</div>
+    </div>
+  </div>
+
+  <div class="status" id="status">Write any number. Or tap “Another number”.</div>
+
+  <div class="btns">
+    <button class="btn go" id="go" type="button" disabled>Round to the Nearest 10</button>
+    <button class="btn alt" id="new" type="button">Another number</button>
+  </div>
+
+  <div class="pad" id="pad">
+    <button class="key" type="button">1</button>
+    <button class="key" type="button">2</button>
+    <button class="key" type="button">3</button>
+    <button class="key" type="button">4</button>
+    <button class="key" type="button">5</button>
+    <button class="key" type="button">6</button>
+    <button class="key" type="button">7</button>
+    <button class="key" type="button">8</button>
+    <button class="key" type="button">9</button>
+    <button class="key" type="button">0</button>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var box = $('abox'), ans = $('ans'), statusEl = $('status'), go = $('go'), del = $('del'), newBtn = $('new');
+  var keys = [].slice.call(document.querySelectorAll('.key'));
+  var digits = '', busy = false, answered = false;
+
+  function fmt(n) {
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  }
+
+  function renderBox() {
+    if (digits) box.textContent = digits;
+    else box.innerHTML = '<span class="car"></span>';
+    go.disabled = !digits.length || busy;
+    go.classList.toggle('live', !!digits.length && !busy);
+  }
+
+  function resetAns() {
+    answered = false;
+    ans.classList.remove('ok');
+    ans.textContent = '?';
+  }
+
+  function setStatus(t, c) {
+    statusEl.textContent = t;
+    statusEl.className = 'status' + (c ? ' ' + c : '');
+  }
+
+  /* ---------- digits ---------- */
+  function press(d) {
+    if (busy) return;
+    if (answered) digits = ''; /* if the answer is already shown, this starts a new number */
+    if (digits.length >= 3) return;
+    digits += d;
+    resetAns();
+    setStatus('Now tap “Round to the Nearest 10”.', '');
+    renderBox();
+  }
+
+  function erase() {
+    if (busy || !digits.length) return;
+    digits = digits.slice(0, -1);
+    resetAns();
+    setStatus(digits ? 'Add more digits or tap Round.' : 'Write any number. Or tap “Another number”.', '');
+    renderBox();
+  }
+
+  /* ---------- a random number (under 1000) ---------- */
+  newBtn.addEventListener('click', function () {
+    if (busy) return;
+    var n = 1 + Math.floor(Math.random() * 999); /* 1 – 999 */
+    digits = String(n);
+    resetAns();
+    setStatus('You got ' + fmt(n) + '. Now tap “Round to the Nearest 10”.', '');
+    renderBox();
+  });
+
+  /* ---------- round ---------- */
+  go.addEventListener('click', function () {
+    if (!digits.length || busy) return;
+    busy = true;
+    go.classList.remove('live');
+    go.disabled = true;
+    setStatus('Rounding…', '');
+
+    var n = parseInt(digits, 10);
+    var g = digits.length;
+    setTimeout(function () {
+      if (digits.length !== g) return; /* cancelled if the digits were erased */
+      var o = n % 10, t = Math.floor(n / 10) % 10;
+      var up = o >= 5;
+      var r = (Math.floor(n / 10) + (up ? 1 : 0)) * 10;
+      var reason;
+      if (o === 0) {
+        reason = 'The last digit is 0, so this number is already a multiple of 10 — no change.';
+      } else if (up) {
+        reason = 'Ones digit ' + o + ' — 5 or more, so 1 was added to the tens (' + t + ' → ' + (t + 1) + ').';
+      } else {
+        reason = 'Ones digit ' + o + ' — under 5, so the tens stays the same.';
+      }
+      ans.innerHTML = '<span class="ae">≈</span>' + fmt(r);
+      ans.classList.add('ok');
+      setStatus(reason + '  ·  ' + fmt(n) + ' ≈ ' + fmt(r), 'ok');
+      busy = false;
+      answered = true;
+      go.disabled = false;
+      go.classList.add('live');
+    }, 550);
+  });
+
+  for (var k = 0; k < keys.length; k++) {
+    (function (btn) {
+      btn.addEventListener('click', function () { press(btn.textContent.trim()); });
+    })(keys[k]);
+  }
+  del.addEventListener('click', erase);
+
+  renderBox();
+})();
+</script>
+</body>
+</html>

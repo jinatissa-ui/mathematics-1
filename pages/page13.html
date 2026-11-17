@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     13 · Maths on the Farm — Subtraction and Division
+     ============================================================ */
+  .ttl { font-size: 24px; }
+  .topic {
+    margin-top: 1px;
+    font-size: 16.5px;
+    line-height: 1.25;
+    color: var(--teal);
+    font-weight: bold;
+  }
+  .sub {
+    margin-top: 1px;
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: .5px;
+    text-transform: none;
+  }
+  .intro {
+    margin-top: 6px;
+    font-size: 15.5px;
+    line-height: 1.32;
+    color: var(--ink-soft);
+  }
+  .intro b { color: var(--teal); }
+
+  /* ---------- income list ---------- */
+  .ledger {
+    margin-top: 7px;
+    padding: 4px 10px 5px;
+    border-radius: 13px;
+    background: linear-gradient(180deg, #fffdf5, #fff9ee);
+    border: 1px solid #ecd9b5;
+    box-shadow: 0 3px 9px rgba(120, 80, 30, .10), inset 0 0 0 3px #fff;
+  }
+  .lh {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 0 4px 4px;
+    border-bottom: 1px dashed #e2cfae;
+    font-size: 14px;
+    font-weight: bold;
+    color: #a08b68;
+  }
+  .lh span:last-child { font-family: Verdana, sans-serif; letter-spacing: .2px; }
+
+  .lr {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    height: 44px;
+    padding: 0 3px;
+    border: 0;
+    border-bottom: 1px solid #f3e9d6;
+    background: transparent;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background .15s ease;
+  }
+  .lr:last-of-type { border-bottom: 0; }
+  .lr:hover, .lr:focus-visible { background: #fff4dd; border-radius: 8px; outline: none; }
+  .lr .it {
+    flex: 1;
+    min-width: 0;
+    font-size: 15.5px;
+    line-height: 1.2;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lr .it i {
+    font-style: normal;
+    font-size: 14px;
+    color: #a4967c;
+    margin-left: 4px;
+  }
+  .lr .am {
+    flex: 0 0 auto;
+    min-width: 78px;
+    height: 26px;
+    padding: 0 7px;
+    border-radius: 7px;
+    border: 1px dashed #e3d2b1;
+    background: #fdf8ec;
+    font-family: Verdana, sans-serif;
+    font-size: 14.5px;
+    font-weight: bold;
+    line-height: 24px;
+    text-align: right;
+    color: #c9b795;
+    white-space: nowrap;
+  }
+  .lr.done .am {
+    border: 1px solid #bfe6d6;
+    background: #eafaf3;
+    color: var(--green);
+  }
+  .lr.flash { animation: rowfill .45s ease; }
+  @keyframes rowfill {
+    0%   { background: #d8f6e8; }
+    100% { background: transparent; }
+  }
+
+  /* ---------- expense reminder ---------- */
+  .expense {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 9px;
+    padding: 8px 12px 9px;
+    border-radius: 10px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+  }
+  .expense span { font-size: 14.5px; color: var(--ink-soft); }
+  .expense span i { font-style: normal; font-size: 14px; color: var(--muted); }
+  .expense b {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    color: var(--teal);
+    letter-spacing: .2px;
+    white-space: nowrap;
+  }
+
+  /* ---------- total button ---------- */
+  .slot { position: relative; height: 47px; margin-top: 7px; flex: 0 0 auto; }
+  .totalBtn {
+    position: absolute;
+    inset: 3px 0;
+    width: 100%;
+    border: 0;
+    border-radius: 11px;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(13, 128, 94, .28), inset 0 1px 0 rgba(255, 255, 255, .35);
+    opacity: 0;
+    transform: translateY(8px) scale(.98);
+    pointer-events: none;
+    transition: opacity .3s ease, transform .3s ease;
+  }
+  .totalBtn.show { opacity: 1; transform: none; pointer-events: auto; }
+  .totalBtn:active { transform: scale(.99); }
+  .totalBtn.two {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    line-height: 1.15;
+  }
+  .totalBtn .tl { font-size: 14px; font-weight: normal; opacity: .9; }
+  .totalBtn .tp { font-size: 16.5px; font-weight: bold; }
+
+  /* ---------- calculation pop-up ---------- */
+  .calc-card { width: 362px; padding: 12px 16px 14px; }
+  .ctitle {
+    margin-top: 7px;
+    font-size: 19px;
+    line-height: 1.25;
+    color: var(--teal);
+    font-weight: bold;
+  }
+  .cnote {
+    margin-top: 1px;
+    font-size: 14.5px;
+    line-height: 1.3;
+    color: var(--muted);
+  }
+  .clines { margin-top: 7px; }
+  .cl {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 3px 2px;
+    border-bottom: 1px dotted #e3e9e6;
+    font-size: 15.5px;
+    line-height: 1.3;
+  }
+  .cl:last-child { border-bottom: 0; }
+  .cl .ce { color: var(--ink-soft); }
+  .cl .ce i { font-style: normal; color: #a4967c; font-size: 14.5px; }
+  .cl .ce b {
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    letter-spacing: .2px;
+    white-space: nowrap;
+  }
+  .cl .cv {
+    flex: 0 0 auto;
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--teal);
+    white-space: nowrap;
+  }
+
+  .ctotal {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding: 7px 11px 8px;
+    border-radius: 10px;
+    background: #eefaf4;
+    border: 1px solid #d3eee2;
+  }
+  .ctotal span { font-size: 15px; color: var(--green); font-weight: bold; }
+  .ctotal b {
+    font-family: Verdana, sans-serif;
+    font-size: 19px;
+    color: var(--green);
+    letter-spacing: .3px;
+    white-space: nowrap;
+  }
+  .okBtn {
+    width: 100%;
+    height: 40px;
+    margin-top: 9px;
+    border: 0;
+    border-radius: 10px;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    font-family: inherit;
+    font-size: 16.5px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(13, 128, 94, .25), inset 0 1px 0 rgba(255, 255, 255, .3);
+  }
+  .okBtn:active { transform: scale(.995); }
+
+  /* column total / subtraction */
+  .sum .srow {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 2.5px 2px;
+    font-size: 15px;
+    line-height: 1.25;
+    color: var(--ink-soft);
+  }
+  .sum .srow b {
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    letter-spacing: .2px;
+    white-space: nowrap;
+  }
+  .sum .sline {
+    height: 0;
+    margin: 5px 0 3px;
+    border-top: 2px solid #cddbd6;
+  }
+  .sum .srow.tot {
+    padding: 3px 8px 4px;
+    border-radius: 8px;
+    background: #eefaf4;
+  }
+  .sum .srow.tot span { font-size: 15.5px; font-weight: bold; color: var(--green); }
+  .sum .srow.tot b { font-size: 19px; color: var(--green); }
+  .sum .minus { color: #c06a4b; }
+
+  /* dividing between the four */
+  .friends {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    margin-top: 9px;
+  }
+  .fr { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .fa {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .14);
+  }
+  .fr i {
+    font-style: normal;
+    font-size: 14px;
+    line-height: 1.2;
+    color: var(--ink-soft);
+  }
+  .dwrap {
+    margin-top: 9px;
+    padding: 9px 6px 10px;
+    border-radius: 12px;
+    background: #f0faf5;
+    border: 1px solid #d3eee2;
+    text-align: center;
+  }
+  .deq {
+    font-family: Verdana, sans-serif;
+    font-size: 19px;
+    font-weight: bold;
+    letter-spacing: .3px;
+    color: var(--teal);
+    white-space: nowrap;
+  }
+  .dans {
+    margin-top: 2px;
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+  .dans b {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    color: var(--green);
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Maths on the Farm</h2>
+    <div class="topic">Subtraction and Division</div>
+    <div class="sub">FARM · PROFIT</div>
+
+    <p class="intro">Let us write the income from the first harvest <b>into the list</b>. Tap each vegetable to see the amount.</p>
+
+    <div class="ledger">
+      <div class="lh"><span>Harvest</span><span>Income (Rs.)</span></div>
+
+      <button class="lr" data-i="0">
+        <span class="it">Brinjal <i>80 kg · Rs. 190 each</i></span>
+        <span class="am">—</span>
+      </button>
+      <button class="lr" data-i="1">
+        <span class="it">Carrot <i>55 kg · Rs. 450 each</i></span>
+        <span class="am">—</span>
+      </button>
+      <button class="lr" data-i="2">
+        <span class="it">Beans <i>35 kg · Rs. 430 each</i></span>
+        <span class="am">—</span>
+      </button>
+      <button class="lr" data-i="3">
+        <span class="it">Chilli <i>80 kg · Rs. 650 each</i></span>
+        <span class="am">—</span>
+      </button>
+      <button class="lr" data-i="4">
+        <span class="it">Radish <i>105 kg · Rs. 150 each</i></span>
+        <span class="am">—</span>
+      </button>
+    </div>
+
+    <div class="expense">
+      <span>Total expense <i>· page 12</i></span>
+      <b>Rs. 95 320</b>
+    </div>
+
+    <div class="slot">
+      <button class="totalBtn" id="totalBtn">Find the income</button>
+    </div>
+
+    <div class="alert" id="ov">
+      <div class="alert-card calc-card">
+        <div class="alert-top">
+          <span class="alert-badge" id="ovBadge">Income 1 / 5</span>
+          <button class="alert-x" id="ovX" title="Close">✕</button>
+        </div>
+        <div class="ctitle" id="ovTitle"></div>
+        <div class="cnote" id="ovNote"></div>
+        <div class="clines" id="ovLines"></div>
+        <div class="ctotal" id="ovTotal"><span>Income</span><b id="ovAmt"></b></div>
+        <button class="okBtn" id="ovOk">Add to the list</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* ============================================================
+     income data — change the words or numbers here
+     it   : name of the harvest
+     note : small explanation
+     lines: calculation rows  { l: name, e: sum, v: answer }
+     amt  : amount added to the list
+     ============================================================ */
+  var ITEMS = [
+    /* 1 */ { it:'Brinjal', note:'80 kg · Rs. 190 each',
+              lines:[{ e:'80 × 190', v:15200 }], amt:15200 },
+    /* 2 */ { it:'Carrot', note:'55 kg · Rs. 450 each',
+              lines:[{ e:'55 × 450', v:24750 }], amt:24750 },
+    /* 3 */ { it:'Beans', note:'35 kg · Rs. 430 each',
+              lines:[{ e:'35 × 430', v:15050 }], amt:15050 },
+    /* 4 */ { it:'Chilli', note:'80 kg · Rs. 650 each',
+              lines:[{ e:'80 × 650', v:52000 }], amt:52000 },
+    /* 5 */ { it:'Radish', note:'105 kg · Rs. 150 each',
+              lines:[{ e:'105 × 150', v:15750 }], amt:15750 }
+  ];
+
+  var INCOME  = ITEMS.reduce(function (s, x) { return s + x.amt; }, 0); // 122 750
+  var EXPENSE = 95320;   /* total expense on page 12 */
+  var PROFIT  = INCOME - EXPENSE;                                      // 27 430
+  var SHARE   = PROFIT / 4;                                            // 6 857.50
+  var FRIENDS = ['Sunil', 'Nimal', 'Sarath', 'Amal'];
+  var FCOLORS = ['#4b9be8', '#9c6ce5', '#ff9250', '#0d8a64'];
+  var rows = document.querySelectorAll('.lr');
+  var ov = document.getElementById('ov');
+  var ovBadge = document.getElementById('ovBadge');
+  var ovTitle = document.getElementById('ovTitle');
+  var ovNote = document.getElementById('ovNote');
+  var ovLines = document.getElementById('ovLines');
+  var ovTotal = document.getElementById('ovTotal');
+  var ovAmt = document.getElementById('ovAmt');
+  var ovOk = document.getElementById('ovOk');
+  var totalBtn = document.getElementById('totalBtn');
+  var mode = 'item', cur = 0, done = [], totalSeen = false, profitSeen = false, divided = false, audioCtx = null;
+
+  function nb(s) { return String(s).replace(/ /g, '\u00a0'); }
+  function fmt(n) { return nb(String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')); }
+  function pad(s) { return nb(s); }
+  function money(n) {
+    var whole = Math.floor(n);
+    var cents = Math.round((n - whole) * 100);
+    return nb(String(whole).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '.' + (cents < 10 ? '0' + cents : cents));
+  }
+
+  function pop(freq, vol) {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.5, audioCtx.currentTime + .12);
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .22);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + .24);
+    } catch (e) {}
+  }
+
+  function lineHTML(l) {
+    var left, right;
+    if (l.e) {
+      left = (l.l ? '<i>' + l.l + '</i> ' : '') + '<b>' + pad(l.e) + '</b>';
+      right = '= ' + fmt(l.v);
+    } else {
+      left = '<i>' + l.l + '</i>';
+      right = fmt(l.v);
+    }
+    return '<div class="cl"><span class="ce">' + left + '</span><span class="cv">' + right + '</span></div>';
+  }
+
+  function show() { ov.classList.add('on'); }
+
+  function openItem(i) {
+    mode = 'item'; cur = i;
+    var it = ITEMS[i], h = '';
+    ovBadge.textContent = 'Income ' + (i + 1) + ' / ' + ITEMS.length;
+    ovTitle.textContent = it.it;
+    ovNote.textContent = it.note || '';
+    for (var k = 0; k < it.lines.length; k++) h += lineHTML(it.lines[k]);
+    ovLines.innerHTML = h;
+    ovTotal.style.display = '';
+    ovAmt.textContent = 'Rs. ' + fmt(it.amt);
+    ovOk.textContent = 'Add to the list';
+    show();
+    pop(620, .12);
+  }
+
+  function openTotal() {
+    mode = 'total'; cur = -1;
+    var h = '<div class="sum">';
+    for (var k = 0; k < ITEMS.length; k++) {
+      h += '<div class="srow"><span>' + ITEMS[k].it + '</span><b>' + fmt(ITEMS[k].amt) + '</b></div>';
+    }
+    h += '<div class="sline"></div>' +
+         '<div class="srow tot"><span>Total income</span><b>' + fmt(INCOME) + '</b></div></div>';
+    ovBadge.textContent = 'Total';
+    ovTitle.textContent = 'Total income';
+    ovNote.textContent = 'Add the income from all five harvests';
+    ovLines.innerHTML = h;
+    ovTotal.style.display = 'none';
+    ovOk.textContent = 'Find the profit';
+    show();
+    pop(760, .13);
+  }
+
+  function openProfit() {
+    mode = 'profit'; cur = -1;
+    var h = '<div class="sum">' +
+      '<div class="srow"><span>Total income</span><b>' + fmt(INCOME) + '</b></div>' +
+      '<div class="srow"><span>Total expense <span class="minus">−</span></span><b>' + fmt(EXPENSE) + '</b></div>' +
+      '<div class="sline"></div>' +
+      '<div class="srow tot"><span>Total profit</span><b>' + fmt(PROFIT) + '</b></div></div>';
+    ovBadge.textContent = 'Subtraction';
+    ovTitle.textContent = 'Total profit';
+    ovNote.textContent = 'Subtract the expenses from the income';
+    ovLines.innerHTML = h;
+    ovTotal.style.display = 'none';
+    ovOk.textContent = 'Divide between the four';
+    show();
+    pop(700, .13);
+  }
+
+  function openDivide() {
+    mode = 'divide'; cur = -1;
+    var h = '<div class="friends">';
+    for (var k = 0; k < FRIENDS.length; k++) {
+      h += '<div class="fr"><span class="fa" style="--a:' + FCOLORS[k] + '">' +
+           '<svg viewBox="0 0 32 32" width="22" height="22">' +
+           '<circle cx="16" cy="12" r="6" fill="#fff"/>' +
+           '<path d="M4 32c0-7 5.4-11 12-11s12 4 12 11z" fill="#fff"/></svg>' +
+           '</span><i>' + FRIENDS[k] + '</i></div>';
+    }
+    h += '</div>' +
+         '<div class="dwrap"><div class="deq">' + fmt(PROFIT) + ' ÷ 4 = ' + money(SHARE) + '</div>' +
+         '<div class="dans">Each person gets Rs. <b>' + money(SHARE) + '</b></div></div>';
+    ovBadge.textContent = 'Dividing';
+    ovTitle.textContent = 'Divide between the four';
+    ovNote.textContent = 'Total profit into 4 equal parts';
+    ovLines.innerHTML = h;
+    ovTotal.style.display = 'none';
+    ovOk.textContent = 'OK';
+    show();
+    pop(820, .13);
+  }
+
+  function closeOv() {
+    if (!ov.classList.contains('on')) return;
+    ov.classList.remove('on');
+
+    if (mode === 'item' && cur >= 0 && !done[cur]) {
+      done[cur] = true;
+      var row = rows[cur];
+      row.classList.add('done', 'flash');
+      row.querySelector('.am').textContent = fmt(ITEMS[cur].amt);
+      setTimeout(function () { row.classList.remove('flash'); }, 500);
+      update();
+    }
+    if (mode === 'total' && !totalSeen) {
+      totalSeen = true;
+      totalBtn.textContent = 'Total income Rs. ' + fmt(INCOME);
+    }
+    if (mode === 'profit' && !profitSeen) {
+      profitSeen = true;
+      totalBtn.textContent = 'Total profit Rs. ' + fmt(PROFIT);
+    }
+    if (mode === 'divide' && !divided) {
+      divided = true;
+      totalBtn.classList.add('two');
+      totalBtn.innerHTML = '<span class="tl">Total profit Rs. ' + fmt(PROFIT) + '</span>' +
+                           '<span class="tp">Each person Rs. ' + money(SHARE) + '</span>';
+    }
+  }
+
+  function update() {
+    var n = 0;
+    for (var k = 0; k < done.length; k++) if (done[k]) n++;
+    if (n === ITEMS.length) {
+      totalBtn.classList.add('show');
+      pop(880, .14);
+    }
+  }
+
+  for (var i = 0; i < rows.length; i++) {
+    rows[i].addEventListener('click', function () {
+      openItem(parseInt(this.getAttribute('data-i'), 10));
+    });
+  }
+  totalBtn.addEventListener('click', function () {
+    if (divided || profitSeen) openDivide();
+    else if (totalSeen) openProfit();
+    else openTotal();
+  });
+  ovOk.addEventListener('click', function () {
+    if (mode === 'total') openProfit();
+    else if (mode === 'profit') openDivide();
+    else closeOv();
+  });
+  document.getElementById('ovX').addEventListener('click', closeOv);
+  ov.addEventListener('click', function (e) { if (e.target === ov) closeOv(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeOv(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     27 · Division practice 1 — fill in the long division step by step
+     ============================================================ */
+  .ttl { font-size: 26px; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 13.5px;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    text-align: left;
+    text-transform: none;
+  }
+  .intro {
+    margin-top: 4px;
+    font-size: 14.5px;
+    line-height: 1.3;
+    text-align: left;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- the division board ---------- */
+  .board {
+    position: relative;
+    width: 320px;
+    margin: 8px auto 0;
+    padding: 10px 10px 10px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #ffffff, #fdfbf5);
+    border: 1px solid #e6e0d2;
+    box-shadow: 0 4px 12px rgba(60, 80, 80, .10), inset 0 0 0 3px #fffdf8;
+  }
+  .qno {
+    position: absolute;
+    top: 5px;
+    left: 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-family: Verdana, sans-serif;
+    line-height: 1;
+  }
+  .qno b { font-size: 19px; color: #dd8422; }
+  .qno span { font-size: 14px; color: var(--muted); }
+  .rmark {
+    position: absolute;
+    top: 3px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    line-height: 24px;
+    text-align: center;
+  }
+  .rmark.ok { color: var(--green); background: #eaf9f2; }
+  .rmark.no { color: #d64545; background: #fdf1ef; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 36px 36px 6px 44px 44px 44px;
+    grid-template-rows: 40px 3px 48px 32px 9px 42px 32px 9px 42px;
+    justify-content: center;
+    margin-top: 9px;
+  }
+  .dg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+    font-weight: bold;
+    line-height: 1;
+  }
+  .dh { font-size: 40px; color: var(--ink); }
+  .dv { font-size: 34px; color: var(--ink); }
+  .given { font-size: 30px; color: #b9c6c2; }
+
+  /* ---------- blank cells (typing boxes) ---------- */
+  .inp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    justify-self: center;
+    align-self: center;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #fbfdfb;
+    border: 1.5px dashed #c6d8d2;
+    font-family: Verdana, sans-serif;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--teal);
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background .15s ease, border-color .15s ease;
+  }
+  .iq { width: 40px; height: 32px; font-size: 30px; }
+  .ip { width: 84px; height: 28px; font-size: 28px; justify-content: space-around; }
+  .is { width: 40px; height: 30px; font-size: 28px; }
+  .inp.act {
+    background: #fffdf5;
+    border: 1.5px solid #f0c24f;
+    box-shadow: inset 0 0 0 2px #ffcf3f;
+    color: #b26a12;
+  }
+  .inp.ok {
+    background: #eaf9f2;
+    border: 1.5px solid #9fd6c4;
+    color: var(--green);
+  }
+  .inp.no {
+    background: #fdf1ef;
+    border: 1.5px solid #f0c7c2;
+    color: #c9483f;
+  }
+
+  /* ---------- bracket and lines ---------- */
+  .hline {
+    grid-column: 3 / 7;
+    grid-row: 2;
+    align-self: start;
+    border-top: 2.5px solid #33454c;
+  }
+  .vline {
+    grid-column: 3;
+    grid-row: 2 / 10;
+    justify-self: start;
+    border-left: 2.5px solid #33454c;
+  }
+  .ruleline { border-top: 2.5px solid #33454c; }
+
+  /* ---------- the result bar ---------- */
+  .hintbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 376px;
+    height: 31px;
+    margin: 6px auto 0;
+    padding: 0 10px;
+    border-radius: 9px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--teal);
+  }
+  #hint {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  #score { flex: none; font-size: 13.5px; color: var(--green); }
+  .hintbar.ok { background: #eaf9f2; border-color: #bfe8d8; }
+  .hintbar.ok #hint, .hintbar.ok #score { color: var(--green); }
+  .hintbar.barpop { animation: barpop .8s ease; }
+  @keyframes barpop {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.04); }
+    60% { transform: scale(.99); }
+    100% { transform: scale(1); }
+  }
+
+  /* ---------- digit buttons ---------- */
+  .pad {
+    display: flex;
+    gap: 3px;
+    width: 376px;
+    margin: 7px auto 0;
+  }
+  .pad button {
+    flex: 1;
+    height: 36px;
+    border-radius: 8px;
+    border: 1.5px solid #d9e9e3;
+    background: #fff;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--ink);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pad button:active { background: #eaf7f2; transform: scale(.97); }
+  .pad .bksp { border-color: #f0d3b6; background: #fff6ec; color: #bf6427; font-size: 16px; }
+
+  /* ---------- buttons ---------- */
+  .btns {
+    display: flex;
+    gap: 8px;
+    width: 376px;
+    margin: 6px auto 0;
+  }
+  .checkBtn, .nextBtn {
+    height: 40px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 15.5px;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .checkBtn {
+    flex: 1.4;
+    border: 0;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(13, 128, 94, .28), inset 0 1px 0 rgba(255, 255, 255, .35);
+  }
+  .nextBtn {
+    flex: 1;
+    border: 1.5px solid #9fd6c4;
+    background: #fff;
+    color: var(--teal);
+  }
+  .checkBtn:active, .nextBtn:active { transform: scale(.99); }
+
+  /* ---------- 100% celebration ---------- */
+  .party {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 30;
+  }
+  .party i {
+    position: absolute;
+    top: -16px;
+    display: block;
+    border-radius: 2px;
+    animation: pfall 1.7s cubic-bezier(.22, .55, .45, 1) forwards;
+  }
+  @keyframes pfall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateY(560px) rotate(640deg); opacity: 0; }
+  }
+
+  .smile {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 31;
+  }
+  .smile.on { animation: smilefade 2.8s ease forwards; }
+  @keyframes smilefade {
+    0% { opacity: 0; }
+    9% { opacity: 1; }
+    84% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .smcard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 196px;
+    padding: 10px 14px 12px;
+    border-radius: 20px;
+    background: #fffdf6;
+    border: 3px solid #ffcf3f;
+    box-shadow: 0 16px 40px rgba(40, 60, 50, .35);
+    transform: scale(.35) rotate(-10deg);
+  }
+  .smile.on .smcard { animation: cardpop 2.8s cubic-bezier(.2, .8, .3, 1) forwards; }
+  @keyframes cardpop {
+    0% { transform: scale(.35) rotate(-10deg); }
+    13% { transform: scale(1.08) rotate(3deg); }
+    22% { transform: scale(.97) rotate(-1deg); }
+    30% { transform: scale(1) rotate(0); }
+    100% { transform: scale(1) rotate(0); }
+  }
+  .face {
+    width: 78px;
+    height: 78px;
+    animation: bob .75s ease-in-out infinite alternate;
+  }
+  @keyframes bob {
+    from { transform: translateY(0) rotate(-2.5deg); }
+    to { transform: translateY(-3px) rotate(2.5deg); }
+  }
+  .mouth {
+    stroke-dasharray: 70;
+    stroke-dashoffset: 70;
+    animation: drawmouth .55s .3s ease forwards;
+  }
+  @keyframes drawmouth { to { stroke-dashoffset: 0; } }
+  .eye {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .eye.wink { animation: wink 2.8s .7s ease; }
+  @keyframes wink {
+    0%, 56%, 76%, 100% { transform: scaleY(1); }
+    64% { transform: scaleY(.12); }
+  }
+  .sm100 {
+    margin-top: 2px;
+    font-family: Verdana, sans-serif;
+    font-size: 29px;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--green);
+    letter-spacing: .5px;
+  }
+  .smtxt {
+    margin-top: 3px;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.2;
+    color: var(--teal);
+  }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Division Practice 1</h2>
+    <div class="sub">Division practice 1</div>
+    <p class="intro">Do each long division and fill in the blanks.</p>
+
+    <div class="board">
+      <div class="qno" id="qno"><b>(1).</b><span>/ 10</span></div>
+      <div class="rmark" id="rmark"></div>
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <div class="hintbar" id="hintbar">
+      <span id="hint">Fill in the blanks.</span>
+      <b id="score">Score 0 / 10 · 0%</b>
+    </div>
+
+    <div class="pad" id="pad"></div>
+
+    <div class="btns">
+      <button class="checkBtn" id="checkBtn">Check answers</button>
+      <button class="nextBtn" id="nextBtn">Next problem</button>
+    </div>
+
+    <div class="party" id="party"></div>
+    <div class="smile" id="smile">
+      <div class="smcard">
+        <svg class="face" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="45" fill="#ffd75e" stroke="#e8a318" stroke-width="3"/>
+          <ellipse class="eye" cx="35" cy="41" rx="5.2" ry="6.4" fill="#5a3d12"/>
+          <ellipse class="eye wink" cx="65" cy="41" rx="5.2" ry="6.4" fill="#5a3d12"/>
+          <circle cx="24" cy="60" r="7" fill="#f79a8e" opacity=".65"/>
+          <circle cx="76" cy="60" r="7" fill="#f79a8e" opacity=".65"/>
+          <path class="mouth" d="M28 58 Q50 82 72 58" fill="none" stroke="#5a3d12" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+        <b class="sm100">100%</b>
+        <span class="smtxt">Well done!</span>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* ============================================================
+     10 problems — long division, no remainder, 2-digit answers
+     ============================================================ */
+  var P = [
+    { a: 156, b: 12 },
+    { a: 195, b: 15 },
+    { a: 224, b: 14 },
+    { a: 264, b: 12 },
+    { a: 285, b: 19 },
+    { a: 176, b: 16 },
+    { a: 294, b: 21 },
+    { a: 315, b: 15 },
+    { a: 368, b: 16 },
+    { a: 432, b: 18 }
+  ];
+
+  var ORDER = ['q1', 'p1', 'diff', 'q2', 'p2', 'rem'];
+  var MAX = { q1: 1, p1: 2, diff: 1, q2: 1, p2: 2, rem: 1 };
+
+  var grid = document.getElementById('grid');
+  var qno = document.getElementById('qno');
+  var rmark = document.getElementById('rmark');
+  var hintbar = document.getElementById('hintbar');
+  var hintEl = document.getElementById('hint');
+  var scoreEl = document.getElementById('score');
+  var padEl = document.getElementById('pad');
+  var checkBtn = document.getElementById('checkBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var partyEl = document.getElementById('party');
+  var smileEl = document.getElementById('smile');
+
+  var state = P.map(function () {
+    return { v: { q1: '', p1: '', diff: '', q2: '', p2: '', rem: '' }, res: 0, wrong: [] };
+  });
+  var fEl = {};
+  var givenEl, bCells = [], dCells = [];
+  var idx = 0, active = 'q1', audioCtx = null;
+
+  function pop(freq, vol) {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.4, audioCtx.currentTime + .1);
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .2);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + .22);
+    } catch (e) {}
+  }
+
+  function rnd(n) { return Math.floor(Math.random() * n); }
+
+  /* ---------- the true values of a problem ---------- */
+  function facts(n) {
+    var p = P[n];
+    var q = p.a / p.b;
+    var q1 = Math.floor(q / 10), q2 = q % 10;
+    var p1 = q1 * p.b;
+    var firstTwo = Math.floor(p.a / 10);
+    var diff = firstTwo - p1;
+    var p2 = q2 * p.b;
+    var rem = p.a - q * p.b;
+    return { q1: q1, q2: q2, p1: p1, diff: diff, p2: p2, rem: rem };
+  }
+
+  /* ---------- the board ---------- */
+  function cell(cls, col, row) {
+    var e = document.createElement('div');
+    e.className = 'dg ' + cls;
+    e.style.gridColumn = col;
+    e.style.gridRow = row;
+    grid.appendChild(e);
+    return e;
+  }
+  function inp(key, cls, col, row) {
+    var e = document.createElement('div');
+    e.className = 'inp ' + cls;
+    e.style.gridColumn = col;
+    e.style.gridRow = row;
+    e.setAttribute('data-k', key);
+    e.addEventListener('click', function () {
+      if (state[idx].res !== 0) clearResult();
+      active = key;
+      paint();
+      pop(520, .04);
+    });
+    grid.appendChild(e);
+    fEl[key] = e;
+    return e;
+  }
+
+  function buildBoard() {
+    var i;
+    for (i = 0; i < 2; i++) bCells.push(cell('dv', i + 1, 3));
+    for (i = 0; i < 3; i++) dCells.push(cell('dh', i + 4, 3));
+
+    inp('q1', 'iq', 5, 1);
+    inp('q2', 'iq', 6, 1);
+    inp('p1', 'ip', '4 / 6', 4);
+    inp('diff', 'is', 5, 6);
+    givenEl = cell('given', 6, 6);
+    inp('p2', 'ip', '5 / 7', 7);
+    inp('rem', 'is', 6, 9);
+
+    var h = document.createElement('div');
+    h.className = 'hline';
+    grid.appendChild(h);
+
+    var v = document.createElement('div');
+    v.className = 'vline';
+    grid.appendChild(v);
+
+    var r1 = document.createElement('div');
+    r1.className = 'ruleline';
+    r1.style.gridColumn = '4 / 6';
+    r1.style.gridRow = '5';
+    grid.appendChild(r1);
+
+    var r2 = document.createElement('div');
+    r2.className = 'ruleline';
+    r2.style.gridColumn = '5 / 7';
+    r2.style.gridRow = '8';
+    grid.appendChild(r2);
+  }
+
+  function buildPad() {
+    var keys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\u2190'];
+    keys.forEach(function (key) {
+      var b = document.createElement('button');
+      b.textContent = key;
+      if (key === '\u2190') b.className = 'bksp';
+      b.addEventListener('click', function () {
+        if (key === '\u2190') backspace(); else typeDigit(key);
+      });
+      padEl.appendChild(b);
+    });
+  }
+
+  /* ---------- painting ---------- */
+  function paint() {
+    var s = state[idx];
+    ORDER.forEach(function (k) {
+      var e = fEl[k];
+      e.textContent = s.v[k];
+      e.classList.toggle('act', s.res === 0 && k === active);
+      e.classList.toggle('ok', s.res === 1 || (s.res === -1 && s.wrong.indexOf(k) === -1));
+      e.classList.toggle('no', s.res === -1 && s.wrong.indexOf(k) !== -1);
+    });
+    rmark.textContent = s.res === 1 ? '\u2713' : (s.res === -1 ? '\u2717' : '');
+    rmark.className = 'rmark ' + (s.res === 1 ? 'ok' : (s.res === -1 ? 'no' : ''));
+  }
+
+  function firstEmpty(s) {
+    for (var i = 0; i < ORDER.length; i++) if (!s.v[ORDER[i]]) return ORDER[i];
+    return null;
+  }
+
+  function updateScore() {
+    var ok = 0;
+    for (var i = 0; i < state.length; i++) if (state[i].res === 1) ok++;
+    scoreEl.textContent = 'Score ' + ok + ' / 10 · ' + (ok * 10) + '%';
+    return ok;
+  }
+
+  function hint(t) { hintEl.textContent = t; }
+
+  function clearResult() {
+    var s = state[idx];
+    s.res = 0;
+    s.wrong = [];
+    hintbar.classList.remove('ok', 'barpop');
+    hint('Fill in the blanks.');
+    updateScore();
+  }
+
+  function loadProblem(n) {
+    idx = ((n % 10) + 10) % 10;
+    var p = P[idx];
+
+    var sa = String(p.a), sb = String(p.b);
+    for (var i = 0; i < 3; i++) dCells[i].textContent = sa.charAt(i);
+    for (var j = 0; j < 2; j++) bCells[j].textContent = sb.charAt(j);
+    givenEl.textContent = sa.charAt(2);
+
+    var s = state[idx];
+    active = s.res === 0 ? (firstEmpty(s) || 'q1') : null;
+    paint();
+    updateScore();
+    hintbar.classList.toggle('ok', updateScore() === 10);
+
+    qno.querySelector('b').textContent = '(' + (idx + 1) + ').';
+
+    if (s.res === 1) hint('\u2713 Correct! Problem ' + (idx + 1));
+    else if (s.res === -1) hint('\u2717 Wrong · fix the red boxes');
+    else hint('Fill in the blanks.');
+  }
+
+  /* ---------- typing ---------- */
+  function advance(k) {
+    var i = ORDER.indexOf(k);
+    if (i < ORDER.length - 1) active = ORDER[i + 1];
+    else active = k;
+    paint();
+  }
+
+  function typeDigit(d) {
+    var s = state[idx];
+    if (!active) {
+      active = s.res === -1 && s.wrong.length ? s.wrong[0] : (firstEmpty(s) || 'q1');
+    }
+    if (s.res !== 0) clearResult();
+    var k = active;
+    if (s.v[k].length >= MAX[k]) {
+      hint('Only ' + MAX[k] + ' digits · press ← to erase');
+      pop(260, .05);
+      return;
+    }
+    s.v[k] = d + s.v[k];
+    paint();
+    if (s.v[k].length === MAX[k]) advance(k);
+    pop(560 + (+d) * 20, .05);
+  }
+
+  function backspace() {
+    if (!active) return;
+    var s = state[idx];
+    if (s.res !== 0) clearResult();
+    s.v[active] = s.v[active].slice(1);
+    paint();
+    pop(300, .05);
+  }
+
+  /* ---------- check answers ---------- */
+  function checkProblem() {
+    var s = state[idx];
+    var empty = firstEmpty(s);
+    if (empty) {
+      if (s.res !== 0) clearResult();
+      active = empty;
+      paint();
+      hint('Fill in every blank');
+      pop(300, .06);
+      return;
+    }
+
+    var c = facts(idx);
+    var okAll = true;
+    s.wrong = [];
+    ORDER.forEach(function (k) {
+      if (parseInt(s.v[k], 10) !== c[k]) { okAll = false; s.wrong.push(k); }
+    });
+    s.res = okAll ? 1 : -1;
+    active = null;
+    paint();
+    hintbar.classList.remove('barpop');
+
+    var okCount = updateScore();
+    hintbar.classList.toggle('ok', okCount === 10);
+
+    var checked = 0;
+    for (var i = 0; i < state.length; i++) if (state[i].res !== 0) checked++;
+
+    if (okAll) {
+      if (okCount === 10) {
+        hint('Well done!');
+        party();
+      } else {
+        hint('\u2713 Correct! Problem ' + (idx + 1));
+        pop(880, .12);
+      }
+      if (checked === 10 && okCount < 10) hint('All done! You can still fix them');
+    } else {
+      hint('\u2717 Wrong · fix the red boxes');
+      pop(360, .1);
+      if (checked === 10) hint('All done! You can still fix them');
+    }
+
+    void hintbar.offsetWidth;
+    hintbar.classList.add('barpop');
+  }
+
+  /* ---------- 100% celebration ---------- */
+  function party() {
+    partyEl.innerHTML = '';
+    var cols = ['#ffcf3f', '#e0457b', '#0d8a64', '#2f8fd8', '#ff9b4a', '#8e6bd6'];
+    for (var i = 0; i < 26; i++) {
+      var s = document.createElement('i');
+      var w = 5 + rnd(5);
+      s.style.left = rnd(98) + '%';
+      s.style.width = w + 'px';
+      s.style.height = (w + 2) + 'px';
+      s.style.background = cols[rnd(cols.length)];
+      s.style.animationDelay = (rnd(28) / 100) + 's';
+      partyEl.appendChild(s);
+    }
+    setTimeout(function () { partyEl.innerHTML = ''; }, 2400);
+
+    smileEl.classList.remove('on');
+    void smileEl.offsetWidth;
+    smileEl.classList.add('on');
+    pop(980, .14);
+  }
+
+  checkBtn.addEventListener('click', checkProblem);
+  nextBtn.addEventListener('click', function () {
+    loadProblem(idx + 1);
+    hintbar.classList.remove('barpop');
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key >= '0' && e.key <= '9') { typeDigit(e.key); e.preventDefault(); }
+    else if (e.key === 'Backspace') { backspace(); e.preventDefault(); }
+    else if (e.key === 'Enter') { checkProblem(); e.preventDefault(); }
+  });
+
+  buildBoard();
+  buildPad();
+  loadProblem(0);
+</script>
+</body>
+</html>

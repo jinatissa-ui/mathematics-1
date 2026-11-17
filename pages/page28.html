@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     28 · Division practice 2 — 4 questions with answer boxes in front
+     ============================================================ */
+  .ttl { font-size: 25px; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    text-align: left;
+    text-transform: none;
+  }
+
+  /* ---------- question cards ---------- */
+  .qcard {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    margin-top: 8px;
+    padding: 9px 32px 10px 10px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #e6e0d2;
+    box-shadow: 0 2px 6px rgba(60, 80, 80, .05);
+  }
+  .qn {
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    margin-top: 8px;
+    border-radius: 50%;
+    background: #ffe9c9;
+    color: #b25a1d;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 20px;
+    text-align: center;
+  }
+  .qtxt {
+    flex: 1;
+    min-width: 0;
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .qtxt b { color: var(--teal); }
+
+  /* ---------- the answer box in front ---------- */
+  .ansbox {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex: none;
+    width: 96px;
+    height: 34px;
+    margin-top: 1px;
+    padding: 0 7px 0 10px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #f5fcf9;
+    border: 1.5px solid #a9d6c6;
+    box-shadow: inset 0 1px 2px rgba(20, 70, 60, .05);
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--green);
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ansbox.act {
+    background: #fffdf5;
+    border-color: #f0c24f;
+    box-shadow: inset 0 0 0 2px #ffcf3f;
+  }
+  .ansbox.act::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 50%;
+    width: 2px;
+    height: 19px;
+    transform: translateY(-50%);
+    background: #0d8a64;
+    animation: caretblink .9s steps(1) infinite;
+  }
+  @keyframes caretblink { 50% { opacity: 0; } }
+  .ansbox.ok { background: #eaf9f2; border-color: #9fd6c4; }
+  .ansbox.no {
+    background: #fdf1ef;
+    border-color: #f0c7c2;
+    color: #c9483f;
+  }
+
+  .mk {
+    position: absolute;
+    top: 8px;
+    right: 9px;
+    width: 18px;
+    font-family: Verdana, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1;
+    text-align: center;
+  }
+  .mk.ok { color: var(--green); }
+  .mk.no { color: #d64545; }
+
+  /* ---------- digit buttons ---------- */
+  .pad {
+    display: flex;
+    gap: 3px;
+    width: 376px;
+    margin: 10px auto 0;
+  }
+  .pad button {
+    flex: 1;
+    height: 36px;
+    border-radius: 8px;
+    border: 1.5px solid #d9e9e3;
+    background: #fff;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--ink);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pad button:active { background: #eaf7f2; transform: scale(.97); }
+  .pad .bksp { border-color: #f0d3b6; background: #fff6ec; color: #bf6427; font-size: 16px; }
+
+  /* ---------- the result bar ---------- */
+  .resbar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 376px;
+    height: 34px;
+    margin: 8px auto 0;
+    padding: 0 12px;
+    border-radius: 10px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--teal);
+    text-align: left;
+    white-space: nowrap;
+  }
+  .resbar.ok { color: var(--green); background: #eaf9f2; border-color: #bfe8d8; }
+  .resbar.no { color: #c9483f; background: #fdf1ef; border-color: #f4d3cf; }
+  .resbar.barpop { animation: barpop .8s ease; }
+  @keyframes barpop {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.05); }
+    60% { transform: scale(.985); }
+    100% { transform: scale(1); }
+  }
+
+  .acts {
+    display: flex;
+    gap: 8px;
+    width: 376px;
+    margin: 9px auto 0;
+  }
+  .goBtn, .againBtn {
+    height: 40px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 15.5px;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .goBtn {
+    flex: 1.45;
+    border: 0;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(13, 128, 94, .28), inset 0 1px 0 rgba(255, 255, 255, .35);
+  }
+  .againBtn {
+    flex: 1;
+    border: 1.5px solid #9fd6c4;
+    background: #fff;
+    color: var(--teal);
+  }
+  .goBtn:active, .againBtn:active { transform: scale(.99); }
+
+  /* ---------- 100% celebration ---------- */
+  .party {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 30;
+  }
+  .party i {
+    position: absolute;
+    top: -16px;
+    display: block;
+    border-radius: 2px;
+    animation: pfall 1.7s cubic-bezier(.22, .55, .45, 1) forwards;
+  }
+  @keyframes pfall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateY(560px) rotate(640deg); opacity: 0; }
+  }
+
+  .smile {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 31;
+  }
+  .smile.on { animation: smilefade 2.8s ease forwards; }
+  @keyframes smilefade {
+    0% { opacity: 0; }
+    9% { opacity: 1; }
+    84% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .smcard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 196px;
+    padding: 10px 14px 12px;
+    border-radius: 20px;
+    background: #fffdf6;
+    border: 3px solid #ffcf3f;
+    box-shadow: 0 16px 40px rgba(40, 60, 50, .35);
+    transform: scale(.35) rotate(-10deg);
+  }
+  .smile.on .smcard { animation: cardpop 2.8s cubic-bezier(.2, .8, .3, 1) forwards; }
+  @keyframes cardpop {
+    0% { transform: scale(.35) rotate(-10deg); }
+    13% { transform: scale(1.08) rotate(3deg); }
+    22% { transform: scale(.97) rotate(-1deg); }
+    30% { transform: scale(1) rotate(0); }
+    100% { transform: scale(1) rotate(0); }
+  }
+  .face {
+    width: 78px;
+    height: 78px;
+    animation: bob .75s ease-in-out infinite alternate;
+  }
+  @keyframes bob {
+    from { transform: translateY(0) rotate(-2.5deg); }
+    to { transform: translateY(-3px) rotate(2.5deg); }
+  }
+  .mouth {
+    stroke-dasharray: 70;
+    stroke-dashoffset: 70;
+    animation: drawmouth .55s .3s ease forwards;
+  }
+  @keyframes drawmouth { to { stroke-dashoffset: 0; } }
+  .eye {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .eye.wink { animation: wink 2.8s .7s ease; }
+  @keyframes wink {
+    0%, 56%, 76%, 100% { transform: scaleY(1); }
+    64% { transform: scaleY(.12); }
+  }
+  .sm100 {
+    margin-top: 2px;
+    font-family: Verdana, sans-serif;
+    font-size: 29px;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--green);
+    letter-spacing: .5px;
+  }
+  .smtxt {
+    margin-top: 3px;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.2;
+    color: var(--teal);
+  }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Division Practice 2</h2>
+    <div class="sub">Division practice 2</div>
+
+    <div class="qcard">
+      <b class="qn">1</b>
+      <span class="ansbox" data-q="0"></span>
+      <span class="qtxt">Rs. 450 is shared among 3 people. How much does each one get?</span>
+      <span class="mk" id="m1"></span>
+    </div>
+
+    <div class="qcard">
+      <b class="qn">2</b>
+      <span class="ansbox" data-q="1"></span>
+      <span class="qtxt">When 23 is divided by 5, how much is left over?</span>
+      <span class="mk" id="m2"></span>
+    </div>
+
+    <div class="qcard">
+      <b class="qn">3</b>
+      <span class="ansbox" data-q="2"></span>
+      <span class="qtxt">Cloth costs Rs. 350 per metre. What is the cost of ½ metre?</span>
+      <span class="mk" id="m3"></span>
+    </div>
+
+    <div class="qcard">
+      <b class="qn">4</b>
+      <span class="ansbox" data-q="3"></span>
+      <span class="qtxt">A man earns Rs. 62&nbsp;100 for 23 days of work. What is his daily wage?</span>
+      <span class="mk" id="m4"></span>
+    </div>
+
+    <div class="pad" id="pad"></div>
+
+    <div class="resbar" id="resbar">Type all 4 answers, tap “Check answers”</div>
+
+    <div class="acts">
+      <button class="goBtn" id="checkBtn">Check answers</button>
+      <button class="againBtn" id="againBtn">Reset</button>
+    </div>
+
+    <div class="party" id="party"></div>
+    <div class="smile" id="smile">
+      <div class="smcard">
+        <svg class="face" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="45" fill="#ffd75e" stroke="#e8a318" stroke-width="3"/>
+          <ellipse class="eye" cx="35" cy="41" rx="5.2" ry="6.4" fill="#5a3d12"/>
+          <ellipse class="eye wink" cx="65" cy="41" rx="5.2" ry="6.4" fill="#5a3d12"/>
+          <circle cx="24" cy="60" r="7" fill="#f79a8e" opacity=".65"/>
+          <circle cx="76" cy="60" r="7" fill="#f79a8e" opacity=".65"/>
+          <path class="mouth" d="M28 58 Q50 82 72 58" fill="none" stroke="#5a3d12" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+        <b class="sm100">100%</b>
+        <span class="smtxt">Well done!</span>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* ============================================================
+     answers: 1) 150   2) 3   3) 175   4) 2 700
+     25 marks each · 100 in total
+     ============================================================ */
+  var CORRECT = [150, 3, 175, 2700];
+  var MAXLEN = 5;
+
+  var padEl = document.getElementById('pad');
+  var resbar = document.getElementById('resbar');
+  var checkBtn = document.getElementById('checkBtn');
+  var againBtn = document.getElementById('againBtn');
+  var partyEl = document.getElementById('party');
+  var smileEl = document.getElementById('smile');
+
+  var boxes = [], marks = [], answers = ['', '', '', ''];
+  var focusQ = 0, checked = false, audioCtx = null;
+
+  function rnd(n) { return Math.floor(Math.random() * n); }
+  function fmt(s) { return s.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'); }
+
+  function pop(freq, vol) {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.4, audioCtx.currentTime + .1);
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .2);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + .22);
+    } catch (e) {}
+  }
+
+  /* ---------- the typing board ----------
+     digits are added from the ones place — new digit in front, cursor to its left */
+  function paint() {
+    for (var i = 0; i < 4; i++) {
+      boxes[i].textContent = fmt(answers[i]);
+      boxes[i].classList.toggle('act', i === focusQ && !checked);
+    }
+  }
+
+  function clearMarks() {
+    for (var i = 0; i < 4; i++) {
+      marks[i].textContent = '';
+      marks[i].className = 'mk';
+      boxes[i].classList.remove('ok', 'no');
+    }
+  }
+
+  function idleBar() {
+    resbar.className = 'resbar';
+    resbar.textContent = 'Type all 4 answers, tap “Check answers”';
+  }
+
+  function typeDigit(d) {
+    if (focusQ < 0) focusQ = 0;
+    if (answers[focusQ].length >= MAXLEN) return;
+    checked = false;
+    answers[focusQ] = d + answers[focusQ];
+    clearMarks();
+    idleBar();
+    paint();
+    pop(560 + (+d) * 20, .05);
+  }
+
+  function backspace() {
+    if (focusQ < 0) return;
+    checked = false;
+    answers[focusQ] = answers[focusQ].slice(1);
+    clearMarks();
+    idleBar();
+    paint();
+  }
+
+  function buildPad() {
+    var keys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\u2190'];
+    keys.forEach(function (k) {
+      var b = document.createElement('button');
+      b.textContent = k;
+      if (k === '\u2190') b.className = 'bksp';
+      b.addEventListener('click', function () {
+        if (k === '\u2190') backspace(); else typeDigit(k);
+      });
+      padEl.appendChild(b);
+    });
+
+    boxes = Array.prototype.slice.call(document.querySelectorAll('.ansbox'));
+    boxes.forEach(function (b, i) {
+      b.addEventListener('click', function () {
+        focusQ = i;
+        checked = false;
+        clearMarks();
+        idleBar();
+        paint();
+      });
+    });
+    marks = [
+      document.getElementById('m1'), document.getElementById('m2'),
+      document.getElementById('m3'), document.getElementById('m4')
+    ];
+    focusQ = 0;
+    paint();
+  }
+
+  /* ---------- marks ---------- */
+  function checkAll() {
+    var empty = answers.indexOf('');
+    if (empty !== -1) {
+      focusQ = empty;
+      checked = false;
+      clearMarks();
+      idleBar();
+      paint();
+      resbar.textContent = 'Fill in the empty answer boxes';
+      pop(260, .06);
+      return;
+    }
+
+    var score = 0;
+    for (var i = 0; i < 4; i++) {
+      var ok = parseInt(answers[i], 10) === CORRECT[i];
+      if (ok) score += 25;
+      marks[i].textContent = ok ? '\u2713' : '\u2717';
+      marks[i].className = 'mk ' + (ok ? 'ok' : 'no');
+      boxes[i].classList.add(ok ? 'ok' : 'no');
+    }
+    resbar.className = 'resbar ' + (score === 100 ? 'ok' : (score < 40 ? 'no' : ''));
+    resbar.textContent = 'Score ' + score + ' / 100 · ' + score + '%' + (score === 100 ? ' · Well done!' : '');
+    checked = true;
+    paint();
+    if (score === 100) party(); else pop(620, .12);
+
+    resbar.classList.remove('barpop');
+    void resbar.offsetWidth;
+    resbar.classList.add('barpop');
+  }
+
+  /* ---------- 100% celebration ---------- */
+  function party() {
+    partyEl.innerHTML = '';
+    var cols = ['#ffcf3f', '#e0457b', '#0d8a64', '#2f8fd8', '#ff9b4a', '#8e6bd6'];
+    for (var i = 0; i < 26; i++) {
+      var s = document.createElement('i');
+      var w = 5 + rnd(5);
+      s.style.left = rnd(98) + '%';
+      s.style.width = w + 'px';
+      s.style.height = (w + 2) + 'px';
+      s.style.background = cols[rnd(cols.length)];
+      s.style.animationDelay = (rnd(28) / 100) + 's';
+      partyEl.appendChild(s);
+    }
+    setTimeout(function () { partyEl.innerHTML = ''; }, 2400);
+
+    smileEl.classList.remove('on');
+    void smileEl.offsetWidth;
+    smileEl.classList.add('on');
+    pop(980, .14);
+  }
+
+  /* ---------- reset ---------- */
+  function resetAll() {
+    answers = ['', '', '', ''];
+    checked = false;
+    focusQ = 0;
+    clearMarks();
+    partyEl.innerHTML = '';
+    smileEl.classList.remove('on');
+    resbar.classList.remove('barpop');
+    idleBar();
+    paint();
+  }
+
+  checkBtn.addEventListener('click', checkAll);
+  againBtn.addEventListener('click', resetAll);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key >= '0' && e.key <= '9') { typeDigit(e.key); e.preventDefault(); }
+    else if (e.key === 'Backspace') { backspace(); e.preventDefault(); }
+    else if (e.key === 'Enter') { checkAll(); e.preventDefault(); }
+  });
+
+  buildPad();
+</script>
+</body>
+</html>

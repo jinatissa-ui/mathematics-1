@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Reading the Time</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     68 · Reading the time — match equal times
+     (12-hour ↔ 24-hour · dot drawing · 60 seconds · score %)
+     ============================================================ */
+  .ttl { flex: none; font-size: 24px; line-height: 1.1; }
+  .sub { flex: none; margin-top: 1px; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- top strip ---------- */
+  .xstrip {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 6px;
+    height: 28px;
+  }
+  .xstrip b { font-size: 14.5px; color: var(--teal); }
+
+  .tchip {
+    min-width: 92px;
+    text-align: center;
+    padding: 3px 10px 4px;
+    border-radius: 999px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .tchip.run { background: #fff1c9; border-color: #f0d47a; color: #a45600; }
+  .tchip.hot { background: #ffe3ea; border-color: #f3b1c6; color: #d2416f; animation: tpulse 1s ease-in-out infinite; }
+  @keyframes tpulse { 50% { transform: scale(1.07); } }
+
+  /* ---------- matching board ---------- */
+  .board {
+    position: relative;
+    flex: none;
+    margin-top: 6px;
+    height: 325px;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .wires {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    overflow: visible;
+  }
+  .wire { stroke: #0d6d74; stroke-width: 2.2; stroke-linecap: round; opacity: .85; }
+  .wire.live { opacity: .5; stroke-dasharray: 6 4; }
+  .wire.ok { stroke: #0d8a64; opacity: 1; }
+  .wire.no { stroke: #e0457a; opacity: 1; }
+
+  .rows { position: relative; z-index: 2; }
+  .row {
+    display: grid;
+    grid-template-columns: 128px 26px 56px 26px 120px 20px;
+    height: 32.5px;
+    align-items: center;
+  }
+  .row .lt { grid-column: 1; }
+  .row .ldot { grid-column: 2; }
+  .row .rdot { grid-column: 4; }
+  .row .rt { grid-column: 5; }
+  .row .mk { grid-column: 6; }
+
+  .lt {
+    text-align: right;
+    padding-right: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .rt {
+    padding-left: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--teal);
+    white-space: nowrap;
+  }
+
+  .dot {
+    position: relative;
+    width: 26px;
+    height: 32.5px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dot::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    border-radius: 50%;
+    background: #0d6d74;
+    box-shadow: 0 0 0 3px #fff, 0 0 0 4px rgba(13, 109, 116, .18);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .rdot::before {
+    background: #e2941c;
+    box-shadow: 0 0 0 3px #fff, 0 0 0 4px rgba(226, 148, 28, .2);
+  }
+  .dot:hover::before, .dot.sel::before, .dot.aim::before { transform: scale(1.55); }
+  .dot.sel::before { box-shadow: 0 0 0 3px #fff, 0 0 0 5px rgba(13, 109, 116, .55); }
+  .rdot.aim::before { box-shadow: 0 0 0 3px #fff, 0 0 0 5px rgba(226, 148, 28, .6); }
+
+  .mk {
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    color: #b3c2bf;
+  }
+  .mk.ok { color: var(--green); }
+  .mk.no { color: var(--pink); }
+
+  /* ---------- score line ---------- */
+  .sline {
+    flex: none;
+    margin-top: 6px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 10px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  .sline .dotsep { color: #aec5c0; }
+  .sline .pct {
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 14.5px;
+    font-weight: bold;
+    color: var(--teal);
+  }
+  .sline .pct.hint {
+    font-family: inherit;
+    font-weight: normal;
+    font-size: 14px;
+    color: #8ba49f;
+  }
+
+  /* ---------- buttons ---------- */
+  .acts { flex: none; margin-top: 8px; display: flex; gap: 10px; }
+  .ck, .nx {
+    height: 44px;
+    border: 0;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 16.5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform .12s ease;
+  }
+  .ck:active, .nx:active { transform: translateY(1px); }
+  .ck {
+    flex: 1;
+    background: linear-gradient(140deg, #12a08c, #0d6d74);
+    color: #fff;
+    box-shadow: 0 5px 12px rgba(13, 109, 116, .3);
+  }
+  .ck.off {
+    background: #e3ebe9;
+    color: #9fb0ad;
+    box-shadow: none;
+    cursor: default;
+  }
+  .nx {
+    flex: 0 0 132px;
+    background: #eef6f4;
+    color: var(--teal);
+    border: 1.5px solid #cfe4df;
+  }
+
+  /* ---------- applause popup ---------- */
+  .res {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 45, 45, .36);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+  }
+  .res.on { opacity: 1; pointer-events: auto; }
+  .rcard {
+    position: relative;
+    width: 280px;
+    padding: 15px 18px 17px;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, .34);
+    text-align: center;
+    overflow: hidden;
+    transform: translateY(10px) scale(.97);
+    transition: transform .2s ease;
+  }
+  .res.on .rcard { transform: none; }
+  .rcard > * { position: relative; z-index: 1; }
+  .rtop { font-size: 15px; font-weight: bold; letter-spacing: .6px; color: var(--green); }
+  .rpct {
+    margin-top: 2px;
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 42px;
+    line-height: 1.05;
+    font-weight: bold;
+    color: var(--teal);
+  }
+  .rscore { margin-top: 1px; font-size: 15.5px; color: var(--ink-soft); }
+  .clap { width: 116px; height: 96px; margin: 8px auto 0; }
+  .clap svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .clap .hl { animation: clL .4s ease-in-out infinite alternate; transform-origin: 38px 66px; }
+  .clap .hr { animation: clR .4s ease-in-out infinite alternate; transform-origin: 82px 66px; }
+  @keyframes clL {
+    from { transform: translateX(0) rotate(0deg); }
+    to   { transform: translateX(9px) rotate(5deg); }
+  }
+  @keyframes clR {
+    from { transform: translateX(0) rotate(0deg); }
+    to   { transform: translateX(-9px) rotate(-5deg); }
+  }
+  .clap .arc { animation: aflash .4s ease-in-out infinite alternate; }
+  @keyframes aflash { from { opacity: 0; } to { opacity: 1; } }
+  .praise { margin-top: 3px; font-size: 16px; font-weight: bold; color: #d2416f; }
+  .confetti { position: absolute; inset: 0; z-index: 0 !important; pointer-events: none; }
+  .confetti span {
+    position: absolute;
+    top: -16px;
+    width: 7px;
+    height: 11px;
+    border-radius: 2px;
+    animation: fall 1.5s linear infinite;
+  }
+  @keyframes fall {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(320px) rotate(340deg); }
+  }
+  .rbtn {
+    margin-top: 11px;
+    width: 160px;
+    height: 42px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(140deg, #12a08c, #0d6d74);
+    color: #fff;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+  <div class="ttl">Reading the Time</div>
+  <div class="sub">MATCH THE TIMES</div>
+
+  <div class="xstrip">
+    <b>Match the equal times</b>
+    <span class="tchip" id="tchip">60 seconds</span>
+  </div>
+
+  <div class="board" id="board">
+    <svg class="wires" id="wires" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="rows" id="rows"></div>
+  </div>
+
+  <div class="sline">
+    <span id="prog">Matched 0 / 10</span>
+    <span class="dotsep">·</span>
+    <span class="pct hint" id="pct">Draw dot to dot</span>
+  </div>
+
+  <div class="acts">
+    <button class="ck off" id="ck" type="button" disabled>Check answers</button>
+    <button class="nx" id="nx" type="button">Another</button>
+  </div>
+
+  <div class="res" id="res">
+    <div class="rcard">
+      <div class="confetti">
+        <span style="left:6%; background:#e0457b; animation-delay:.05s;"></span>
+        <span style="left:16%; background:#ffcf3f; animation-delay:.55s;"></span>
+        <span style="left:26%; background:#0d8a64; animation-delay:.25s;"></span>
+        <span style="left:36%; background:#9c6ce5; animation-delay:.8s;"></span>
+        <span style="left:46%; background:#ff9250; animation-delay:.4s;"></span>
+        <span style="left:56%; background:#0d6d74; animation-delay:.95s;"></span>
+        <span style="left:66%; background:#e0457b; animation-delay:.2s;"></span>
+        <span style="left:76%; background:#ffcf3f; animation-delay:.7s;"></span>
+        <span style="left:86%; background:#0d8a64; animation-delay:.35s;"></span>
+        <span style="left:93%; background:#9c6ce5; animation-delay:.9s;"></span>
+      </div>
+      <div class="rtop">Your Score</div>
+      <div class="rpct">100%</div>
+      <div class="rscore">Score 10 / 10</div>
+      <div class="clap">
+        <svg viewBox="0 0 120 100" aria-hidden="true">
+          <g class="arc" stroke="#de8f0f" stroke-width="3" fill="none" stroke-linecap="round">
+            <path d="M52 18 Q60 10 68 18"></path>
+            <path d="M46 26 Q60 12 74 26" opacity=".55"></path>
+          </g>
+          <g class="hl">
+            <rect x="14" y="26" width="30" height="48" rx="14" fill="#ffcf3f" stroke="#e2a92f" stroke-width="3"></rect>
+            <line x1="24" y1="30" x2="24" y2="46" stroke="#e2a92f" stroke-width="2.4" stroke-linecap="round"></line>
+            <line x1="31" y1="29" x2="31" y2="46" stroke="#e2a92f" stroke-width="2.4" stroke-linecap="round"></line>
+            <line x1="38" y1="30" x2="38" y2="46" stroke="#e2a92f" stroke-width="2.4" stroke-linecap="round"></line>
+            <ellipse cx="16" cy="58" rx="7" ry="10" fill="#ffcf3f" stroke="#e2a92f" stroke-width="3" transform="rotate(18 16 58)"></ellipse>
+          </g>
+          <g class="hr">
+            <rect x="76" y="26" width="30" height="48" rx="14" fill="#ffcf3f" stroke="#e2a92f" stroke-width="3"></rect>
+            <line x1="82" y1="30" x2="82" y2="46" stroke="#e2a92f" stroke-width="2.4" stroke-linecap="round"></line>
+            <line x1="89" y1="29" x2="89" y2="46" stroke="#e2a92f" stroke-width="2.4" stroke-linecap="round"></line>
+            <line x1="96" y1="30" x2="96" y2="46" stroke="#e2a92f" stroke-width="2.4" stroke-linecap="round"></line>
+            <ellipse cx="104" cy="58" rx="7" ry="10" fill="#ffcf3f" stroke="#e2a92f" stroke-width="3" transform="rotate(-18 104 58)"></ellipse>
+          </g>
+        </svg>
+      </div>
+      <div class="praise">All correct! Let's clap!</div>
+      <button class="rbtn" type="button" id="rbtn">Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var TOTAL = 60;
+  var NS = 'http://www.w3.org/2000/svg';
+
+  var board = document.getElementById('board');
+  var wires = document.getElementById('wires');
+  var rowsEl = document.getElementById('rows');
+  var tchip = document.getElementById('tchip');
+  var prog = document.getElementById('prog');
+  var pct = document.getElementById('pct');
+  var ck = document.getElementById('ck');
+  var nx = document.getElementById('nx');
+  var res = document.getElementById('res');
+  var rbtn = document.getElementById('rbtn');
+
+  /* ---------- sound (claps) ---------- */
+  var AC = null;
+  function ensureAudio() {
+    if (!AC) {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      try { AC = new Ctx(); } catch (e) { AC = null; return; }
+    }
+    if (AC.state === 'suspended') AC.resume();
+  }
+  document.addEventListener('pointerdown', ensureAudio);
+
+  function clapAt(t) {
+    var dur = 0.12;
+    var n = Math.floor(AC.sampleRate * dur);
+    var buf = AC.createBuffer(1, n, AC.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < n; i++) {
+      var k = 1 - i / n;
+      d[i] = (Math.random() * 2 - 1) * k * k * k;
+    }
+    var src = AC.createBufferSource();
+    src.buffer = buf;
+    var bp = AC.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 1500;
+    bp.Q.value = 0.8;
+    var g = AC.createGain();
+    g.gain.setValueAtTime(0.12, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    src.connect(bp);
+    bp.connect(g);
+    g.connect(AC.destination);
+    src.start(t);
+  }
+
+  function applause() {
+    ensureAudio();
+    if (!AC) return;
+    var t = AC.currentTime + 0.04;
+    for (var r = 0; r < 3; r++) {
+      for (var k = 0; k < 5; k++) clapAt(t + r * 0.24 + k * 0.03);
+    }
+  }
+
+  /* ---------- times ---------- */
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  var FIXED = [
+    { h: 16, m: 50, dir: 0 },
+    { h: 12, m: 30, dir: 1 },
+    { h: 17, m: 15, dir: 0, en: true }
+  ];
+  var POOL = [
+    { h: 6, m: 45 }, { h: 8, m: 5 }, { h: 9, m: 20 }, { h: 10, m: 40 },
+    { h: 11, m: 55 }, { h: 12, m: 0 }, { h: 13, m: 5 }, { h: 14, m: 35 },
+    { h: 15, m: 40 }, { h: 18, m: 25 }, { h: 19, m: 50 }, { h: 21, m: 10 },
+    { h: 22, m: 15 }, { h: 23, m: 45 }
+  ];
+
+  function fmt12(p) {
+    var h12 = p.h % 12;
+    if (h12 === 0) h12 = 12;
+    if (p.h === 12 && p.m === 0) return '12.00 noon';
+    if (p.en) return h12 + '.' + pad(p.m) + (p.h < 12 ? ' a.m.' : ' p.m.');
+    return h12 + '.' + pad(p.m) + (p.h < 12 ? ' a.m.' : ' p.m.');
+  }
+  function fmt24(p) { return pad(p.h) + ':' + pad(p.m); }
+  function label(p, twelve) { return twelve ? fmt12(p) : fmt24(p); }
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  /* ---------- state ---------- */
+  var lefts = [], rights = [];
+  var leftDots = [], rightDots = [], marks = [];
+  var conn = [];
+  var selected = -1, dragFrom = -1, tapRight = -1, aim = null;
+  var liveEnd = null, downX = 0, downY = 0, moved = false;
+  var started = false, checked = false, timeUp = false;
+  var left = TOTAL, tid = null;
+
+  /* ---------- build the board ---------- */
+  function build() {
+    var pick = shuffle(POOL.slice()).slice(0, 7);
+    var phase = Math.random() < 0.5 ? 0 : 1;
+    for (var k = 0; k < pick.length; k++) pick[k].dir = (k + phase) % 2;
+
+    var chosen = FIXED.map(function (p) { return { h: p.h, m: p.m, dir: p.dir, en: p.en }; })
+      .concat(pick.map(function (p) { return { h: p.h, m: p.m, dir: p.dir, en: p.en }; }));
+
+    var packed = chosen.map(function (p, i) { return { p: p, pair: i }; });
+    lefts = shuffle(packed.map(function (o) { return { p: o.p, pair: o.pair }; }));
+    rights = shuffle(packed.map(function (o) { return { p: o.p, pair: o.pair }; }));
+
+    for (var tries = 0; tries < 60; tries++) {
+      var bad = false;
+      for (var i = 0; i < 10; i++) if (rights[i].pair === lefts[i].pair) { bad = true; break; }
+      if (!bad) break;
+      var a = Math.floor(Math.random() * 10);
+      var b = (a + 1 + Math.floor(Math.random() * 9)) % 10;
+      var tmp = rights[a]; rights[a] = rights[b]; rights[b] = tmp;
+    }
+
+    rowsEl.innerHTML = '';
+    leftDots = []; rightDots = []; marks = [];
+    for (var r = 0; r < 10; r++) {
+      var row = document.createElement('div');
+      row.className = 'row';
+
+      var lt = document.createElement('div');
+      lt.className = 'lt';
+      lt.textContent = label(lefts[r].p, lefts[r].p.dir === 0);
+
+      var ld = document.createElement('button');
+      ld.type = 'button';
+      ld.className = 'dot ldot';
+      ld.setAttribute('data-i', r);
+      ld.setAttribute('aria-label', 'Left dot ' + (r + 1));
+
+      var rd = document.createElement('button');
+      rd.type = 'button';
+      rd.className = 'dot rdot';
+      rd.setAttribute('data-j', r);
+      rd.setAttribute('aria-label', 'Right dot ' + (r + 1));
+
+      var rt = document.createElement('div');
+      rt.className = 'rt';
+      rt.textContent = label(rights[r].p, rights[r].p.dir === 1);
+
+      var mk = document.createElement('div');
+      mk.className = 'mk';
+
+      row.appendChild(lt);
+      row.appendChild(ld);
+      row.appendChild(rd);
+      row.appendChild(rt);
+      row.appendChild(mk);
+      rowsEl.appendChild(row);
+
+      leftDots.push(ld); rightDots.push(rd); marks.push(mk);
+      bindLeft(ld, r);
+      bindRight(rd, r);
+    }
+
+    conn = new Array(10).fill(null);
+    wires.innerHTML = '';
+    updateProgress();
+  }
+
+  /* ---------- drawing dots ---------- */
+  function localXY(e) {
+    var b = board.getBoundingClientRect();
+    return { x: e.clientX - b.left, y: e.clientY - b.top };
+  }
+  function center(el) {
+    var b = el.getBoundingClientRect();
+    var r = board.getBoundingClientRect();
+    return { x: b.left + b.width / 2 - r.left, y: b.top + b.height / 2 - r.top };
+  }
+  function addWire(a, b, cls) {
+    var ln = document.createElementNS(NS, 'line');
+    ln.setAttribute('x1', a.x); ln.setAttribute('y1', a.y);
+    ln.setAttribute('x2', b.x); ln.setAttribute('y2', b.y);
+    ln.setAttribute('class', cls);
+    wires.appendChild(ln);
+  }
+  function draw() {
+    var w = board.clientWidth, h = board.clientHeight;
+    wires.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    wires.innerHTML = '';
+    for (var i = 0; i < 10; i++) {
+      if (conn[i] === null) continue;
+      var cls = 'wire';
+      if (checked) cls += (rights[conn[i]].pair === lefts[i].pair) ? ' ok' : ' no';
+      addWire(center(leftDots[i]), center(rightDots[conn[i]]), cls);
+    }
+    if (dragFrom >= 0 && liveEnd) addWire(center(leftDots[dragFrom]), liveEnd, 'wire live');
+  }
+
+  function connect(i, j) {
+    for (var k = 0; k < 10; k++) if (conn[k] === j) conn[k] = null;
+    conn[i] = j;
+    draw();
+    updateProgress();
+  }
+
+  function updateProgress() {
+    var n = 0;
+    for (var i = 0; i < 10; i++) if (conn[i] !== null) n++;
+    if (!checked) {
+      prog.textContent = 'Matched ' + n + ' / 10';
+      pct.textContent = 'Draw dot to dot';
+      pct.className = 'pct hint';
+    }
+    ck.disabled = (n === 0 || checked);
+    ck.classList.toggle('off', n === 0 || checked);
+  }
+
+  function updateSel() {
+    for (var i = 0; i < 10; i++) leftDots[i].classList.toggle('sel', i === selected);
+  }
+
+  function clearAim() {
+    if (aim) aim.classList.remove('aim');
+    aim = null;
+  }
+
+  function bindLeft(dot, i) {
+    dot.addEventListener('pointerdown', function (e) {
+      if (checked) return;
+      e.preventDefault();
+      ensureAudio();
+      beginTimer();
+      dragFrom = i;
+      moved = false;
+      downX = e.clientX; downY = e.clientY;
+      liveEnd = localXY(e);
+      selected = -1;
+      updateSel();
+      draw();
+      document.addEventListener('pointermove', onMove, { passive: false });
+      document.addEventListener('pointerup', onUp);
+    });
+  }
+
+  function onMove(e) {
+    if (dragFrom < 0) return;
+    if (Math.abs(e.clientX - downX) + Math.abs(e.clientY - downY) > 5) moved = true;
+    liveEnd = localXY(e);
+    draw();
+    var el = document.elementFromPoint(e.clientX, e.clientY);
+    var rd = el && el.closest ? el.closest('.rdot') : null;
+    if (rd !== aim) {
+      clearAim();
+      aim = rd;
+      if (aim) aim.classList.add('aim');
+    }
+  }
+
+  function onUp(e) {
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    var el = e.clientX != null ? document.elementFromPoint(e.clientX, e.clientY) : null;
+    var rd = el && el.closest ? el.closest('.rdot') : null;
+    if (dragFrom >= 0) {
+      if (rd) {
+        connect(dragFrom, +rd.getAttribute('data-j'));
+      } else if (!moved) {
+        selected = dragFrom;
+      }
+    }
+    dragFrom = -1;
+    liveEnd = null;
+    clearAim();
+    updateSel();
+    draw();
+  }
+
+  function bindRight(dot, j) {
+    dot.addEventListener('pointerdown', function (e) {
+      if (checked) return;
+      e.preventDefault();
+      checkTap(j);
+    });
+  }
+
+  function checkTap(j) {
+    if (selected < 0) return;
+    ensureAudio();
+    beginTimer();
+    connect(selected, j);
+    selected = -1;
+    updateSel();
+  }
+
+  /* ---------- timer ---------- */
+  function beginTimer() {
+    if (started || checked) return;
+    started = true;
+    tchip.className = 'tchip run';
+    tid = setInterval(function () {
+      left--;
+      if (left <= 0) {
+        left = 0;
+        tchip.textContent = '0 seconds';
+        tchip.className = 'tchip hot';
+        clearInterval(tid);
+        timeUp = true;
+        doCheck(true);
+        return;
+      }
+      tchip.textContent = left + ' seconds';
+      if (left <= 10) tchip.className = 'tchip hot';
+    }, 1000);
+  }
+
+  /* ---------- checking ---------- */
+  function doCheck(auto) {
+    if (checked) return;
+    var n = 0;
+    for (var i = 0; i < 10; i++) if (conn[i] !== null) n++;
+    if (!auto && n === 0) return;
+
+    checked = true;
+    clearInterval(tid);
+
+    var score = 0;
+    for (var k = 0; k < 10; k++) {
+      if (conn[k] === null) {
+        marks[k].textContent = '–';
+        marks[k].className = 'mk';
+      } else if (rights[conn[k]].pair === lefts[k].pair) {
+        score++;
+        marks[k].textContent = '✓';
+        marks[k].className = 'mk ok';
+      } else {
+        marks[k].textContent = '✗';
+        marks[k].className = 'mk no';
+      }
+    }
+
+    draw();
+    prog.textContent = 'Score ' + score + ' / 10';
+    pct.className = 'pct';
+    pct.textContent = (timeUp ? 'Time up · ' : '') + (score * 10) + '%';
+
+    ck.disabled = true;
+    ck.classList.add('off');
+    if (!timeUp) tchip.className = 'tchip';
+    selected = -1;
+    updateSel();
+
+    if (score === 10) setTimeout(showRes, 350);
+  }
+
+  function showRes() {
+    res.classList.add('on');
+    applause();
+  }
+
+  function reset() {
+    clearInterval(tid);
+    checked = false; timeUp = false; started = false;
+    left = TOTAL; tid = null;
+    tchip.textContent = '60 seconds';
+    tchip.className = 'tchip';
+    selected = -1; dragFrom = -1; tapRight = -1; aim = null; liveEnd = null;
+    res.classList.remove('on');
+    build();
+    updateSel();
+  }
+
+  ck.addEventListener('click', function () { doCheck(false); });
+  nx.addEventListener('click', reset);
+  rbtn.addEventListener('click', reset);
+
+  build();
+  window.addEventListener('resize', function () { if (!checked) draw(); });
+})();
+</script>
+</body>
+</html>

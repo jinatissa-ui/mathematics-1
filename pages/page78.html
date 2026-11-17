@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Let's Estimate Length</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     78 · Let's Estimate Length
+     (pencil piece + mm ruler + 0–9 keys)
+     ============================================================ */
+  .ttl { flex: none; font-size: 25px; line-height: 1.1; white-space: nowrap; }
+  .sub { flex: none; margin-top: 2px; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- pencil card ---------- */
+  .pcard {
+    position: relative;
+    flex: none;
+    margin-top: 7px;
+    padding: 10px 12px 12px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 6px 14px rgba(30, 80, 80, .07);
+  }
+  .stage { position: relative; height: 78px; }
+
+  .pcount {
+    position: absolute;
+    top: 1px;
+    right: 0;
+    height: 22px;
+    padding: 0 9px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    border-radius: 999px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--teal);
+  }
+  .pcount b { font-family: Verdana, sans-serif; font-size: 14px; }
+
+  .pwrap {
+    position: absolute;
+    left: 0;
+    bottom: 7px;
+    z-index: 45;
+    filter: drop-shadow(0 4px 3px rgba(20, 50, 60, .14));
+  }
+  .pwrap svg { display: block; }
+
+  .qlabel {
+    margin-top: 5px;
+    font-size: 15px;
+    line-height: 1.25;
+    font-weight: bold;
+    color: var(--ink-soft);
+  }
+
+  .arow { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+
+  .abox {
+    width: 68px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #fffdf4;
+    border: 2px solid #ffe08a;
+    box-shadow: inset 0 2px 4px rgba(120, 100, 40, .06);
+    font-family: Verdana, sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--teal);
+    letter-spacing: 1px;
+  }
+  .abox.on { border-color: #0d8a64; background: #effaf4; }
+  .abox.bad { border-color: #e0457b; background: #fff2f7; color: #c0305f; }
+  .abox .car {
+    display: inline-block;
+    width: 2px;
+    height: 25px;
+    background: #c9d6d2;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .unit { font-size: 15px; font-weight: bold; color: var(--muted); }
+
+  .del {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    margin-left: auto;
+    border: 1px solid #dbe7e6;
+    border-radius: 10px;
+    background: #f7fbfa;
+    font-size: 17px;
+    color: #5c7378;
+    cursor: pointer;
+  }
+  .del:active { background: #e9f4f1; }
+  .del:disabled { opacity: .45; cursor: default; }
+
+  /* ---------- message line ---------- */
+  .status {
+    flex: none;
+    height: 21px;
+    margin-top: 6px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+  .status.ok { color: #0d8a64; font-weight: bold; }
+  .status.near { color: #b57a12; font-weight: bold; }
+  .status.bad { color: #d2416f; }
+
+  /* ---------- buttons ---------- */
+  .btns { flex: none; margin-top: 5px; }
+  .btn {
+    height: 46px;
+    border-radius: 12px;
+    border: 0;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .next {
+    width: 100%;
+    background: #f2fbf7;
+    border: 1px solid #c6e5da;
+    color: var(--teal);
+  }
+  .next:active { background: #e6f7f0; }
+
+  /* ---------- 0–9 keys ---------- */
+  .pad {
+    flex: none;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 9px;
+  }
+  .key {
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid #dcebe7;
+    background: linear-gradient(180deg, #ffffff, #f4fbf8);
+    font-family: Verdana, sans-serif;
+    font-size: 19px;
+    font-weight: bold;
+    color: #2c4c53;
+    cursor: pointer;
+    box-shadow: 0 2px 3px rgba(30, 70, 70, .06);
+  }
+  .key:active { transform: translateY(1px); background: #e9f7f1; }
+  .key:disabled { opacity: .45; cursor: default; transform: none; }
+
+  /* ---------- mm ruler ---------- */
+  .ruler {
+    position: absolute;
+    left: 24.7px;
+    top: 446px;
+    width: 374px;
+    height: 72px;
+    z-index: 40;
+    border-radius: 9px;
+    background: linear-gradient(180deg, rgba(255, 254, 247, .97), rgba(245, 240, 224, .95));
+    border: 1px solid #dcd5ba;
+    box-shadow: 0 4px 10px rgba(40, 60, 50, .14), inset 0 1px 0 #fff;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .ruler svg { display: block; }
+
+  .ruler.live {
+    cursor: grab;
+    box-shadow: 0 8px 18px rgba(13, 109, 116, .20), 0 0 0 3px rgba(127, 208, 198, .35);
+    animation: nudge 1.5s ease 2;
+  }
+  .ruler.dragging { cursor: grabbing; animation: none; }
+  .ruler.ready {
+    box-shadow: 0 8px 18px rgba(13, 138, 100, .25), 0 0 0 3px rgba(13, 138, 100, .45);
+  }
+  .ruler.ready .dragtag { color: #0d8a64; }
+  @keyframes nudge {
+    0%, 100% { transform: none; }
+    50% { transform: translateY(-3px); }
+  }
+
+  .dragtag {
+    position: absolute;
+    right: 9px;
+    bottom: 2px;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--teal);
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .ruler.live .dragtag { opacity: 1; }
+
+  /* ---------- correct / good badge ---------- */
+  .fx {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 60;
+  }
+  .fx.on { opacity: 1; }
+  .fx .fb {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 18px 8px 8px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .18), 0 0 0 3px #bfe7d8;
+    transform: scale(.7);
+    transition: transform .28s cubic-bezier(.2, 1.4, .4, 1);
+  }
+  .fx.on .fb { transform: scale(1); }
+  .fx .fc {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #0d8a64;
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 1;
+  }
+  .fx .ftext { font-size: 17px; font-weight: bold; color: #0d8a64; }
+  .fx.near .fb { box-shadow: 0 10px 24px rgba(0, 0, 0, .18), 0 0 0 3px #f4d79a; }
+  .fx.near .fc { background: #e8a020; }
+  .fx.near .ftext { color: #b57a12; }
+
+  .cft {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    z-index: 1;
+  }
+
+  .abox.shake { animation: shake .32s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <div class="ttl">Let's Estimate Length</div>
+  <div class="sub">ESTIMATING LENGTH</div>
+
+  <div class="pcard" id="card">
+    <div class="stage">
+      <div class="pcount">Pencil <b id="pno">1</b>/5</div>
+      <div class="pwrap" id="pencil"></div>
+    </div>
+
+    <div class="qlabel">Estimate the length of the pencil</div>
+    <div class="arow">
+      <span class="unit">mm</span>
+      <div class="abox" id="abox"><span class="car"></span></div>
+      <button class="del" id="del" type="button" aria-label="Clear">
+        <svg viewBox="0 0 24 18" width="22" height="17" aria-hidden="true">
+          <path d="M7 2h13a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7L1 9z" fill="none" stroke="#5c7378" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M10 6l6 6M16 6l-6 6" stroke="#5c7378" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="fx" id="fx">
+      <div class="fb" id="fb"><span class="fc">✓</span><span class="ftext" id="fxt">Excellent!</span></div>
+    </div>
+  </div>
+
+  <div class="status" id="status">Type 2 digits — then you can drag the ruler.</div>
+
+  <div class="btns">
+    <button class="btn next" id="next" type="button">Another pencil</button>
+  </div>
+
+  <div class="pad" id="pad">
+    <button class="key" type="button">1</button>
+    <button class="key" type="button">2</button>
+    <button class="key" type="button">3</button>
+    <button class="key" type="button">4</button>
+    <button class="key" type="button">5</button>
+    <button class="key" type="button">6</button>
+    <button class="key" type="button">7</button>
+    <button class="key" type="button">8</button>
+    <button class="key" type="button">9</button>
+    <button class="key" type="button">0</button>
+  </div>
+
+  <div class="ruler" id="ruler">
+    <span class="dragtag">Drag up ↑</span>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  /* 1 mm = 3.9 px · ruler 0 on page at x = 34 (card's left edge) */
+  var MM = 3.9;
+  var HOME_TOP = 446;
+  var COLORS = ['#e0563f', '#2f74c8', '#2e9e6b', '#7a55c9', '#e0457b', '#e8a020', '#0d8a8a'];
+  var LENS = [27, 31, 34, 42, 46, 49, 53, 58, 60, 25];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var pencilEl = $('pencil'), box = $('abox'), statusEl = $('status'), counter = $('pno');
+  var nextBtn = $('next'), keys = [].slice.call(document.querySelectorAll('.key'));
+  var del = $('del'), ruler = $('ruler'), fx = $('fx'), fb = $('fb'), fxt = $('fxt');
+  var tag = ruler.querySelector('.dragtag');
+
+  var MEASURE_TOP = 150;
+  var READY_TOP = 200;
+  var measureTimer = null, clearTimer = null;
+
+  var pencils = [], idx = 0, digits = '', checked = false, attempts = 0, score = 0;
+  var finished = false, live = false, replaceNext = false;
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function buildSet() {
+    var lens = shuffle(LENS.slice()).slice(0, 4);
+    var cols = shuffle(COLORS.slice(1)).slice(0, 4);
+    var set = [{ mm: 40, color: COLORS[0] }];
+    for (var i = 0; i < 4; i++) set.push({ mm: lens[i], color: cols[i] });
+    return set;
+  }
+
+  function svgEl(n, at) {
+    var e = document.createElementNS('http://www.w3.org/2000/svg', n);
+    for (var k in at) e.setAttribute(k, at[k]);
+    return e;
+  }
+
+  function pencilSVG(mm, color) {
+    var W = mm * MM, H = 34, tip = 26;
+    var svg = svgEl('svg', { width: W.toFixed(1), height: H, viewBox: '0 0 ' + W.toFixed(1) + ' ' + H });
+    svg.appendChild(svgEl('ellipse', { cx: (W / 2).toFixed(1), cy: 31.5, rx: Math.max(8, W / 2 - 4).toFixed(1), ry: 3, fill: 'rgba(20,50,60,.13)' }));
+    svg.appendChild(svgEl('rect', { x: 0, y: 5, width: (W - tip + 2).toFixed(1), height: 22, rx: 4, fill: color }));
+    svg.appendChild(svgEl('rect', { x: 0, y: 5, width: 5, height: 22, rx: 2, fill: 'rgba(0,0,0,.22)' }));
+    svg.appendChild(svgEl('rect', { x: 6, y: 8, width: Math.max(1, W - tip - 6).toFixed(1), height: 6, rx: 3, fill: '#fff', opacity: .32 }));
+    svg.appendChild(svgEl('rect', { x: 6, y: 21, width: Math.max(1, W - tip - 6).toFixed(1), height: 5, fill: '#000', opacity: .13 }));
+    svg.appendChild(svgEl('polygon', { points: (W - tip).toFixed(1) + ',5 ' + (W - tip).toFixed(1) + ',27 ' + W.toFixed(1) + ',16', fill: '#f2dcb4' }));
+    svg.appendChild(svgEl('polygon', { points: (W - tip).toFixed(1) + ',5 ' + (W - tip).toFixed(1) + ',16 ' + W.toFixed(1) + ',16', fill: '#e4c48f' }));
+    svg.appendChild(svgEl('polygon', { points: (W - 10).toFixed(1) + ',12.2 ' + (W - 10).toFixed(1) + ',19.8 ' + W.toFixed(1) + ',16', fill: '#3a4249' }));
+    svg.appendChild(svgEl('rect', { x: 0, y: 5, width: (W - tip + 2).toFixed(1), height: 22, rx: 4, fill: 'none', stroke: 'rgba(0,0,0,.16)', 'stroke-width': .8 }));
+    return svg;
+  }
+
+  /* ---------- ruler ---------- */
+  (function buildRuler() {
+    var W = 374, H = 72, PAD = 10;
+    var svg = svgEl('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H });
+    svg.appendChild(svgEl('rect', { x: 0, y: 0, width: W, height: 2.5, fill: 'rgba(255,255,255,.9)' }));
+    for (var mm = 0; mm <= 90; mm++) {
+      var x = PAD + mm * MM;
+      var h = mm % 10 === 0 ? 22 : (mm % 5 === 0 ? 14 : 8);
+      svg.appendChild(svgEl('line', {
+        x1: x.toFixed(1), y1: 4, x2: x.toFixed(1), y2: 4 + h,
+        stroke: '#4b4b45', 'stroke-width': mm % 10 === 0 ? 1.4 : 1
+      }));
+    }
+    for (var n = 0; n <= 90; n += 10) {
+      var tx = PAD + n * MM;
+      var t = svgEl('text', {
+        x: tx.toFixed(1), y: 40, 'text-anchor': 'middle',
+        'font-family': 'Verdana, sans-serif', 'font-size': 14, fill: '#3f3f3a'
+      });
+      t.textContent = n;
+      svg.appendChild(t);
+    }
+    var u = svgEl('text', {
+      x: 10, y: 62, 'font-family': 'Verdana, sans-serif',
+      'font-size': 14, fill: '#938e78'
+    });
+    u.textContent = 'mm';
+    svg.appendChild(u);
+    ruler.appendChild(svg);
+  })();
+
+  /* ---------- status ---------- */
+  function setStatus(t, c) {
+    statusEl.textContent = t;
+    statusEl.className = 'status' + (c ? ' ' + c : '');
+  }
+
+  function renderBox() {
+    if (digits) box.textContent = digits;
+    else box.innerHTML = '<span class="car"></span>';
+    box.classList.toggle('on', digits.length === 2);
+  }
+
+  function rulerHome(keepLive) {
+    ruler.style.transition = 'top .3s ease';
+    ruler.style.top = HOME_TOP + 'px';
+    setTimeout(function () { ruler.style.transition = ''; }, 320);
+    ruler.classList.remove('ready');
+    tag.textContent = 'Drag up ↑';
+    if (!keepLive) {
+      live = false;
+      ruler.classList.remove('live');
+    }
+  }
+
+  function cancelMeasure() {
+    clearTimeout(measureTimer);
+    measureTimer = null;
+  }
+
+  function loadPencil() {
+    digits = '';
+    checked = false;
+    attempts = 0;
+    live = false;
+    replaceNext = false;
+    cancelMeasure();
+    clearTimeout(clearTimer);
+
+    pencilEl.innerHTML = '';
+    pencilEl.appendChild(pencilSVG(pencils[idx].mm, pencils[idx].color));
+    counter.textContent = String(idx + 1);
+
+    box.classList.remove('bad');
+    renderBox();
+    nextBtn.textContent = 'Another pencil';
+    nextBtn.disabled = false;
+
+    for (var i = 0; i < keys.length; i++) keys[i].disabled = false;
+    del.disabled = false;
+
+    ruler.classList.remove('live', 'dragging', 'ready');
+    ruler.style.top = HOME_TOP + 'px';
+    ruler.style.transition = 'none';
+
+    fx.classList.remove('on');
+    setStatus('Type 2 digits.', '');
+  }
+
+  function press(d) {
+    if (finished || checked) return;
+    clearTimeout(clearTimer);
+    if (replaceNext) { digits = ''; replaceNext = false; }
+    if (digits.length >= 2) return;
+    digits += d;
+    box.classList.remove('bad');
+    renderBox();
+    if (digits.length === 2) {
+      live = true;
+      ruler.classList.add('live');
+      setStatus(attempts >= 2 ? 'The real length is ' + pencils[idx].mm + ' mm.' : 'Place the ruler under the pencil.', attempts >= 2 ? 'bad' : '');
+    } else {
+      rulerHome(false);
+      setStatus(attempts >= 2 ? 'The real length is ' + pencils[idx].mm + ' mm.' : 'Type one more digit.', attempts >= 2 ? 'bad' : '');
+    }
+  }
+
+  function erase() {
+    if (finished || checked || !digits.length) return;
+    cancelMeasure();
+    replaceNext = false;
+    digits = digits.slice(0, -1);
+    box.classList.remove('bad');
+    renderBox();
+    rulerHome(false);
+    setStatus(digits.length ? 'Type one more digit.' : 'Type 2 digits.', '');
+  }
+
+  /* ---------- ruler drag (up/down) + measure on release ---------- */
+  var dragging = false, dragStartY = 0, startTop = HOME_TOP;
+
+  function rulerTop() {
+    return parseFloat(getComputedStyle(ruler).top) || HOME_TOP;
+  }
+
+  ruler.addEventListener('pointerdown', function (e) {
+    if (!live || finished || checked) return;
+    cancelMeasure();
+    clearTimeout(clearTimer);
+    dragging = true;
+    dragStartY = e.clientY;
+    startTop = rulerTop();
+    ruler.style.transition = 'none';
+    ruler.classList.add('dragging');
+    try { ruler.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+  });
+
+  ruler.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var t = startTop + (e.clientY - dragStartY);
+    t = Math.max(126, Math.min(HOME_TOP, t));
+    ruler.style.top = t + 'px';
+    var ready = t <= READY_TOP;
+    ruler.classList.toggle('ready', ready);
+    tag.textContent = ready ? 'Release here ✓' : 'Drag up ↑';
+    e.preventDefault();
+  });
+
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    ruler.classList.remove('dragging');
+    try { ruler.releasePointerCapture(e.pointerId); } catch (_) {}
+
+    if (rulerTop() > READY_TOP) {
+      ruler.classList.remove('ready');
+      tag.textContent = 'Drag up ↑';
+      setStatus('Drag the ruler higher — place it under the pencil.', '');
+      return;
+    }
+
+    /* released under the pencil — lifts off shortly, then checks right/wrong */
+    ruler.classList.remove('ready');
+    ruler.style.transition = 'top .18s ease';
+    ruler.style.top = MEASURE_TOP + 'px';
+    tag.textContent = 'Measuring…';
+    setStatus('Measuring with the ruler…', '');
+
+    measureTimer = setTimeout(function () {
+      measureTimer = null;
+      if (finished || checked) return;
+      checkAnswer();
+    }, 900);
+  }
+  ruler.addEventListener('pointerup', endDrag);
+  ruler.addEventListener('pointercancel', function (e) {
+    if (!dragging) return;
+    dragging = false;
+    ruler.classList.remove('dragging');
+    try { ruler.releasePointerCapture(e.pointerId); } catch (_) {}
+  });
+
+  /* ---------- correct / good badge ---------- */
+  function popBadge(text, exact) {
+    fxt.textContent = text;
+    fx.classList.toggle('near', !exact);
+    fx.classList.remove('on');
+    void fx.offsetWidth;
+    fx.classList.add('on');
+
+    var cols = ['#ffcf3f', '#7fd0c6', '#f7a1be', '#9c6ce5', '#4b9be8'];
+    for (var i = 0; i < 12; i++) {
+      var d = document.createElement('i');
+      d.className = 'cft';
+      d.style.background = cols[i % cols.length];
+      fx.appendChild(d);
+      var a = Math.random() * Math.PI * 2, r = 70 + Math.random() * 60;
+      d.animate([
+        { transform: 'translate(0,0) scale(1)', opacity: 1 },
+        { transform: 'translate(' + (Math.cos(a) * r).toFixed(1) + 'px,' + (Math.sin(a) * r).toFixed(1) + 'px) scale(.3)', opacity: 0 }
+      ], { duration: 800 + Math.random() * 300, easing: 'cubic-bezier(.2,.7,.3,1)' });
+      (function (el) { setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 1250); })(d);
+    }
+    setTimeout(function () { fx.classList.remove('on'); }, 2200);
+  }
+
+  /* ---------- checking ---------- */
+  function checkAnswer() {
+    if (finished || checked || digits.length !== 2) return;
+    var val = parseInt(digits, 10);
+    var act = pencils[idx].mm;
+    var diff = Math.abs(val - act);
+
+    if (diff <= 1) {
+      score++;
+      checked = true;
+      cancelMeasure();
+      clearTimeout(clearTimer);
+      for (var i = 0; i < keys.length; i++) keys[i].disabled = true;
+      del.disabled = true;
+      rulerHome(false);
+      if (diff === 0) {
+        setStatus('Excellent! Exactly ' + act + ' mm.', 'ok');
+        popBadge('Excellent!', true);
+      } else {
+        setStatus('Good! The real length is ' + act + ' mm.', 'near');
+        popBadge('Good!', false);
+      }
+      if (idx === 4) {
+        setTimeout(function () { if (!finished && idx === 4 && checked) finish(); }, 1750);
+      }
+    } else {
+      attempts++;
+      replaceNext = true;
+      live = false;
+      cancelMeasure();
+      ruler.classList.remove('live');
+      rulerHome(false);
+      box.classList.add('bad');
+      box.classList.remove('shake');
+      void box.offsetWidth;
+      box.classList.add('shake');
+      setStatus(attempts >= 2
+        ? 'Wrong! The real length is ' + act + ' mm — fill the box.'
+        : 'Wrong! Fill the box again.', 'bad');
+
+      clearTimeout(clearTimer);
+      clearTimer = setTimeout(function () {
+        if (finished || checked || digits.length !== 2) return;
+        digits = '';
+        replaceNext = false;
+        box.classList.remove('bad');
+        renderBox();
+      }, 1000);
+    }
+  }
+
+  /* ---------- finish ---------- */
+  function finish() {
+    if (finished) return;
+    finished = true;
+    checked = true;
+    live = false;
+    cancelMeasure();
+    clearTimeout(clearTimer);
+    ruler.classList.remove('live');
+    rulerHome(false);
+    for (var i = 0; i < keys.length; i++) keys[i].disabled = true;
+    del.disabled = true;
+    setStatus('All 5 pencils done · Score ' + score + ' / 5', 'ok');
+    nextBtn.textContent = 'Again';
+  }
+
+  function nextPencil() {
+    if (finished) {
+      pencils = buildSet();
+      idx = 0;
+      score = 0;
+      finished = false;
+      loadPencil();
+      return;
+    }
+    if (idx >= 4) { finish(); return; }
+    idx++;
+    loadPencil();
+  }
+
+  /* ---------- events ---------- */
+  for (var k = 0; k < keys.length; k++) {
+    (function (btn) {
+      btn.addEventListener('click', function () { press(btn.textContent.trim()); });
+    })(keys[k]);
+  }
+  del.addEventListener('click', erase);
+  nextBtn.addEventListener('click', nextPencil);
+
+  pencils = buildSet();
+  loadPencil();
+})();
+</script>
+</body>
+</html>

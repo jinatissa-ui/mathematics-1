@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     10 · Everyday Number Names (extra)
+     ============================================================ */
+  .ttl { font-size: 26px; }
+  .sub { font-size: 14px; letter-spacing: 2.6px; }
+
+  .lead {
+    margin-top: 6px;
+    font-size: 16px;
+    line-height: 1.25;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- table ---------- */
+  .tbl {
+    width: 100%;
+    margin-top: 7px;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    border: 1.5px solid #dbe9e6;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 4px 10px rgba(30, 80, 80, .07);
+  }
+  .tbl th {
+    height: 30px;
+    padding: 0 5px;
+    background: #eef7f4;
+    color: var(--teal);
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1.5px solid #dbe9e6;
+  }
+  .tbl td {
+    height: 44px;
+    padding: 0 7px;
+    border-bottom: 1px solid #edf4f2;
+    font-size: 16px;
+    color: var(--ink-soft);
+    vertical-align: middle;
+  }
+  .tbl tr:last-child td { border-bottom: 0; }
+  .tbl td.c { text-align: center; }
+  .tbl td.n {
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: .2px;
+    color: #33454c;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .tbl td.v { text-align: center; padding: 0 4px; }
+  .tbl td.v i {
+    display: inline-block;
+    padding: 2px 10px 3px;
+    border-radius: 7px;
+    background: #fff3eb;
+    color: #d2561d;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 16px;
+    white-space: nowrap;
+  }
+
+  /* ---------- examples button ---------- */
+  .btnrow {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .factsBtn {
+    height: 42px;
+    padding: 0 30px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #17b183, #0b8058);
+    color: #fff;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: bold;
+    letter-spacing: .3px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(9, 110, 79, .3), 0 8px 16px rgba(13, 138, 100, .2);
+  }
+  .factsBtn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgba(9, 110, 79, .3);
+  }
+
+  /* ---------- examples pop-up ---------- */
+  .alert-card {
+    width: 362px;
+    padding: 12px 16px 14px;
+  }
+  .scene {
+    height: 150px;
+    margin-top: 8px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #101a36;
+    box-shadow: 0 2px 6px rgba(30, 60, 80, .18);
+  }
+  .scene svg { display: block; width: 330px; height: 150px; }
+
+  .ov-title {
+    margin-top: 7px;
+    font-size: 18px;
+    line-height: 1.2;
+    font-weight: bold;
+    color: var(--teal);
+  }
+  .ov-nums {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+  }
+  .ov-num { flex: 1; min-width: 0; }
+  .ov-num span {
+    display: block;
+    font-size: 14px;
+    color: #8b9ba0;
+  }
+  .ov-num b {
+    display: block;
+    font-family: Verdana, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: .2px;
+    white-space: nowrap;
+  }
+  .ov-num b.std { color: var(--teal); }
+  .ov-num b.ven { color: #c0671e; }
+
+  .ov-say {
+    margin-top: 8px;
+    padding: 5px 10px 6px;
+    border-radius: 10px;
+    background: #fff8ea;
+    border: 1px solid #f0dfbc;
+  }
+  .ov-say i {
+    display: block;
+    font-style: normal;
+    font-size: 14px;
+    line-height: 1.2;
+    color: #9a8f88;
+  }
+  .ov-say p {
+    margin-top: 1px;
+    min-height: 44px;
+    font-size: 17px;
+    line-height: 1.28;
+    font-weight: bold;
+    color: #6b4a1f;
+  }
+
+  .ov-nav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 9px;
+  }
+  .navBtn {
+    height: 32px;
+    padding: 0 18px;
+    border-radius: 999px;
+    border: 1.5px solid #bfe3d8;
+    background: #fff;
+    color: var(--green);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .navBtn.next {
+    border: 0;
+    background: linear-gradient(180deg, #17b183, #0b8058);
+    color: #fff;
+    box-shadow: 0 2px 0 rgba(9, 110, 79, .3);
+  }
+  .navBtn:active { transform: translateY(1px); }
+
+  .hint {
+    padding-top: 4px;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h5 class="ttl">Number Names</h5>
+    <div class="sub">NUMBER NAMES &middot; EXTRA</div>
+    <div class="lead">How we say large numbers every day</div>
+
+    <table class="tbl">
+      <thead>
+        <tr><th style="width:126px">Number</th><th style="width:150px">Number name</th><th>Everyday name</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="n">100&nbsp;000</td><td class="c">one hundred thousand</td><td class="v"><i>a lakh</i></td></tr>
+        <tr><td class="n">1&nbsp;000&nbsp;000</td><td class="c">one million</td><td class="v"><i>ten lakhs</i></td></tr>
+        <tr><td class="n">10&nbsp;000&nbsp;000</td><td class="c">ten million</td><td class="v"><i>a crore</i></td></tr>
+        <tr><td class="n">100&nbsp;000&nbsp;000</td><td class="c">one hundred million</td><td class="v"><i>ten crores</i></td></tr>
+        <tr><td class="n">1&nbsp;000&nbsp;000&nbsp;000</td><td class="c">one billion</td><td class="v"><i>a hundred crores</i></td></tr>
+      </tbody>
+    </table>
+
+    <div class="btnrow">
+      <button class="factsBtn" id="factsBtn">See examples</button>
+    </div>
+
+    <div class="hint">Approximate distances · Sources: NASA · United Nations</div>
+
+    <!-- examples pop-up -->
+    <div class="alert" id="ov">
+      <div class="alert-card">
+        <div class="alert-top">
+          <span class="alert-badge" id="ovBadge">Example 1 / 5</span>
+          <button class="alert-x" id="ovClose" title="Close">✕</button>
+        </div>
+        <div class="scene" id="ovPic"></div>
+        <div class="ov-title" id="ovTitle"></div>
+        <div class="ov-nums">
+          <div class="ov-num">
+            <span>Standard</span>
+            <b class="std" id="ovStd"></b>
+          </div>
+          <div class="ov-num">
+            <span>Everyday</span>
+            <b class="ven" id="ovVen"></b>
+          </div>
+        </div>
+        <div class="ov-say">
+          <i>Read as</i>
+          <p id="ovSay"></p>
+        </div>
+        <div class="ov-nav">
+          <button class="navBtn" id="prevBtn">‹ Prev</button>
+          <button class="navBtn next" id="nextBtn">Next ›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* ============================================================
+     ★ 5 examples — edit the words and numbers here ★
+     name : heading shown above
+     std  : standard form (digits; spacing does not matter)
+     ven  : everyday form (split into lakhs and crores)
+     say  : how it is read (in words)
+     pic  : picture — 'ticket' | 'mars' | 'sun' | 'moon' | 'people'
+     ============================================================ */
+  var EXAMPLES = [
+    /* 1 */ { name:"Today's jackpot", std:'63 570 540', ven:'6 35 70 540', say:'six crore thirty-five lakh seventy thousand five hundred and forty', pic:'ticket' },
+    /* 2 */ { name:'Distance to Mars · km', std:'225 000 000', ven:'22 50 00 000', say:'two hundred and twenty-five million', pic:'mars' },
+    /* 3 */ { name:'Distance to the Sun · km', std:'149 600 000', ven:'14 96 00 000', say:'one hundred and forty-nine million six hundred thousand', pic:'sun' },
+    /* 4 */ { name:'Distance to the Moon · km', std:'384 400', ven:'3 84 400', say:'three hundred and eighty-four thousand four hundred', pic:'moon' },
+    /* 5 */ { name:'World population · 2026', std:'8 300 000 000', ven:'8 30 00 00 000', say:'eight billion three hundred million', pic:'people' }
+  ];
+
+  /* ---------- pictures (330 × 150) ---------- */
+  var PICS = {};
+
+  PICS.ticket =
+    '<svg viewBox="0 0 330 150" xmlns="http://www.w3.org/2000/svg">' +
+    '<rect width="330" height="150" fill="#fff4d9"/>' +
+    '<circle cx="26" cy="26" r="3" fill="#f7a1be" opacity=".85"/>' +
+    '<circle cx="302" cy="36" r="2.6" fill="#7fd0c6"/>' +
+    '<circle cx="40" cy="124" r="2.8" fill="#ffcf3f"/>' +
+    '<circle cx="292" cy="120" r="2.4" fill="#9c6ce5" opacity=".7"/>' +
+    '<path d="M52 34l2.6 5.2 5.7.8-4.1 4 .9 5.7-5.1-2.7-5.1 2.7.9-5.7-4.1-4 5.7-.8z" fill="#ffcf3f" opacity=".9"/>' +
+    '<path d="M288 84l2 4 4.4.6-3.2 3.1.8 4.4-4-2.1-4 2.1.8-4.4-3.2-3.1 4.4-.6z" fill="#ffcf3f" opacity=".85"/>' +
+    '<g transform="rotate(-4 165 75)">' +
+    '<rect x="115" y="18" width="100" height="114" rx="8" fill="#fffdf6" stroke="#e0b96a" stroke-width="2"/>' +
+    '<path d="M115 26a8 8 0 0 1 8-8h84a8 8 0 0 1 8 8v16H115z" fill="#a3323f"/>' +
+    '<text x="165" y="38" text-anchor="middle" font-size="11" font-weight="bold" fill="#fff">JACKPOT</text>' +
+    '<path d="M128 58h44M128 68h30" stroke="#c9a86a" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<path d="M115 84h100" stroke="#e6d3ad" stroke-width="1.5" stroke-dasharray="4 4"/>' +
+    '<g fill="#8a6a44">' +
+    '<rect x="126" y="94" width="2" height="20"/><rect x="131" y="94" width="2" height="20"/>' +
+    '<rect x="136" y="94" width="4" height="20"/><rect x="143" y="94" width="2" height="20"/>' +
+    '<rect x="148" y="94" width="3" height="20"/><rect x="154" y="94" width="2" height="20"/>' +
+    '<rect x="159" y="94" width="4" height="20"/><rect x="166" y="94" width="2" height="20"/>' +
+    '<rect x="171" y="94" width="3" height="20"/>' +
+    '</g>' +
+    '<circle cx="197" cy="104" r="16" fill="#ffcf3f" stroke="#e0a327" stroke-width="1.6"/>' +
+    '<path d="M197 95l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4-3.9-3.8 5.4-.8z" fill="#fff"/>' +
+    '</g>' +
+    '</svg>';
+
+  var STARS = '<g fill="#fff"><circle cx="26" cy="22" r="1.5" opacity=".8"/><circle cx="118" cy="16" r="1.1" opacity=".55"/>' +
+    '<circle cx="300" cy="18" r="1.3" opacity=".7"/><circle cx="316" cy="104" r="1.1" opacity=".55"/>' +
+    '<circle cx="150" cy="132" r="1" opacity=".5"/><circle cx="70" cy="36" r="1" opacity=".5"/>' +
+    '<circle cx="196" cy="26" r="1.2" opacity=".6"/></g>';
+
+  PICS.mars =
+    '<svg viewBox="0 0 330 150" xmlns="http://www.w3.org/2000/svg">' +
+    '<rect width="330" height="150" fill="#101a36"/>' + STARS +
+    '<circle cx="58" cy="100" r="22" fill="#49a6e6" stroke="#2f7fb8" stroke-width="1.4"/>' +
+    '<path d="M40 94c8-6 14 1 21-2s9 1 14-1" stroke="#4caf72" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+    '<path d="M82 92c40-22 78-28 128-30" stroke="#ffcf3f" stroke-width="2" stroke-dasharray="5 6" fill="none" opacity=".65"/>' +
+    '<circle cx="252" cy="62" r="36" fill="#d4623c" stroke="#a8432a" stroke-width="1.6"/>' +
+    '<path d="M220 53c10-6 21 2 33-2s29-2 38 4" stroke="#b74f30" stroke-width="6" fill="none" opacity=".6"/>' +
+    '<path d="M219 72c12 5 23-2 35 2s24 1 32-3" stroke="#b74f30" stroke-width="5" fill="none" opacity=".45"/>' +
+    '<circle cx="242" cy="82" r="6" fill="#b74f30" opacity=".85"/>' +
+    '<circle cx="268" cy="44" r="4.2" fill="#b74f30" opacity=".85"/>' +
+    '<circle cx="275" cy="72" r="3" fill="#b74f30" opacity=".8"/>' +
+    '</svg>';
+
+  PICS.sun =
+    '<svg viewBox="0 0 330 150" xmlns="http://www.w3.org/2000/svg">' +
+    '<rect width="330" height="150" fill="#0e1830"/>' + STARS +
+    '<circle cx="58" cy="100" r="22" fill="#49a6e6" stroke="#2f7fb8" stroke-width="1.4"/>' +
+    '<path d="M40 94c8-6 14 1 21-2s9 1 14-1" stroke="#4caf72" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+    '<path d="M82 92c40-22 78-26 126-28" stroke="#ffcf3f" stroke-width="2" stroke-dasharray="5 6" fill="none" opacity=".65"/>' +
+    '<g stroke="#ffc23d" stroke-width="4" stroke-linecap="round">' +
+    '<path d="M252 22v-12"/><path d="M252 102v12"/><path d="M212 62h-12"/><path d="M292 62h12"/>' +
+    '<path d="M229 39l-9-9"/><path d="M275 85l9 9"/><path d="M275 39l9-9"/><path d="M229 85l-9 9"/>' +
+    '</g>' +
+    '<circle cx="252" cy="62" r="32" fill="#ffc23d" stroke="#f39a1e" stroke-width="1.8"/>' +
+    '</svg>';
+
+  PICS.moon =
+    '<svg viewBox="0 0 330 150" xmlns="http://www.w3.org/2000/svg">' +
+    '<rect width="330" height="150" fill="#131c38"/>' + STARS +
+    '<circle cx="58" cy="100" r="22" fill="#49a6e6" stroke="#2f7fb8" stroke-width="1.4"/>' +
+    '<path d="M40 94c8-6 14 1 21-2s9 1 14-1" stroke="#4caf72" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+    '<path d="M82 92c40-22 78-28 126-30" stroke="#ffcf3f" stroke-width="2" stroke-dasharray="5 6" fill="none" opacity=".65"/>' +
+    '<circle cx="252" cy="62" r="33" fill="#dfe3ea" stroke="#b9c0cc" stroke-width="1.6"/>' +
+    '<circle cx="239" cy="50" r="8" fill="#c2c8d3"/>' +
+    '<circle cx="264" cy="74" r="5.5" fill="#c2c8d3"/>' +
+    '<circle cx="250" cy="80" r="3.5" fill="#c2c8d3"/>' +
+    '<circle cx="268" cy="49" r="3" fill="#c2c8d3"/>' +
+    '</svg>';
+
+  PICS.people =
+    '<svg viewBox="0 0 330 150" xmlns="http://www.w3.org/2000/svg">' +
+    '<rect width="330" height="150" fill="#e7f5ff"/>' +
+    '<circle cx="96" cy="72" r="50" fill="#79c7f2" stroke="#3a97c9" stroke-width="2"/>' +
+    '<path d="M58 52c9-12 21-5 24 4s-5 13-15 10-13-5-9-14z" fill="#4caf72"/>' +
+    '<path d="M78 82c8-8 20-1 21 7s-7 12-16 9-11-8-5-16z" fill="#4caf72"/>' +
+    '<path d="M118 40c7-8 17-4 18 4s-5 10-13 8-9-5-5-12z" fill="#4caf72"/>' +
+    '<path d="M126 92c5-5 13-1 13 5s-4 9-10 7-7-5-3-12z" fill="#4caf72"/>' +
+    '<g>' +
+    '<circle cx="196" cy="100" r="6" fill="#e2541f"/><rect x="186" y="106" width="20" height="38" rx="9" fill="#e2541f"/>' +
+    '<circle cx="226" cy="98" r="6" fill="#e0457b"/><rect x="216" y="104" width="20" height="40" rx="9" fill="#e0457b"/>' +
+    '<circle cx="256" cy="96" r="6.5" fill="#7b3fc4"/><rect x="245" y="102" width="22" height="42" rx="10" fill="#7b3fc4"/>' +
+    '<circle cx="286" cy="98" r="6" fill="#0d8a64"/><rect x="276" y="104" width="20" height="40" rx="9" fill="#0d8a64"/>' +
+    '<circle cx="313" cy="100" r="6" fill="#2a68c1"/><rect x="303" y="106" width="20" height="38" rx="9" fill="#2a68c1"/>' +
+    '</g>' +
+    '</svg>';
+
+  /* ---------- the pop-up ---------- */
+  var ov = d('ov');
+  var cur = 0;
+
+  function nb(s) { return String(s).replace(/ /g, '\u00a0'); }
+
+  function show(i) {
+    cur = (i + EXAMPLES.length) % EXAMPLES.length;
+    var e = EXAMPLES[cur];
+    d('ovBadge').textContent = 'Example ' + (cur + 1) + ' / ' + EXAMPLES.length;
+    d('ovPic').innerHTML = PICS[e.pic] || '';
+    d('ovTitle').textContent = e.name;
+    d('ovStd').textContent = nb(e.std);
+    d('ovVen').textContent = nb(e.ven);
+    d('ovSay').textContent = e.say;
+  }
+
+  function openOv() {
+    show(cur);
+    ov.classList.add('on');
+    pop(660, .12);
+  }
+  function closeOv() {
+    ov.classList.remove('on');
+  }
+
+  d('factsBtn').addEventListener('click', openOv);
+  d('ovClose').addEventListener('click', closeOv);
+  d('prevBtn').addEventListener('click', function () { show(cur - 1); pop(600, .1); });
+  d('nextBtn').addEventListener('click', function () { show(cur + 1); pop(700, .1); });
+  ov.addEventListener('click', function (e) {
+    if (e.target === ov) closeOv();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeOv();
+    if (ov.classList.contains('on')) {
+      if (e.key === 'ArrowRight') show(cur + 1);
+      if (e.key === 'ArrowLeft') show(cur - 1);
+    }
+  });
+
+  function d(id) { return document.getElementById(id); }
+
+  /* ---------- sound ---------- */
+  var actx = null;
+  function pop(freq, vol) {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, actx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.5, actx.currentTime + .1);
+      g.gain.setValueAtTime(vol, actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, actx.currentTime + .2);
+      o.connect(g);
+      g.connect(actx.destination);
+      o.start();
+      o.stop(actx.currentTime + .22);
+    } catch (e) {}
+  }
+</script>
+</body>
+</html>

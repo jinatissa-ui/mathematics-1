@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Adding Time</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     69 · Adding time
+     (seconds/minutes → minutes/hours → hours/days · carry animation)
+     ============================================================ */
+  .ttl { flex: none; font-size: 24px; line-height: 1.1; }
+  .sub { flex: none; margin-top: 1px; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- phase strip ---------- */
+  .phases {
+    flex: none;
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    height: 30px;
+  }
+  .ph {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0;
+    border: 1px solid var(--mint-line);
+    border-radius: 999px;
+    background: var(--mint);
+    color: #4a7a78;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background .18s ease, color .18s ease, box-shadow .18s ease;
+  }
+  .ph.on {
+    background: linear-gradient(140deg, #12a08c, #0d6d74);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 3px 9px rgba(13, 109, 116, .28);
+  }
+
+  /* ---------- big addition ---------- */
+  .work {
+    position: relative;
+    flex: none;
+    margin-top: 8px;
+    height: 270px;
+    padding: 10px 12px 12px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e2efe9;
+    box-shadow: 0 7px 16px rgba(30, 80, 80, .07);
+    display: grid;
+    grid-template-columns: 44px 1fr 1fr;
+    grid-template-rows: 24px 1fr 1fr 10px 1fr;
+    align-items: center;
+    overflow: hidden;
+  }
+  .uh {
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: .5px;
+    color: #6f908d;
+    text-align: center;
+  }
+  .uh.hit { color: #d2870f; }
+  .uh1 { grid-column: 2; grid-row: 1; }
+  .uh2 { grid-column: 3; grid-row: 1; }
+
+  .dig {
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 52px;
+    line-height: 1;
+    font-weight: bold;
+    color: #22343b;
+    text-align: center;
+    letter-spacing: -1px;
+  }
+  .dig.sm { font-size: 34px; }
+
+  .a1 { grid-column: 2; grid-row: 2; }
+  .a2 { grid-column: 3; grid-row: 2; }
+  .plus { grid-column: 1; grid-row: 3; }
+  .b1 { grid-column: 2; grid-row: 3; }
+  .b2 { grid-column: 3; grid-row: 3; }
+  .wline {
+    grid-column: 1 / 4;
+    grid-row: 4;
+    height: 2px;
+    margin: 0 6px;
+    border-radius: 2px;
+    background: #dbe8e5;
+  }
+  .eq { grid-column: 1; grid-row: 5; }
+  .r1 { grid-column: 2; grid-row: 5; z-index: 2; }
+  .r2 { grid-column: 3; grid-row: 5; z-index: 2; }
+
+  .plus, .eq {
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 36px;
+    line-height: 1;
+    font-weight: bold;
+    color: #9fb4b1;
+    text-align: center;
+  }
+
+  .aband {
+    grid-column: 1 / 4;
+    grid-row: 5;
+    align-self: center;
+    height: 66px;
+    border-radius: 12px;
+    background: #f1fcf7;
+    border: 1px solid #d8f0e7;
+    opacity: 0;
+    transition: opacity .35s ease;
+  }
+  .work.done .aband { opacity: 1; }
+
+  .ans { color: #b9c8c5; }
+  .ans.sum { color: #e0457a; }
+  .ans.rem { color: #0d6d74; }
+  .ans.carry { color: #d2870f; font-size: 36px; }
+  .ans.final { color: var(--green); }
+
+  .pop { animation: pop .38s ease; }
+  @keyframes pop {
+    0% { transform: scale(.72); }
+    60% { transform: scale(1.13); }
+    100% { transform: scale(1); }
+  }
+
+  /* the flying "+1" chip */
+  .fly {
+    position: absolute;
+    z-index: 6;
+    left: 0;
+    top: 0;
+    padding: 2px 9px 3px;
+    border-radius: 999px;
+    background: linear-gradient(140deg, #ffd75e, #f2b833);
+    border: 1px solid #e0a520;
+    box-shadow: 0 4px 10px rgba(210, 135, 15, .35);
+    font-family: Verdana, Garamond, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: #6b4400;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+  }
+
+  /* ---------- step explanation ---------- */
+  .calc {
+    flex: none;
+    margin-top: 8px;
+    height: 70px;
+    padding: 4px 4px 0;
+    text-align: center;
+  }
+  .l1 {
+    font-family: Verdana, "Iskoola Pota", "Nirmala UI", sans-serif;
+    font-size: 19px;
+    line-height: 1.25;
+    font-weight: bold;
+    color: var(--teal);
+    white-space: nowrap;
+  }
+  .l1.hot { color: #d2416f; }
+  .l1.good { color: var(--green); }
+  .l2 {
+    margin-top: 3px;
+    font-size: 14.5px;
+    line-height: 1.3;
+    color: var(--ink-soft);
+  }
+  .l2 b { color: #d2870f; }
+
+  /* ---------- buttons ---------- */
+  .acts { flex: none; margin-top: 8px; display: flex; gap: 10px; }
+  .nx, .next {
+    height: 46px;
+    border: 0;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 16.5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform .12s ease;
+  }
+  .nx:active, .next:active { transform: translateY(1px); }
+  .next {
+    flex: 1;
+    background: linear-gradient(140deg, #12a08c, #0d6d74);
+    color: #fff;
+    box-shadow: 0 5px 12px rgba(13, 109, 116, .3);
+  }
+  .nx {
+    flex: 0 0 116px;
+    background: #eef6f4;
+    color: var(--teal);
+    border: 1.5px solid #cfe4df;
+  }
+  .next:disabled {
+    background: #eef6f4;
+    color: var(--teal);
+    border: 1.5px solid #cfe4df;
+    box-shadow: none;
+    cursor: default;
+  }
+  .next:disabled:active { transform: none; }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+  <div class="ttl">Adding Time</div>
+  <div class="sub">ADDING TIME</div>
+
+  <div class="phases">
+    <button class="ph on" type="button" data-p="0">Min · Sec</button>
+    <button class="ph" type="button" data-p="1">Hours · Min</button>
+    <button class="ph" type="button" data-p="2">Days · Hours</button>
+  </div>
+
+  <div class="work" id="work">
+    <div class="uh uh1" id="uh1">Minutes</div>
+    <div class="uh uh2" id="uh2">Seconds</div>
+
+    <div class="dig a1" id="a1">5</div>
+    <div class="dig a2" id="a2">45</div>
+
+    <div class="plus">+</div>
+    <div class="dig b1" id="b1">2</div>
+    <div class="dig b2" id="b2">30</div>
+
+    <div class="wline"></div>
+
+    <div class="aband"></div>
+    <div class="eq">=</div>
+    <div class="dig ans r1" id="r1">?</div>
+    <div class="dig ans r2" id="r2">?</div>
+
+    <div class="fly" id="carry">+1</div>
+  </div>
+
+  <div class="calc">
+    <div class="l1" id="l1">First add the seconds.</div>
+    <div class="l2" id="l2">Then add the minutes. When the seconds reach 60, 1 minute is carried up.</div>
+  </div>
+
+  <div class="acts">
+    <button class="next" type="button" id="next">Add the seconds →</button>
+    <button class="nx" type="button" id="nx">Another</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var work = document.getElementById('work');
+  var uh1 = document.getElementById('uh1'), uh2 = document.getElementById('uh2');
+  var a1 = document.getElementById('a1'), a2 = document.getElementById('a2');
+  var b1 = document.getElementById('b1'), b2 = document.getElementById('b2');
+  var r1 = document.getElementById('r1'), r2 = document.getElementById('r2');
+  var carry = document.getElementById('carry');
+  var l1 = document.getElementById('l1'), l2 = document.getElementById('l2');
+  var next = document.getElementById('next'), nx = document.getElementById('nx');
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.ph'));
+
+  var PAIRS = [
+    { up: 'minutes', low: 'seconds', base: 60 },
+    { up: 'hours', low: 'minutes', base: 60 },
+    { up: 'days', low: 'hours', base: 24 }
+  ];
+
+  var phase = 0, solved = 0, st = 0, P = null, token = 0;
+
+  function rnd(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+
+  function makeProblem(ph) {
+    var sum, lo1, lo2, hi1, hi2;
+    if (ph === 2) {
+      sum = rnd(26, 34);
+      lo2 = rnd(Math.max(9, sum - 19), Math.min(19, sum - 9));
+      hi1 = rnd(2, 5); hi2 = rnd(1, 3);
+    } else {
+      sum = rnd(66, 100);
+      lo2 = rnd(Math.max(28, sum - 55), Math.min(55, sum - 28));
+      hi1 = rnd(3, 7); hi2 = rnd(2, 4);
+    }
+    lo1 = sum - lo2;
+    return {
+      ph: ph, hi1: hi1, hi2: hi2, lo1: lo1, lo2: lo2,
+      sum: sum, rem: sum - PAIRS[ph].base, hiSum: hi1 + hi2 + 1
+    };
+  }
+
+  function pop(el) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+
+  function setChip() {
+    for (var i = 0; i < 3; i++) chips[i].classList.toggle('on', i === phase);
+  }
+
+  function render() {
+    var U = PAIRS[phase];
+    uh1.textContent = U.up;
+    uh2.textContent = U.low;
+    uh1.classList.remove('hit');
+    uh2.classList.remove('hit');
+
+    a1.textContent = P.hi1; b1.textContent = P.hi2;
+    a2.textContent = P.lo1; b2.textContent = P.lo2;
+
+    r1.className = 'dig ans r1';   r1.textContent = '?';
+    r2.className = 'dig ans r2';   r2.textContent = '?';
+    work.classList.remove('done');
+    carry.style.opacity = '0';
+
+    l1.className = 'l1';
+    l2.innerHTML = 'First add the ' + U.low + '. Then add the ' + U.up +
+      '. When the ' + U.low + ' reach ' + U.base + ', carry 1 to the ' + U.up + '.';
+    l1.textContent = 'Let\u2019s add step by step.';
+    next.textContent = 'Add the ' + U.low + ' \u2192';
+    next.disabled = false;
+
+    setChip();
+    st = 0;
+  }
+
+  function newProblem(countIt) {
+    token++;
+    if (countIt && solved >= 3) { phase = (phase + 1) % 3; solved = 0; }
+    P = makeProblem(phase);
+    render();
+  }
+
+  /* ---------- carry animation ---------- */
+  function flyCarry() {
+    var wb = work.getBoundingClientRect();
+    var s = r2.getBoundingClientRect(), t = r1.getBoundingClientRect();
+    var sx = s.left + s.width / 2 - wb.left, sy = s.top + s.height / 2 - wb.top;
+    var dx = (t.left + t.width / 2) - (s.left + s.width / 2);
+    carry.style.left = sx + 'px';
+    carry.style.top = (sy - 34) + 'px';
+    carry.style.opacity = '1';
+    carry.style.transition = 'none';
+    carry.style.transform = 'translate(-50%, -50%)';
+    void carry.offsetWidth;
+    var anim = carry.animate([
+      { transform: 'translate(-50%, -50%) scale(1)' },
+      { transform: 'translate(calc(-50% + ' + (dx / 2) + 'px), calc(-50% - 30px)) scale(1.18)' },
+      { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + 8px)) scale(1)' }
+    ], { duration: 780, easing: 'ease-in-out' });
+    anim.onfinish = function () { carry.style.opacity = '0'; };
+  }
+
+  function step() {
+    var U = PAIRS[phase], my = token;
+
+    if (st === 0) {
+      st = 1;
+      r2.className = 'dig ans sum r2';
+      r2.textContent = P.sum;
+      pop(r2);
+      l1.className = 'l1 hot';
+      l1.textContent = P.lo1 + ' + ' + P.lo2 + ' = ' + P.sum;
+      l2.innerHTML = 'That makes ' + P.sum + ' ' + U.low + '. It is over ' +
+        U.base + ', so carry 1 to the ' + U.up + '.';
+      next.textContent = 'Carry 1 \u2192';
+      return;
+    }
+
+    if (st === 1) {
+      st = 2;
+      flyCarry();
+      uh1.classList.add('hit');
+      r1.className = 'dig ans carry r1';
+      r1.textContent = '+1';
+      setTimeout(function () {
+        if (my !== token) return;
+        pop(r1);
+      }, 760);
+      setTimeout(function () {
+        if (my !== token || st !== 2) return;
+        r2.className = 'dig ans rem r2';
+        r2.textContent = P.rem;
+        pop(r2);
+      }, 320);
+      l1.className = 'l1';
+      l1.textContent = P.sum + ' − ' + U.base + ' = ' + P.rem;
+      l2.innerHTML = U.base + ' ' + U.low + ' = <b>1 ' + U.up + '</b> · it moves to the ' +
+        U.up + ' column. Remainder: ' + P.rem + ' ' + U.low + '.';
+      next.textContent = 'Add the ' + U.up + ' \u2192';
+      return;
+    }
+
+    if (st === 2) {
+      st = 3;
+      r2.className = 'dig ans rem r2';
+      r2.textContent = P.rem;
+      r1.className = 'dig ans final r1';
+      r1.textContent = P.hiSum;
+      pop(r1);
+      uh1.classList.remove('hit');
+      work.classList.add('done');
+      l1.className = 'l1 good';
+      l1.textContent = P.hi1 + ' + ' + P.hi2 + ' + 1 = ' + P.hiSum;
+      l2.innerHTML = 'Answer: <b>' + P.hiSum + ' ' + U.up + ' · ' + P.rem + ' ' + U.low + '</b>';
+      next.textContent = 'Answer found \u2713';
+      next.disabled = true;
+      solved++;
+      return;
+    }
+  }
+
+  next.addEventListener('click', step);
+  nx.addEventListener('click', function () { newProblem(true); });
+
+  chips.forEach(function (c, i) {
+    c.addEventListener('click', function () {
+      if (i === phase) return;
+      token++;
+      phase = i;
+      solved = 0;
+      P = makeProblem(phase);
+      render();
+    });
+  });
+
+  P = makeProblem(phase);
+  render();
+})();
+</script>
+</body>
+</html>

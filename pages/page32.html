@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     32 · Number line — click to place a dot
+     ============================================================ */
+  .ttl { font-size: 26px; line-height: 1.2; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 13.5px;
+    line-height: 1.2;
+    letter-spacing: 2.5px;
+    text-align: left;
+  }
+  .intro {
+    margin-top: 5px;
+    font-size: 14.5px;
+    line-height: 1.3;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- line cards ---------- */
+  .linecard {
+    margin-top: 9px;
+    padding: 7px 9px 9px;
+    border-radius: 14px;
+    box-shadow: 0 3px 9px rgba(30, 80, 80, .07);
+  }
+  .linecard.pos {
+    background: linear-gradient(180deg, #fdfffe, #f4fbf8);
+    border: 1px solid #d9eee7;
+  }
+  .linecard.neg {
+    background: linear-gradient(180deg, #fdfeff, #f2f8fd);
+    border: 1px solid #d8e8f4;
+  }
+  .ch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 22px;
+    padding: 0 3px;
+  }
+  .ch-t {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--teal);
+  }
+  .neg .ch-t { color: #1a6aa8; }
+  .ch-dot {
+    flex: 0 0 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #0d8a64;
+  }
+  .neg .ch-dot { background: #2f6fa8; }
+  .ch-r {
+    font-size: 12px;
+    line-height: 1;
+    color: #93a1a6;
+    transition: color .2s ease;
+  }
+  .ch-r.on { color: #0d8a64; font-weight: bold; }
+  .neg .ch-r.on { color: #2f6fa8; }
+
+  .nline-svg {
+    display: block;
+    width: 356px;
+    height: 116px;
+    margin: 1px auto 0;
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .tick {
+    stroke: #b9c5c9;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    transition: stroke .15s ease;
+  }
+  .num {
+    font-family: Verdana, sans-serif;
+    font-size: 13px;
+    fill: #7d8e94;
+    transition: fill .15s ease;
+  }
+  .hit { fill: transparent; cursor: pointer; }
+  .pos .thit:hover .tick { stroke: #0d8a64; }
+  .pos .thit:hover .num  { fill: #0d8a64; }
+  .neg .thit:hover .tick { stroke: #2f6fa8; }
+  .neg .thit:hover .num  { fill: #2f6fa8; }
+  .axis-line { stroke: #8b9ba0; stroke-width: 1.8; stroke-linecap: round; }
+  .arrow {
+    fill: none;
+    stroke: #8b9ba0;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ---------- dot and value ---------- */
+  .mk { opacity: 0; pointer-events: none; }
+  .mk.show { opacity: 1; }
+  .pos .dot { fill: #0d8a64; stroke: #ffffff; }
+  .neg .dot { fill: #2f6fa8; stroke: #ffffff; }
+  .pos .val { fill: #0d8a64; }
+  .neg .val { fill: #2f6fa8; }
+  .val {
+    opacity: 0;
+    font-family: Verdana, sans-serif;
+    font-size: 21px;
+    font-weight: bold;
+  }
+  .val.show { opacity: 1; }
+  .mk.in .dot { animation: dotdrop .32s cubic-bezier(.3, 1.3, .5, 1); }
+  .val.in { animation: valpop .3s ease .04s both; }
+  @keyframes dotdrop {
+    0%   { transform: translateY(-12px); }
+    100% { transform: none; }
+  }
+  @keyframes valpop {
+    0%   { transform: translateY(7px); }
+    100% { transform: none; }
+  }
+
+  .note {
+    margin-top: 8px;
+    padding: 5px 10px 6px;
+    border-radius: 11px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 13.5px;
+    line-height: 1.35;
+    color: var(--ink-soft);
+  }
+  .note b { color: var(--teal); }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">3. The Number Line</h2>
+    <div class="sub">NUMBER LINE</div>
+    <p class="intro">Move near a piece of the line and a hand appears. Click and the value shows below.</p>
+
+    <div class="linecard pos">
+      <div class="ch">
+        <span class="ch-t"><span class="ch-dot"></span>From 0 to 10</span>
+        <span class="ch-r" id="ro1">Click on the line</span>
+      </div>
+      <svg class="nline-svg" id="nl1" viewBox="0 0 356 116" aria-label="Number line from 0 to 10">
+        <line class="axis-line" x1="16" y1="52" x2="336" y2="52"/>
+        <path class="arrow" d="M336 46.5 L344 52 L336 57.5"/>
+        <g class="axis"></g>
+        <g class="mk">
+          <circle class="dot" cx="0" cy="0" r="4.4" stroke-width="1.8"/>
+        </g>
+        <text class="val" x="178" y="108" text-anchor="middle">0</text>
+      </svg>
+    </div>
+
+    <div class="linecard neg">
+      <div class="ch">
+        <span class="ch-t"><span class="ch-dot"></span>From -10 to 0</span>
+        <span class="ch-r" id="ro2">Click on the line</span>
+      </div>
+      <svg class="nline-svg" id="nl2" viewBox="0 0 356 116" aria-label="Number line from -10 to 0">
+        <line class="axis-line" x1="16" y1="52" x2="336" y2="52"/>
+        <path class="arrow" d="M336 46.5 L344 52 L336 57.5"/>
+        <g class="axis"></g>
+        <g class="mk">
+          <circle class="dot" cx="0" cy="0" r="4.4" stroke-width="1.8"/>
+        </g>
+        <text class="val" x="178" y="108" text-anchor="middle">0</text>
+      </svg>
+    </div>
+
+    <div class="note">
+      <b>When you click a piece of the line</b> a small dot appears on it, with the value below. Clicking another piece removes the earlier dot.
+    </div>
+  </div>
+
+<script>
+  var NS = 'http://www.w3.org/2000/svg';
+  var X0 = 24, STEP = 30.4, LY = 52;
+
+  function buildLine(cfg) {
+    var svg = document.getElementById(cfg.id);
+    var axis = svg.querySelector('.axis');
+    var mk = svg.querySelector('.mk');
+    var txt = svg.querySelector('.val');
+    var ro = document.getElementById(cfg.ro);
+    var inT = null;
+
+    function mark(i) {
+      var v = cfg.start + i;
+      txt.textContent = v;
+      mk.style.transform = 'translate(' + (X0 + i * STEP) + 'px,' + LY + 'px)';
+      mk.classList.remove('show', 'in');
+      txt.classList.remove('show', 'in');
+      void mk.getBoundingClientRect();
+      mk.classList.add('show', 'in');
+      txt.classList.add('show', 'in');
+      if (inT) clearTimeout(inT);
+      inT = setTimeout(function () {
+        mk.classList.remove('in');
+        txt.classList.remove('in');
+      }, 420);
+      ro.textContent = 'Dot: ' + v;
+      ro.classList.add('on');
+    }
+
+    for (var i = 0; i <= 10; i++) {
+      var x = X0 + i * STEP;
+
+      var g = document.createElementNS(NS, 'g');
+      g.setAttribute('class', 'thit');
+
+      var hit = document.createElementNS(NS, 'rect');
+      hit.setAttribute('class', 'hit');
+      hit.setAttribute('x', x - 13);
+      hit.setAttribute('y', 28);
+      hit.setAttribute('width', 26);
+      hit.setAttribute('height', 68);
+      g.appendChild(hit);
+
+      var tick = document.createElementNS(NS, 'line');
+      tick.setAttribute('class', 'tick');
+      tick.setAttribute('x1', x);
+      tick.setAttribute('y1', LY - 12);
+      tick.setAttribute('x2', x);
+      tick.setAttribute('y2', LY + 12);
+      g.appendChild(tick);
+
+      var lab = document.createElementNS(NS, 'text');
+      lab.setAttribute('class', 'num');
+      lab.setAttribute('x', x);
+      lab.setAttribute('y', 86);
+      lab.setAttribute('text-anchor', 'middle');
+      lab.textContent = cfg.start + i;
+      g.appendChild(lab);
+
+      axis.appendChild(g);
+
+      (function (idx) {
+        hit.addEventListener('click', function () { mark(idx); });
+      })(i);
+    }
+  }
+
+  buildLine({ id: 'nl1', start: 0, ro: 'ro1' });
+  buildLine({ id: 'nl2', start: -10, ro: 'ro2' });
+</script>
+</body>
+</html>

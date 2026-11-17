@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     35 · Number line — practice (marking and reading integers)
+     ============================================================ */
+  .ttl { font-size: 24px; line-height: 1.2; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 12.5px;
+    line-height: 1.2;
+    letter-spacing: 2.2px;
+    text-align: left;
+  }
+
+  .pcard {
+    padding: 7px 9px 8px;
+    border-radius: 13px;
+    box-shadow: 0 3px 9px rgba(30, 80, 80, .06);
+  }
+  .pcard.top {
+    margin-top: 7px;
+    background: linear-gradient(180deg, #fdfffe, #f5fcf8);
+    border: 1px solid #d9eee7;
+  }
+  .pcard.bot {
+    margin-top: 8px;
+    background: linear-gradient(180deg, #fdfeff, #f6f9fd);
+    border: 1px solid #dbe6f2;
+  }
+
+  .trow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+  }
+  .nbadge {
+    flex: 0 0 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffcf3f;
+    color: #5c4a10;
+    font-family: Verdana, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nbadge.b { background: #c9dcf0; color: #1f4a6e; }
+  .tlbl { font-size: 12.5px; color: var(--ink-soft); }
+  .tbox {
+    margin-left: 2px;
+    width: 40px;
+    height: 28px;
+    border-radius: 8px;
+    background: #fff7dc;
+    border: 1.5px solid #efcf6a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+    font-size: 21px;
+    font-weight: bold;
+    color: #8a6410;
+  }
+  .obtn {
+    margin-left: auto;
+    height: 26px;
+    padding: 0 9px;
+    border-radius: 8px;
+    border: 1px solid #e5c46a;
+    background: #fffdf3;
+    color: #8a6410;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .obtn:active { transform: translateY(1px); }
+
+  .lnsvg {
+    display: block;
+    width: 356px;
+    height: 96px;
+    margin: 2px auto 0;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .lnsvg.small { height: 86px; }
+  .axl { stroke: #8b9ba0; stroke-width: 1.8; stroke-linecap: round; }
+  .arw {
+    fill: none;
+    stroke: #8b9ba0;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .tk {
+    stroke: #b9c5c9;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    transition: stroke .15s ease;
+  }
+  .tnum {
+    font-family: Verdana, sans-serif;
+    font-size: 12.5px;
+    fill: #7d8e94;
+    transition: fill .15s ease;
+  }
+  .hit { fill: transparent; cursor: pointer; }
+  .thit:hover .tk { stroke: #0d8a64; }
+  .thit:hover .tnum { fill: #0d8a64; }
+  .lnsvg.done .hit { cursor: default; }
+  .lnsvg.done .thit:hover .tk { stroke: #b9c5c9; }
+  .lnsvg.done .thit:hover .tnum { fill: #7d8e94; }
+
+  .mk { opacity: 0; }
+  .mk.show { opacity: 1; }
+  .mdot { fill: #0d8a64; stroke: #ffffff; }
+  .fb circle { fill: #0d8a64; stroke: #ffffff; }
+  .mk.bad .fb circle { fill: #d64545; }
+  .ck, .xr {
+    display: none;
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .mk.good .ck { display: block; }
+  .mk.bad .xr { display: block; }
+
+  .score {
+    margin-top: 6px;
+    padding-top: 7px;
+    height: 34px;
+    border-top: 1px dashed #dcebe5;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sp {
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1.4;
+  }
+  .sp.ok { background: #e8f7f1; color: #0d8a64; }
+  .sp.no { background: #fdecef; color: #cf3d5a; }
+  .sp b { font-family: Verdana, sans-serif; font-size: 13px; }
+
+  .cnt { margin-left: auto; font-size: 11.5px; color: #8b9ba0; }
+  .cnt b { font-family: Verdana, sans-serif; font-size: 12px; }
+  .cnt .okv { color: #0d8a64; }
+  .cnt .nov { color: #cf3d5a; }
+
+  .obtn:disabled {
+    opacity: .45;
+    cursor: default;
+    background: #f5f3ea;
+    border-color: #e8e0c9;
+    color: #b3a578;
+  }
+
+  .dmk .halo { fill: rgba(13, 109, 116, .12); }
+  .dmk .mdot2 { fill: #0d6d74; stroke: #ffffff; }
+
+  .pad {
+    margin-top: 5px;
+    display: grid;
+    grid-template-columns: repeat(6, 44px);
+    gap: 5px;
+    justify-content: center;
+  }
+  .pad button {
+    height: 29px;
+    border-radius: 7px;
+    border: 1px solid #dbe4e8;
+    background: #ffffff;
+    font-family: Verdana, sans-serif;
+    font-size: 13.5px;
+    font-weight: bold;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .pad button:active { background: #eef6f4; }
+  .pad button.minus { color: #2f6fa8; }
+  .pad button.clr { color: #b04a5c; }
+  .pad.lock { opacity: .5; pointer-events: none; }
+
+  .ansrow {
+    margin-top: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .abox {
+    width: 92px;
+    height: 33px;
+    border-radius: 9px;
+    border: 1.5px solid #0d6d74;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    color: #0d6d74;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .abox.empty { color: #b6c3c7; }
+  .abox.warn { border-color: #e0a800; background: #fffbe9; }
+  .res {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+  .res.show { display: flex; }
+  .res.ok { background: #0d8a64; }
+  .res.no { background: #d64545; }
+  .chk {
+    height: 33px;
+    padding: 0 13px;
+    border: 0;
+    border-radius: 9px;
+    background: #0d6d74;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .chk:active { transform: translateY(1px); }
+  .chk:disabled { background: #9db6b8; cursor: default; }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Number Line</h2>
+    <div class="sub">PRACTICE</div>
+
+    <div class="pcard top">
+      <div class="trow">
+        <span class="nbadge">1</span>
+        <span class="tlbl">Mark this number</span>
+        <span class="tbox" id="tt">3</span>
+        <button type="button" class="obtn" id="tn">Next</button>
+      </div>
+      <svg class="lnsvg" id="l1" viewBox="0 0 356 96" aria-label="Number line from -5 to 5">
+        <line class="axl" x1="28" y1="48" x2="328" y2="48"/>
+        <path class="arw" d="M328 42.5 L336 48 L328 53.5"/>
+        <g class="axs" id="ax1"></g>
+        <g class="mk" id="m1">
+          <circle class="mdot" cx="0" cy="0" r="4.5" stroke-width="1.8"/>
+          <g class="fb">
+            <circle cx="13" cy="-13" r="8.5" stroke-width="1.5"/>
+            <path class="ck" d="M9.4 -13.2 L11.9 -10.6 L16.6 -15.9"/>
+            <path class="xr" d="M9.8 -16.2 L16.2 -9.8 M16.2 -16.2 L9.8 -9.8"/>
+          </g>
+        </g>
+      </svg>
+      <div class="score">
+        <span class="sp ok">Right <b id="okc1">0</b></span>
+        <span class="sp no">Wrong <b id="noc1">0</b></span>
+      </div>
+    </div>
+
+    <div class="pcard bot">
+      <div class="trow">
+        <span class="nbadge b">2</span>
+        <span class="tlbl">Write the value of the dot</span>
+        <span class="cnt">Right <b class="okv" id="okc">0</b> · Wrong <b class="nov" id="noc">0</b></span>
+      </div>
+      <svg class="lnsvg small" id="l2" viewBox="0 0 356 86" aria-label="Number line with a marked dot">
+        <line class="axl" x1="28" y1="42" x2="328" y2="42"/>
+        <path class="arw" d="M328 36.5 L336 42 L328 47.5"/>
+        <g class="axs" id="ax2"></g>
+        <g class="dmk" id="m2">
+          <circle class="halo" cx="0" cy="0" r="9"/>
+          <circle class="mdot2" cx="0" cy="0" r="5.2" stroke-width="2"/>
+        </g>
+      </svg>
+      <div class="pad" id="pad">
+        <button type="button" data-d="1">1</button>
+        <button type="button" data-d="2">2</button>
+        <button type="button" data-d="3">3</button>
+        <button type="button" data-d="4">4</button>
+        <button type="button" data-d="5">5</button>
+        <button type="button" class="minus" id="bm">−</button>
+        <button type="button" data-d="6">6</button>
+        <button type="button" data-d="7">7</button>
+        <button type="button" data-d="8">8</button>
+        <button type="button" data-d="9">9</button>
+        <button type="button" data-d="0">0</button>
+        <button type="button" class="clr" id="bc">C</button>
+      </div>
+      <div class="ansrow">
+        <div class="abox empty" id="ab">—</div>
+        <span class="res" id="res"></span>
+        <button type="button" class="chk" id="ck">Check</button>
+        <button type="button" class="obtn" id="bn">Next</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  var NS = 'http://www.w3.org/2000/svg';
+  var X0 = 40, STEP = 26;
+
+  function buildTicks(g, axisY, labelY) {
+    for (var i = 0; i <= 10; i++) {
+      var x = X0 + i * STEP;
+      var t = document.createElementNS(NS, 'line');
+      t.setAttribute('class', 'tk');
+      t.setAttribute('x1', x);
+      t.setAttribute('y1', axisY - 13);
+      t.setAttribute('x2', x);
+      t.setAttribute('y2', axisY + 13);
+      g.appendChild(t);
+
+      var n = document.createElementNS(NS, 'text');
+      n.setAttribute('class', 'tnum');
+      n.setAttribute('x', x);
+      n.setAttribute('y', labelY);
+      n.setAttribute('text-anchor', 'middle');
+      n.textContent = i - 5;
+      g.appendChild(n);
+    }
+  }
+
+  buildTicks(document.getElementById('ax2'), 42, 76);
+
+  /* ---------- 1 · mark the given number on the line ---------- */
+  (function () {
+    var targets = [3, -2, 5, 0, -4, 1, -1, 4, -3, 2];
+    var tIdx = 0, locked = false;
+    var okN = 0, noN = 0;
+    var svg = document.getElementById('l1');
+    var mk = document.getElementById('m1');
+    var tt = document.getElementById('tt');
+    var okc1 = document.getElementById('okc1');
+    var noc1 = document.getElementById('noc1');
+    var tn = document.getElementById('tn');
+
+    for (var i = 0; i <= 10; i++) {
+      (function (idx) {
+        var x = X0 + idx * STEP;
+        var v = idx - 5;
+
+        var g = document.createElementNS(NS, 'g');
+        g.setAttribute('class', 'thit');
+
+        var tick = document.createElementNS(NS, 'line');
+        tick.setAttribute('class', 'tk');
+        tick.setAttribute('x1', x);
+        tick.setAttribute('y1', 35);
+        tick.setAttribute('x2', x);
+        tick.setAttribute('y2', 61);
+        g.appendChild(tick);
+
+        var lbl = document.createElementNS(NS, 'text');
+        lbl.setAttribute('class', 'tnum');
+        lbl.setAttribute('x', x);
+        lbl.setAttribute('y', 82);
+        lbl.setAttribute('text-anchor', 'middle');
+        lbl.textContent = v;
+        g.appendChild(lbl);
+
+        var hit = document.createElementNS(NS, 'rect');
+        hit.setAttribute('class', 'hit');
+        hit.setAttribute('x', x - 12);
+        hit.setAttribute('y', 24);
+        hit.setAttribute('width', 24);
+        hit.setAttribute('height', 64);
+        g.appendChild(hit);
+        document.getElementById('ax1').appendChild(g);
+
+        hit.addEventListener('click', function () {
+          if (locked) return;
+          locked = true;
+
+          mk.style.transform = 'translate(' + x + 'px,48px)';
+          var ok = (v === targets[tIdx]);
+          mk.classList.remove('show', 'good', 'bad');
+          mk.classList.add('show', ok ? 'good' : 'bad');
+          svg.classList.add('done');
+
+          if (ok) { okN++; } else { noN++; }
+          okc1.textContent = okN;
+          noc1.textContent = noN;
+          tn.disabled = false;
+        });
+      })(i);
+    }
+
+    tn.addEventListener('click', function () {
+      tIdx = (tIdx + 1) % targets.length;
+      tt.textContent = targets[tIdx];
+      mk.classList.remove('show', 'good', 'bad');
+      svg.classList.remove('done');
+      locked = false;
+      tn.disabled = true;
+    });
+  })();
+
+  /* ---------- 2 · read the value of the dot ---------- */
+  (function () {
+    var dotVal = -2;
+    var ans = '';
+    var okN = 0, noN = 0, locked = false;
+    var m2 = document.getElementById('m2');
+    var ab = document.getElementById('ab');
+    var res = document.getElementById('res');
+    var pad = document.getElementById('pad');
+    var ck = document.getElementById('ck');
+    var okc = document.getElementById('okc');
+    var noc = document.getElementById('noc');
+    var bn = document.getElementById('bn');
+    var warnT = null;
+
+    function drawDot() {
+      m2.style.transform = 'translate(' + (X0 + (dotVal + 5) * STEP) + 'px,42px)';
+    }
+
+    function render() {
+      ab.textContent = ans === '' ? '—' : ans;
+      ab.classList.toggle('empty', ans === '');
+    }
+
+    function clearWarn() {
+      ab.classList.remove('warn');
+    }
+
+    function resetRound() {
+      ans = '';
+      render();
+      res.className = 'res';
+      res.textContent = '';
+      pad.classList.remove('lock');
+      ck.disabled = false;
+      bn.disabled = true;
+      locked = false;
+      clearWarn();
+
+      var pool = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5].filter(function (v) { return v !== dotVal; });
+      dotVal = pool[Math.floor(Math.random() * pool.length)];
+      drawDot();
+    }
+
+    drawDot();
+    render();
+
+    pad.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b || locked) return;
+
+      if (b.id === 'bm') {
+        if (ans.charAt(0) === '-') ans = ans.slice(1);
+        else if (ans.length < 3) ans = '-' + ans;
+      } else if (b.id === 'bc') {
+        ans = '';
+      } else if (b.dataset.d) {
+        if (ans === '-') ans += b.dataset.d;
+        else if (ans.length < 2) ans += b.dataset.d;
+      }
+      clearWarn();
+      render();
+    });
+
+    ck.addEventListener('click', function () {
+      if (locked) return;
+      if (ans === '' || ans === '-') {
+        ab.classList.add('warn');
+        if (warnT) clearTimeout(warnT);
+        warnT = setTimeout(clearWarn, 700);
+        return;
+      }
+
+      var right = (parseInt(ans, 10) === dotVal);
+      res.className = 'res show ' + (right ? 'ok' : 'no');
+      res.textContent = right ? '✓' : '✗';
+      if (right) { okN++; } else { noN++; }
+      okc.textContent = okN;
+      noc.textContent = noN;
+      locked = true;
+      pad.classList.add('lock');
+      ck.disabled = true;
+      bn.disabled = false;
+    });
+
+    bn.addEventListener('click', resetRound);
+  })();
+</script>
+</body>
+</html>

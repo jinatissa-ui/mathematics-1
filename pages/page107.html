@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>The 8-Puzzle</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     107 · The 8-puzzle
+     (only digits next to the empty square slide in)
+     ============================================================ */
+  .ttl { flex: none; font-size: 24px; line-height: 1.1; white-space: nowrap; }
+  .sub { flex: none; margin-top: 2px; font-size: 12.5px; letter-spacing: 1.8px; }
+
+  /* ---------- instruction ---------- */
+  .instr {
+    flex: none;
+    margin-top: 7px;
+    padding: 5px 10px;
+    min-height: 34px;
+    border-radius: 11px;
+    background: #fffdf4;
+    border: 1px solid #f2e6bd;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: #6f6650;
+    box-sizing: border-box;
+  }
+  .instr .ib {
+    flex: none;
+    height: 19px;
+    padding: 0 7px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    background: #b06a00;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+  }
+
+  /* ---------- board + side ---------- */
+  .stage { flex: none; display: flex; gap: 10px; margin-top: 8px; }
+  .board {
+    flex: none;
+    position: relative;
+    width: 280px;
+    height: 280px;
+    padding: 8px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 8px 18px rgba(30, 80, 80, .10), inset 0 0 0 4px #f7fbfa;
+  }
+  .board.shake { animation: shk .38s ease; }
+  @keyframes shk {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    60% { transform: translateX(3px); }
+    80% { transform: translateX(-1px); }
+  }
+  .field { position: relative; width: 262px; height: 262px; }
+
+  .hole {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 82px;
+    height: 82px;
+    border-radius: 13px;
+    border: 2px dashed #cfe3df;
+    background: #f8fcfb;
+    box-sizing: border-box;
+    transition: transform .18s cubic-bezier(.3, .9, .4, 1), border-color .15s, background .15s;
+  }
+  .hole.hot { border-color: #4b9be8; background: #eff6fd; }
+
+  .tile {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+    width: 82px;
+    height: 82px;
+    border-radius: 13px;
+    border: 2px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+    font-size: 34px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: default;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 3px 0 rgba(30, 70, 70, .10), 0 4px 10px rgba(30, 70, 70, .08);
+    transition: transform .18s cubic-bezier(.3, .9, .4, 1), box-shadow .15s, border-color .15s;
+  }
+  .tile .n { display: block; }
+  .tile.can { cursor: grab; }
+  .tile.drag {
+    z-index: 6;
+    cursor: grabbing;
+    box-shadow: 0 14px 24px rgba(30, 70, 70, .26);
+  }
+  .tile.nope {
+    border-color: #e0457b;
+    box-shadow: 0 0 0 3px rgba(224, 69, 123, .28), 0 3px 0 rgba(30, 70, 70, .10);
+  }
+  .tile.nope .n { animation: shkn .32s ease; }
+  @keyframes shkn {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    55% { transform: translateX(4px); }
+    80% { transform: translateX(-2px); }
+  }
+  .t1 { background: #eef9f6; border-color: #bfe4d8; color: #0d6d74; }
+  .t2 { background: #fff8e6; border-color: #f0d795; color: #a8720a; }
+  .t3 { background: #eff6fd; border-color: #b9d7f2; color: #2f7fd0; }
+  .t4 { background: #f5f0fd; border-color: #d8c8f4; color: #7c4fc4; }
+  .t5 { background: #effaf4; border-color: #b9e7d4; color: #0d8a64; }
+  .t6 { background: #fdeef4; border-color: #f3c3d6; color: #c22a5e; }
+  .t7 { background: #fff1e6; border-color: #f5c9a8; color: #c05a12; }
+  .t8 { background: #e8f7f7; border-color: #b7dfe0; color: #0b6c75; }
+
+  .side { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 9px; }
+  .prev {
+    width: 100%;
+    padding: 7px 7px 8px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 3px 8px rgba(30, 80, 80, .06);
+    box-sizing: border-box;
+  }
+  .plabel {
+    text-align: center;
+    font-size: 9px;
+    font-weight: bold;
+    color: #0d6d74;
+    line-height: 1.2;
+  }
+  .mini {
+    margin-top: 5px;
+    display: grid;
+    grid-template-columns: repeat(3, 21px);
+    gap: 3px;
+    justify-content: center;
+  }
+  .mini span {
+    width: 21px;
+    height: 21px;
+    border-radius: 5px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+    font-family: Verdana, sans-serif;
+    font-size: 9.5px;
+    font-weight: bold;
+    color: #0d6d74;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mini span.e { background: #fff; border: 1px dashed #cfe3df; }
+
+  .moves {
+    width: 100%;
+    padding: 6px 4px 5px;
+    border-radius: 12px;
+    background: #fffdf4;
+    border: 1px solid #f2e6bd;
+    text-align: center;
+    box-sizing: border-box;
+  }
+  .moves b {
+    display: block;
+    font-family: Verdana, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1.15;
+    color: #a8720a;
+  }
+  .moves i { font-style: normal; font-size: 8.5px; color: #9a8f78; }
+  .moves.bump b { animation: bump .25s ease; }
+  @keyframes bump {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.25); color: #0d8a64; }
+    100% { transform: scale(1); }
+  }
+
+  /* ---------- shuffle button ---------- */
+  .sh {
+    flex: none;
+    height: 46px;
+    margin-top: 10px;
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #9873e6, #6a35b8);
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: .2px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(106, 53, 184, .28);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sh:active { transform: translateY(1px); }
+
+  /* ---------- footer note ---------- */
+  .foot {
+    flex: none;
+    margin-top: auto;
+    padding: 7px 10px;
+    border-radius: 11px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+    text-align: center;
+    font-size: 11.5px;
+    line-height: 1.35;
+    color: #4f6462;
+  }
+  .foot b { color: #0d8a64; }
+
+  /* ---------- win animation ---------- */
+  .win {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 252, 244, .84);
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .win.on { display: flex; }
+  .wcard {
+    position: relative;
+    z-index: 2;
+    width: 276px;
+    padding: 15px 14px 13px;
+    border-radius: 22px;
+    background: #fff;
+    border: 3px solid #ffd75e;
+    box-shadow: 0 18px 40px rgba(120, 80, 0, .28);
+    text-align: center;
+    animation: pop .5s cubic-bezier(.2, 1.5, .4, 1);
+  }
+  @keyframes pop {
+    0% { transform: scale(.4) rotate(-6deg); opacity: 0; }
+    60% { transform: scale(1.06) rotate(1deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); }
+  }
+  .wstar {
+    font-size: 46px;
+    line-height: 1;
+    color: #f5b301;
+    animation: bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob {
+    0%, 100% { transform: rotate(-7deg) scale(1); }
+    50% { transform: rotate(7deg) scale(1.08); }
+  }
+  .wt { margin-top: 2px; font-size: 26px; font-weight: bold; color: #0d8a64; }
+  .ws { margin-top: 3px; font-size: 13px; color: #5d7370; }
+  .wh { margin-top: 8px; font-size: 10px; color: #b9c8c5; }
+  .conf { position: absolute; inset: 0; pointer-events: none; }
+  .cf {
+    position: absolute;
+    top: -14px;
+    width: 8px;
+    height: 12px;
+    border-radius: 2px;
+    animation: cfall linear forwards;
+  }
+  @keyframes cfall {
+    0% { transform: translateY(0) rotate(0); opacity: 1; }
+    100% { transform: translateY(580px) rotate(540deg); opacity: .9; }
+  }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <div class="ttl">8-Puzzle  2</div>
+  <div class="sub">8-PUZZLE · SLIDE ONLY</div>
+
+  <div class="instr">
+    <span class="ib">HARD</span>
+    <span>Drag only a digit next to the empty square. You cannot pick up far ones.</span>
+  </div>
+
+  <div class="stage">
+    <div class="board" id="board">
+      <div class="field" id="field">
+        <div class="hole" id="hole"></div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="prev">
+        <div class="plabel">Target</div>
+        <div class="mini">
+          <span>1</span><span>2</span><span>3</span>
+          <span>4</span><span>5</span><span>6</span>
+          <span>7</span><span>8</span><span class="e"></span>
+        </div>
+      </div>
+      <div class="moves" id="moves"><b id="mv">0</b><i>moves</i></div>
+    </div>
+  </div>
+
+  <button class="sh" type="button" id="sh">⇄ Shuffle again</button>
+
+  <div class="foot">A digit slides only if it is <b>next to the empty square</b>.</div>
+
+  <div class="win" id="win">
+    <div class="conf" id="conf"></div>
+    <div class="wcard">
+      <div class="wstar">★</div>
+      <div class="wt">You won!</div>
+      <div class="ws" id="wtxt">Finished in 12 moves!</div>
+      <div class="wh">Tap to close</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var STEP = 90;
+  var board = document.getElementById('board');
+  var field = document.getElementById('field');
+  var hole = document.getElementById('hole');
+  var mv = document.getElementById('mv');
+  var movesBox = document.getElementById('moves');
+  var sh = document.getElementById('sh');
+  var win = document.getElementById('win');
+  var conf = document.getElementById('conf');
+  var wtxt = document.getElementById('wtxt');
+
+  var tiles = {};
+  var order = [];
+  var holeIdx = 8;
+  var moves = 0;
+  var locked = false;
+  var hideT = null;
+  var drag = null;
+
+  function pos(i) {
+    return 'translate(' + (i % 3) * STEP + 'px,' + (Math.floor(i / 3)) * STEP + 'px)';
+  }
+
+  function neighbors(i) {
+    var r = Math.floor(i / 3), c = i % 3, out = [];
+    if (r > 0) out.push(i - 3);
+    if (r < 2) out.push(i + 3);
+    if (c > 0) out.push(i - 1);
+    if (c < 2) out.push(i + 1);
+    return out;
+  }
+
+  function makeTiles() {
+    for (var v = 1; v <= 8; v++) {
+      var el = document.createElement('div');
+      el.className = 'tile t' + v;
+      var n = document.createElement('span');
+      n.className = 'n';
+      n.textContent = v;
+      el.appendChild(n);
+      el.dataset.v = v;
+      field.appendChild(el);
+      tiles[v] = el;
+      el.addEventListener('pointerdown', onDown);
+      el.addEventListener('pointermove', onMove);
+      el.addEventListener('pointerup', onUp);
+      el.addEventListener('pointercancel', onUp);
+    }
+  }
+
+  function layout(anim) {
+    for (var i = 0; i < 9; i++) {
+      var v = order[i];
+      if (!v) continue;
+      var el = tiles[v];
+      if (!anim) el.style.transition = 'none';
+      el.style.transform = pos(i);
+      if (!anim) {
+        void el.offsetWidth;
+        el.style.transition = '';
+      }
+    }
+    if (!anim) hole.style.transition = 'none';
+    hole.style.transform = pos(holeIdx);
+    if (!anim) {
+      void hole.offsetWidth;
+      hole.style.transition = '';
+    }
+  }
+
+  function paintCan() {
+    var nb = neighbors(holeIdx);
+    for (var v = 1; v <= 8; v++) {
+      var i = order.indexOf(v);
+      tiles[v].classList.toggle('can', !locked && nb.indexOf(i) >= 0);
+    }
+  }
+
+  function bump() {
+    movesBox.classList.remove('bump');
+    void movesBox.offsetWidth;
+    movesBox.classList.add('bump');
+  }
+
+  function nope(el) {
+    el.classList.remove('nope');
+    void el.offsetWidth;
+    el.classList.add('nope');
+    setTimeout(function () { el.classList.remove('nope'); }, 430);
+  }
+
+  function moveTile(v) {
+    if (locked) return;
+    var from = order.indexOf(v);
+    if (from < 0 || from === holeIdx) return;
+    if (neighbors(holeIdx).indexOf(from) < 0) return;
+    var el = tiles[v];
+    el.style.transition = '';
+    el.style.transform = pos(holeIdx);
+    order[holeIdx] = v;
+    order[from] = 0;
+    holeIdx = from;
+    hole.style.transform = pos(from);
+    moves += 1;
+    mv.textContent = moves;
+    bump();
+    paintCan();
+    if (order.join('') === '123456780') {
+      locked = true;
+      paintCan();
+      setTimeout(winNow, 280);
+    }
+  }
+
+  function isHot(e) {
+    var r = hole.getBoundingClientRect();
+    var p = 12;
+    return e.clientX > r.left - p && e.clientX < r.right + p &&
+           e.clientY > r.top - p && e.clientY < r.bottom + p;
+  }
+
+  function onDown(e) {
+    if (locked) return;
+    var el = e.currentTarget;
+    var v = parseInt(el.dataset.v, 10);
+    var i = order.indexOf(v);
+    if (i < 0) return;
+    if (neighbors(holeIdx).indexOf(i) < 0) {
+      nope(el);
+      e.preventDefault();
+      return;
+    }
+    drag = {
+      v: v,
+      el: el,
+      id: e.pointerId,
+      sx: e.clientX,
+      sy: e.clientY,
+      bx: (i % 3) * STEP,
+      by: Math.floor(i / 3) * STEP,
+      moved: false
+    };
+    try { el.setPointerCapture(e.pointerId); } catch (err) {}
+    el.style.transition = 'none';
+    el.classList.add('drag');
+    e.preventDefault();
+  }
+
+  function onMove(e) {
+    if (!drag || drag.id !== e.pointerId) return;
+    var dx = e.clientX - drag.sx;
+    var dy = e.clientY - drag.sy;
+    if (!drag.moved && Math.abs(dx) + Math.abs(dy) > 5) drag.moved = true;
+    drag.el.style.transform = 'translate(' + (drag.bx + dx) + 'px,' + (drag.by + dy) + 'px)';
+    hole.classList.toggle('hot', isHot(e));
+    e.preventDefault();
+  }
+
+  function onUp(e) {
+    if (!drag || drag.id !== e.pointerId) return;
+    var d = drag;
+    drag = null;
+    hole.classList.remove('hot');
+    d.el.classList.remove('drag');
+    var hit = isHot(e);
+    if (!d.moved || hit) {
+      moveTile(d.v);
+    } else {
+      d.el.style.transition = '';
+      void d.el.offsetWidth;
+      d.el.style.transform = 'translate(' + d.bx + 'px,' + d.by + 'px)';
+    }
+  }
+
+  function hideWin() {
+    win.classList.remove('on');
+    conf.innerHTML = '';
+    clearTimeout(hideT);
+  }
+
+  function winNow() {
+    wtxt.textContent = 'Finished in ' + moves + ' moves!' ;
+    conf.innerHTML = '';
+    var colors = ['#ffcf3f', '#0d8a64', '#4b9be8', '#9c6ce5', '#e0457b', '#ff9250'];
+    for (var i = 0; i < 50; i++) {
+      var c = document.createElement('i');
+      c.className = 'cf';
+      c.style.left = (Math.random() * 100) + '%';
+      c.style.background = colors[i % colors.length];
+      c.style.width = (5 + Math.random() * 6) + 'px';
+      c.style.height = (8 + Math.random() * 8) + 'px';
+      c.style.animationDelay = (Math.random() * 0.9) + 's';
+      c.style.animationDuration = (1.5 + Math.random() * 1.4) + 's';
+      conf.appendChild(c);
+    }
+    win.classList.add('on');
+    clearTimeout(hideT);
+    hideT = setTimeout(hideWin, 8000);
+  }
+
+  /* shuffles from played moves, so a solution always exists */
+  function scramble() {
+    order = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+    holeIdx = 8;
+    var prev = -1;
+    var steps = 140 + Math.floor(Math.random() * 60);
+    for (var s = 0; s < steps; s++) {
+      var nb = neighbors(holeIdx).filter(function (i) { return i !== prev; });
+      var p = nb[Math.floor(Math.random() * nb.length)];
+      order[holeIdx] = order[p];
+      order[p] = 0;
+      prev = holeIdx;
+      holeIdx = p;
+    }
+  }
+
+  function shuffle() {
+    hideWin();
+    locked = false;
+    var bad = 0;
+    do {
+      scramble();
+      bad = 0;
+      for (var k = 0; k < 8; k++) {
+        if (order[k] !== k + 1) bad++;
+      }
+    } while (bad < 6 || order.join('') === '123456780');
+
+    moves = 0;
+    mv.textContent = '0';
+    layout(false);
+    paintCan();
+    board.classList.remove('shake');
+    void board.offsetWidth;
+    board.classList.add('shake');
+    setTimeout(function () { board.classList.remove('shake'); }, 420);
+  }
+
+  makeTiles();
+  shuffle();
+
+  sh.addEventListener('click', shuffle);
+  win.addEventListener('click', hideWin);
+})();
+</script>
+</body>
+</html>

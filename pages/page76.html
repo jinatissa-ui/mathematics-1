@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>1. Estimation and Rounding</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     76 · 1. Estimation and Rounding
+     (5 scenes rotate with their questions non-stop ·
+      3 lesson objectives below)
+     ============================================================ */
+  .ttl { flex: none; font-size: 24px; line-height: 1.12; white-space: nowrap; }
+  .sub { flex: none; margin-top: 1px; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- scene stage ---------- */
+  .stage {
+    position: relative;
+    flex: none;
+    margin-top: 8px;
+    height: 234px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #e2efe9;
+    box-shadow: 0 7px 16px rgba(30, 80, 80, .07);
+  }
+  .stage svg { display: block; width: 376px; height: 234px; }
+
+  .scene { opacity: 0; transition: opacity .5s ease; }
+  .scene.on { opacity: 1; }
+
+  /* ---------- question bar ---------- */
+  .cap {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    margin-top: 8px;
+    padding: 0 10px;
+    border-radius: 12px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+    text-align: center;
+  }
+  .cap span {
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1.2;
+    color: #0d6d74;
+    transition: opacity .22s ease;
+  }
+  .cap span.hide { opacity: 0; }
+
+  /* ---------- objectives card ---------- */
+  .objcard {
+    flex: none;
+    margin-top: 9px;
+    padding: 9px 11px 9px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e2efe9;
+    box-shadow: 0 6px 14px rgba(30, 80, 80, .06);
+  }
+  .objh {
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.25;
+    color: #0d7a5c;
+    letter-spacing: .2px;
+  }
+  .orow {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    margin-top: 4px;
+  }
+  .orow i {
+    flex: none;
+    display: block;
+    width: 17px;
+    height: 17px;
+    margin-top: 1px;
+    border-radius: 6px;
+    background: #e9f7f1;
+    border: 1px solid #cbeadd;
+    color: #0d7a5c;
+    font-style: normal;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 15px;
+    text-align: center;
+  }
+  .orow p {
+    font-size: 14px;
+    line-height: 1.3;
+    color: #3d545c;
+  }
+  .orow b { color: #0d6d74; }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <div class="ttl">1. Estimation and Rounding</div>
+    <div class="sub">ESTIMATION &amp; ROUNDING</div>
+
+    <div class="stage">
+      <svg viewBox="0 0 376 234" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">
+
+        <!-- ============ 1 · banana bunch ============ -->
+        <g class="scene on">
+          <image x="0" y="0" width="376" height="234"
+                 preserveAspectRatio="xMidYMid slice"
+                 href="../pics/est-banana.jpg" xlink:href="../pics/est-banana.jpg"/>
+        </g>
+
+        <!-- ============ 2 · tray of flowers ============ -->
+        <g class="scene">
+          <image x="0" y="0" width="376" height="234"
+                 preserveAspectRatio="xMidYMid slice"
+                 href="../pics/est-flowers.jpg" xlink:href="../pics/est-flowers.jpg"/>
+        </g>
+
+        <!-- ============ 3 · paddy in the field ============ -->
+        <g class="scene">
+          <image x="0" y="0" width="376" height="234"
+                 preserveAspectRatio="xMidYMid slice"
+                 href="../pics/est-paddy.jpg" xlink:href="../pics/est-paddy.jpg"/>
+        </g>
+
+        <!-- ============ 4 · plate of aggala ============ -->
+        <g class="scene">
+          <image x="0" y="0" width="376" height="234"
+                 preserveAspectRatio="xMidYMid slice"
+                 href="../pics/est-aggala.jpg" xlink:href="../pics/est-aggala.jpg"/>
+        </g>
+
+        <!-- ============ 5 · tall flagstaff ============ -->
+        <g class="scene">
+          <rect width="376" height="234" fill="#eef7fb"/>
+          <ellipse cx="86" cy="48" rx="30" ry="12" fill="#ffffff" opacity=".9"/>
+          <ellipse cx="110" cy="44" rx="22" ry="10" fill="#ffffff" opacity=".9"/>
+          <ellipse cx="300" cy="120" rx="26" ry="10" fill="#ffffff" opacity=".8"/>
+          <path d="M0 200 C70 186 130 204 200 198 C270 192 330 204 376 198 L376 234 L0 234 Z" fill="#c9e8c0"/>
+          <rect x="184" y="24" width="6" height="188" rx="3" fill="#b9c5c9"/>
+          <rect x="186.5" y="24" width="3.5" height="188" fill="#9fadb1"/>
+          <path d="M172 208 L202 208 L208 220 L166 220 Z" fill="#cfd8db" stroke="#aab7ba" stroke-width="1.2"/>
+          <circle cx="187" cy="22" r="6" fill="#f2c230" stroke="#c99a1e" stroke-width="1.2"/>
+          <g id="flagstripes"></g>
+          <line x1="330" y1="26" x2="330" y2="206" stroke="#7fc2c9" stroke-width="1.6"
+                stroke-dasharray="4 5" stroke-linecap="round"/>
+          <path d="M330 26 l-4 8 h8 Z" fill="#7fc2c9"/>
+          <path d="M330 206 l-4 -8 h8 Z" fill="#7fc2c9"/>
+          <circle cx="330" cy="116" r="11" fill="#fff" stroke="#f2c230" stroke-width="1.6"/>
+          <text x="330" y="121" font-size="14" font-weight="bold" text-anchor="middle"
+                fill="#0d6d74" font-family="Verdana, sans-serif">?</text>
+          <g id="kid"></g>
+          <path d="M252 58 q5 -5 10 0 q5 -5 10 0" fill="none" stroke="#8fb7c9"
+                stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M272 74 q4 -4 8 0 q4 -4 8 0" fill="none" stroke="#8fb7c9"
+                stroke-width="1.6" stroke-linecap="round"/>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="cap"><span id="captext">How many bananas in the bunch?</span></div>
+
+    <div class="objcard">
+      <div class="objh">In this lesson you will learn</div>
+      <div class="orow"><i>+</i><p>To <b>estimate</b> a countable quantity at a glance (an approximate number).</p></div>
+      <div class="orow"><i>+</i><p>To round a number below 1000 to the <b>nearest ten</b>.</p></div>
+      <div class="orow"><i>+</i><p>To round a number below 1000 to the <b>nearest hundred</b>.</p></div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  function E(n, a, p) {
+    var e = document.createElementNS(NS, n);
+    for (var k in a) { if (a[k] !== undefined) e.setAttribute(k, a[k]); }
+    if (p) p.appendChild(e);
+    return e;
+  }
+  function G(a, p) { return E('g', a || {}, p); }
+
+  /* ---------- 5 · the flag ---------- */
+  (function () {
+    var host = document.getElementById('flagstripes');
+    var cols = ['#2f5da8', '#f2c230', '#d13b35', '#ffffff', '#e58a2f'];
+    var X0 = 187, X1 = 306;
+    for (var k = 0; k < 5; k++) {
+      var y0 = 30 + k * 9, d = '';
+      for (var x = X0; x <= X1; x += 6) {
+        var yy = y0 + Math.sin((x - X0) / 22) * 4.5;
+        d += (x === X0 ? 'M' : 'L') + x + ' ' + yy.toFixed(1) + ' ';
+      }
+      for (var x2 = X1; x2 >= X0; x2 -= 6) {
+        var yy2 = y0 + 9 + Math.sin((x2 - X0) / 22) * 4.5;
+        d += 'L' + x2 + ' ' + yy2.toFixed(1) + ' ';
+      }
+      d += 'Z';
+      E('path', { d: d, fill: cols[k], stroke: k === 3 ? '#dde5e2' : 'none', 'stroke-width': .8 }, host);
+    }
+    /* small child showing the height */
+    var kg = document.getElementById('kid');
+    E('ellipse', { cx: 90, cy: 208, rx: 12, ry: 3, fill: 'rgba(60,90,60,.18)' }, kg);
+    E('circle', { cx: 90, cy: 180, r: 5.4, fill: '#f2c49b', stroke: '#d9a273', 'stroke-width': 1 }, kg);
+    E('path', { d: 'M84.6 178 q5.4 -4 10.8 0', fill: '#4a3a32' }, kg);
+    E('path', { d: 'M84 188 h12 v10 h-12 Z', fill: '#ef8fa5', stroke: '#d9748c', 'stroke-width': .9 }, kg);
+    E('line', { x1: 87, y1: 198, x2: 85, y2: 208, stroke: '#45606a', 'stroke-width': 1.6, 'stroke-linecap': 'round' }, kg);
+    E('line', { x1: 93, y1: 198, x2: 95, y2: 208, stroke: '#45606a', 'stroke-width': 1.6, 'stroke-linecap': 'round' }, kg);
+    E('line', { x1: 84, y1: 191, x2: 77, y2: 197, stroke: '#f2c49b', 'stroke-width': 1.8, 'stroke-linecap': 'round' }, kg);
+    E('line', { x1: 96, y1: 191, x2: 103, y2: 197, stroke: '#f2c49b', 'stroke-width': 1.8, 'stroke-linecap': 'round' }, kg);
+  })();
+
+  /* ---------- rotating scenes and questions ---------- */
+  var scenes = [].slice.call(document.querySelectorAll('.scene'));
+  var CAPS = [
+    'How many bananas in the bunch?',
+    'How many flowers in the tray?',
+    'How many bushels of paddy will the harvest give?',
+    'How many aggala are there?',
+    'How tall is the flagstaff?'
+  ];
+  var capEl = document.getElementById('captext');
+  var idx = 0, timer = null;
+  function next() {
+    capEl.classList.add('hide');
+    setTimeout(function () {
+      idx = (idx + 1) % scenes.length;
+      for (var i = 0; i < scenes.length; i++) {
+        scenes[i].classList.toggle('on', i === idx);
+      }
+      capEl.textContent = CAPS[idx];
+      capEl.classList.remove('hide');
+    }, 230);
+  }
+  timer = setInterval(next, 3400);
+})();
+</script>
+</body>
+</html>

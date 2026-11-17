@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Multiples</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     89 · Multiples
+     (3 facts about multiples + 10×10 multiplication table + multiples strip)
+     ============================================================ */
+  .ttl { flex: none; font-size: 25px; line-height: 1.1; white-space: nowrap; }
+  .sub { flex: none; margin-top: 2px; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- facts about multiples ---------- */
+  .facts {
+    flex: none;
+    margin-top: 6px;
+    padding: 7px 12px;
+    border-radius: 14px;
+    background: #fffdf4;
+    border: 1px solid #f2e6bd;
+    box-shadow: 0 5px 12px rgba(120, 100, 40, .06);
+  }
+  .frow {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .frow + .frow { margin-top: 4px; }
+  .fb {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--teal);
+    transform: translateY(-1px);
+  }
+  .frow b { color: var(--teal); font-family: Verdana, sans-serif; }
+
+  /* ---------- 10×10 multiplication table ---------- */
+  .tbl {
+    flex: none;
+    margin-top: 6px;
+    padding: 5px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 5px 12px rgba(30, 80, 80, .07);
+  }
+  .tgrid {
+    display: grid;
+    grid-template-columns: 26px repeat(10, 1fr);
+    gap: 2px;
+  }
+  .hcell {
+    height: 21px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    background: #f2fbf7;
+    font-family: Verdana, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: #5c7378;
+    cursor: pointer;
+    user-select: none;
+  }
+  .hcell.corner {
+    background: transparent;
+    color: #c3d4d0;
+    cursor: default;
+  }
+  .hcell.hsel { background: var(--green); color: #fff; }
+  .pcell {
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    background: #fbfffd;
+    font-family: Verdana, sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    color: #0d8a64;
+    cursor: pointer;
+    user-select: none;
+  }
+  .pcell.hl { background: #e0f5eb; }
+  .pcell:hover { background: #d2efe1; }
+  .pcell.sel {
+    background: #fff4cf;
+    box-shadow: inset 0 0 0 2px #f6c945;
+    color: #8a5b00;
+  }
+
+  /* ---------- bottom panel (multiples strip) ---------- */
+  .panel {
+    flex: none;
+    height: 46px;
+    margin-top: 5px;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    border-radius: 12px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+    overflow: hidden;
+    text-align: center;
+  }
+  .panel .ph { font-size: 14px; color: var(--muted); }
+  .panel .p1 {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--teal);
+    line-height: 1.15;
+  }
+  .panel .p1 .sin { font-family: inherit; font-size: 15px; }
+  .panel .p2 {
+    font-size: 13px;
+    line-height: 1.2;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .panel .p2 b { font-family: Verdana, sans-serif; color: var(--green); }
+  .panel.pop { animation: ppop .28s ease; }
+  @keyframes ppop {
+    0% { transform: scale(.96); opacity: .4; }
+    100% { transform: none; opacity: 1; }
+  }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <div class="ttl">Multiples</div>
+  <div class="sub">MULTIPLES</div>
+
+  <div class="facts">
+    <div class="frow"><span class="fb"></span><span>The product of a number and another whole number is <b>a multiple</b> of that number.</span></div>
+    <div class="frow"><span class="fb"></span><span>The smallest multiple of any number is <b>the number itself</b>.</span></div>
+    <div class="frow"><span class="fb"></span><span>No number has <b>a greatest</b> multiple.</span></div>
+  </div>
+
+  <div class="tbl">
+    <div class="tgrid" id="tgrid"></div>
+  </div>
+
+  <div class="panel" id="panel">
+    <span class="ph">Tap a row or column number in the table — its multiples appear.</span>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var grid = document.getElementById('tgrid');
+  var panel = document.getElementById('panel');
+
+  function cell(cls, text) {
+    var d = document.createElement('div');
+    d.className = cls;
+    if (text !== undefined) d.textContent = text;
+    return d;
+  }
+
+  /* ---------- setting up the table ---------- */
+  grid.appendChild(cell('hcell corner', '×'));
+
+  var colH = [], rowH = [];
+  for (var c = 1; c <= 10; c++) {
+    var hc = cell('hcell', c);
+    hc.dataset.n = c;
+    grid.appendChild(hc);
+    colH[c] = hc;
+  }
+
+  var cells = [], byRC = {};
+  for (var r = 1; r <= 10; r++) {
+    var hr = cell('hcell', r);
+    hr.dataset.n = r;
+    grid.appendChild(hr);
+    rowH[r] = hr;
+    byRC[r] = {};
+    for (c = 1; c <= 10; c++) {
+      var p = cell('pcell', r * c);
+      p.dataset.r = r;
+      p.dataset.c = c;
+      grid.appendChild(p);
+      cells.push(p);
+      byRC[r][c] = p;
+    }
+  }
+
+  /* ---------- display ---------- */
+  function clearMarks() {
+    cells.forEach(function (p) { p.classList.remove('hl', 'sel'); });
+    for (var i = 1; i <= 10; i++) { colH[i].classList.remove('hsel'); rowH[i].classList.remove('hsel'); }
+  }
+
+  function pop() {
+    panel.classList.remove('pop');
+    void panel.offsetWidth;
+    panel.classList.add('pop');
+  }
+
+  /* showing 10 multiples of n */
+  function showMultiples(k) {
+    var list = [];
+    for (var i = 1; i <= 10; i++) list.push(k * i);
+    panel.innerHTML =
+      '<div class="p1"><span>' + k + '</span><span class="sin">multiples</span></div>' +
+      '<div class="p2">' + list.join(', ') + '</div>';
+    pop();
+  }
+
+  /* picking a column — every product in that column is a multiple of k */
+  function pickCol(k) {
+    clearMarks();
+    colH[k].classList.add('hsel');
+    for (var r = 1; r <= 10; r++) byRC[r][k].classList.add('hl');
+    showMultiples(k);
+  }
+
+  /* picking a row */
+  function pickRow(k) {
+    clearMarks();
+    rowH[k].classList.add('hsel');
+    for (var c = 1; c <= 10; c++) byRC[k][c].classList.add('hl');
+    showMultiples(k);
+  }
+
+  /* picking a cell — the product is a multiple of both its row and its column */
+  function pickCell(r, c) {
+    clearMarks();
+    rowH[r].classList.add('hsel');
+    colH[c].classList.add('hsel');
+    for (var i = 1; i <= 10; i++) {
+      byRC[r][i].classList.add('hl');
+      byRC[i][c].classList.add('hl');
+    }
+    byRC[r][c].classList.add('sel');
+    panel.innerHTML =
+      '<div class="p1"><span>' + (r * c) + '</span><span class="sin">=</span><span>' + r + '</span><span class="sin">×</span><span>' + c + '</span></div>' +
+      '<div class="p2"><b>' + (r * c) + '</b> is a multiple of both ' + r + ' and ' + c + '.</div>';
+    pop();
+  }
+
+  for (var k = 1; k <= 10; k++) {
+    (function (k) {
+      colH[k].addEventListener('click', function () { pickCol(k); });
+      rowH[k].addEventListener('click', function () { pickRow(k); });
+    })(k);
+  }
+
+  cells.forEach(function (p) {
+    p.addEventListener('click', function () {
+      pickCell(parseInt(p.dataset.r, 10), parseInt(p.dataset.c, 10));
+    });
+  });
+
+  /* on page load the multiples of 3 are shown */
+  pickCol(3);
+})();
+</script>
+</body>
+</html>

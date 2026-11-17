@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     5 · Place value practice
+     ============================================================ */
+  :root {
+    --v-th: #7b3fc4;  --bg-th: #f5eeff;
+    --v-h:  #2a68c1;  --bg-h:  #ecf4fe;
+    --v-t:  #0d8a64;  --bg-t:  #eafaf2;
+    --v-o:  #e2541f;  --bg-o:  #fff3eb;
+  }
+
+  .ttl { font-size: 27px; }
+  .sub { font-size: 13px; letter-spacing: 2.5px; }
+
+  /* ---------- the number being described ---------- */
+  .split {
+    margin-top: 7px;
+    padding: 7px 10px 6px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1.5px solid #dbe9e6;
+    box-shadow: 0 4px 10px rgba(30, 80, 80, .07);
+    text-align: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: box-shadow .15s ease;
+  }
+  .split:hover { box-shadow: 0 6px 14px rgba(30, 80, 80, .12); }
+
+  .digits { display: flex; justify-content: center; gap: 5px; }
+  .dgw { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .dg {
+    width: 58px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-family: Verdana, sans-serif;
+    font-size: 25px;
+    font-weight: bold;
+    line-height: 1;
+    border-bottom: 3px solid;
+    user-select: none;
+  }
+  .dg.th { color: var(--v-th); background: var(--bg-th); border-color: var(--v-th); }
+  .dg.h  { color: var(--v-h);  background: var(--bg-h);  border-color: var(--v-h); }
+  .dg.t  { color: var(--v-t);  background: var(--bg-t);  border-color: var(--v-t); }
+  .dg.o  { color: var(--v-o);  background: var(--bg-o);  border-color: var(--v-o); }
+  .dg.empty {
+    color: #c3d0d3;
+    background: #f8fbfa;
+    border-color: #e2ecea;
+  }
+  .dg.pop { animation: dig .3s ease-out; }
+  @keyframes dig {
+    0%   { transform: scale(1); }
+    45%  { transform: scale(1.13); }
+    100% { transform: scale(1); }
+  }
+  .dg-lbl {
+    font-size: 10.5px;
+    line-height: 1.1;
+    font-weight: bold;
+    white-space: nowrap;
+    letter-spacing: -.1px;
+  }
+  .dg-lbl.th { color: var(--v-th); }
+  .dg-lbl.h  { color: var(--v-h); }
+  .dg-lbl.t  { color: var(--v-t); }
+  .dg-lbl.o  { color: var(--v-o); }
+
+  .eq {
+    margin-top: 4px;
+    height: 23px;
+    line-height: 23px;
+    font-family: Verdana, sans-serif;
+    font-size: 19px;
+    font-weight: bold;
+    letter-spacing: .3px;
+    white-space: nowrap;
+  }
+  .eq b.th { color: var(--v-th); }
+  .eq b.h  { color: var(--v-h); }
+  .eq b.t  { color: var(--v-t); }
+  .eq b.o  { color: var(--v-o); }
+  .eq i { font-style: normal; font-weight: normal; color: #a9b6ba; padding: 0 2px; }
+  .eq.ph {
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: normal;
+    letter-spacing: 0;
+    color: var(--muted);
+  }
+
+  /* ---------- the numbers below (tap to show above) ---------- */
+  .chips {
+    display: flex;
+    gap: 6px;
+    margin-top: 9px;
+  }
+  .chip {
+    flex: 1 1 0;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: #fff;
+    border: 1.5px solid #dbe9e6;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: border-color .15s ease, box-shadow .15s ease, transform .12s ease;
+  }
+  .chip:hover { transform: translateY(-1px); border-color: #9fd6c9; }
+  .chip.on {
+    border-color: #0d8a64;
+    box-shadow: 0 0 0 2px #d9f2e8;
+  }
+  .chip i { font-style: normal; }
+  .chip i.th { color: var(--v-th); }
+  .chip i.h  { color: var(--v-h); }
+  .chip i.t  { color: var(--v-t); }
+  .chip i.o  { color: var(--v-o); }
+
+  /* ---------- questions ---------- */
+  .qs { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .q {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 54px;
+    padding: 5px 8px;
+    border-radius: 10px;
+    background: #fbfdfc;
+    border: 1px solid #e7f1ee;
+  }
+  .qno {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--teal);
+  }
+  .qt {
+    flex: 1;
+    font-size: 16px;
+    line-height: 1.24;
+    color: var(--ink-soft);
+  }
+  .dwrap { white-space: nowrap; }
+  .d {
+    display: inline-block;
+    min-width: 16px;
+    padding: 0 1px;
+    text-align: center;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    line-height: 1.15;
+    border-bottom: 2px solid currentColor;
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .d.th { color: var(--v-th); }
+  .d.h  { color: var(--v-h); }
+  .d.t  { color: var(--v-t); }
+  .d.o  { color: var(--v-o); }
+  .d:active { transform: translateY(1px); }
+  .d.used {
+    color: #c3d0d3;
+    border-bottom-color: #e4ecea;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .mk {
+    width: 16px;
+    font-size: 19px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+  }
+  .mk.ok  { color: var(--green); }
+  .mk.bad { color: var(--pink); }
+
+  .ans {
+    width: 74px;
+    height: 34px;
+    border: 1.5px solid #c9ded9;
+    border-radius: 8px;
+    background: #fff;
+    text-align: center;
+    font-family: Verdana, sans-serif;
+    font-size: 19px;
+    font-weight: bold;
+    color: var(--teal);
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .ans::placeholder { font-size: 12px; font-weight: normal; color: #b5c4c8; }
+  .ans:focus { border-color: #17b183; box-shadow: 0 0 0 3px rgba(23, 177, 131, .13); }
+  .ans.ok  { border-color: #17b183; background: #f0fdf8; color: var(--green); }
+  .ans.bad { border-color: var(--pink); background: #fff5f8; color: var(--pink); }
+
+  /* ---------- check button ---------- */
+  .actions { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 8px; }
+  .checkBtn {
+    width: 188px;
+    height: 38px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #17b183, #0b8058);
+    color: #fff;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: .3px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(9, 110, 79, .3), 0 6px 12px rgba(13, 138, 100, .18);
+  }
+  .checkBtn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgba(9, 110, 79, .3);
+  }
+  .resetBtn {
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 12px;
+    background: #eef4f3;
+    color: #5d7378;
+    font-size: 20px;
+    text-align: center;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .resetBtn:active { transform: translateY(2px); }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Place Value Practice</h2>
+    <div class="sub">THOUSANDS · HUNDREDS · TENS · ONES</div>
+
+    <!-- the number being described -->
+    <div class="split" id="split">
+      <div class="digits">
+        <span class="dgw"><span class="dg th empty" id="dg0">–</span><span class="dg-lbl th">Thousands</span></span>
+        <span class="dgw"><span class="dg h empty"  id="dg1">–</span><span class="dg-lbl h">Hundreds</span></span>
+        <span class="dgw"><span class="dg t empty"  id="dg2">–</span><span class="dg-lbl t">Tens</span></span>
+        <span class="dgw"><span class="dg o empty"  id="dg3">–</span><span class="dg-lbl o">Ones</span></span>
+      </div>
+      <div class="eq ph" id="eq">Tap a number below ↓</div>
+    </div>
+
+    <!-- the five numbers below -->
+    <div class="chips" id="chips"></div>
+
+    <!-- questions -->
+    <div class="qs">
+      <div class="q">
+        <span class="qno">1</span>
+        <span class="qt"><span class="dwrap"><b class="d th" data-d="4">4</b><b class="d h" data-d="8">8</b><b class="d t" data-d="3">3</b><b class="d o" data-d="5">5</b></span> Rearrange the digits to make the largest number</span>
+        <span class="mk" id="mk1"></span>
+        <input class="ans" id="a1" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="type">
+      </div>
+
+      <div class="q">
+        <span class="qno">2</span>
+        <span class="qt"><span class="dwrap"><b class="d th" data-d="5">5</b><b class="d h" data-d="9">9</b><b class="d t" data-d="2">2</b><b class="d o" data-d="7">7</b></span> Rearrange the digits to make the smallest number</span>
+        <span class="mk" id="mk2"></span>
+        <input class="ans" id="a2" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="type">
+      </div>
+
+      <div class="q">
+        <span class="qno">3</span>
+        <span class="qt"><span class="dwrap"><b class="d th" data-d="1">1</b><b class="d h" data-d="2">2</b><b class="d t" data-d="5">5</b><b class="d o" data-d="7">7</b></span> The digit with the greatest value</span>
+        <span class="mk" id="mk3"></span>
+        <input class="ans" id="a3" maxlength="1" inputmode="numeric" autocomplete="off" placeholder="type">
+      </div>
+
+      <div class="q">
+        <span class="qno">4</span>
+        <span class="qt"><span class="dwrap"><b class="d th" data-d="2">2</b><b class="d h" data-d="4">4</b><b class="d t" data-d="8">8</b><b class="d o" data-d="6">6</b></span> The digit with the smallest value</span>
+        <span class="mk" id="mk4"></span>
+        <input class="ans" id="a4" maxlength="1" inputmode="numeric" autocomplete="off" placeholder="type">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="checkBtn" id="checkBtn">Check answers</button>
+      <button class="resetBtn" id="resetQ" title="Reset">↺</button>
+    </div>
+  </div>
+
+<script>
+  /* ================= the box at the top ================= */
+  var big = null;                 // the selected number
+  var expanded = false;
+  var dgs = [d('dg0'), d('dg1'), d('dg2'), d('dg3')];
+  var eq = d('eq');
+  var KEYS = ['th', 'h', 't', 'o'];
+
+  function d(id) { return document.getElementById(id); }
+
+  function drawBig(animate) {
+    for (var i = 0; i < 4; i++) {
+      dgs[i].textContent = big ? big[i] : '–';
+      dgs[i].classList.toggle('empty', !big);
+      if (animate && big) {
+        dgs[i].classList.remove('pop');
+        void dgs[i].offsetWidth;
+        dgs[i].classList.add('pop');
+      }
+    }
+    drawEq();
+  }
+
+  function drawEq() {
+    if (!big) {
+      eq.className = 'eq ph';
+      eq.textContent = 'Tap a number below ↓';
+      return;
+    }
+    if (!expanded) {
+      eq.className = 'eq ph';
+      eq.textContent = 'Tap the number ▾';
+      return;
+    }
+    eq.className = 'eq';
+    var parts = [big[0] * 1000, big[1] * 100, big[2] * 10, big[3]];
+    var html = '';
+    for (var i = 0; i < 4; i++) {
+      var s = String(parts[i]);
+      if (i === 0) s = s.charAt(0) + '\u00A0' + s.slice(1);   // 2 000
+      if (i > 0) html += '<i> + </i>';
+      html += '<b class="' + KEYS[i] + '">' + s + '</b>';
+    }
+    eq.innerHTML = html;
+  }
+
+  d('split').addEventListener('click', function () {
+    if (!big) return;
+    expanded = !expanded;
+    drawEq();
+    pop(expanded ? 700 : 420, .12);
+  });
+
+  /* ================= the five numbers below ================= */
+  var chipsEl = d('chips');
+  var chips = [];
+
+  function randomNum() {
+    var first = 1 + Math.floor(Math.random() * 9);
+    var used = {};
+    used[first] = 1;
+    var arr = [first];
+    while (arr.length < 4) {
+      var x = Math.floor(Math.random() * 10);
+      if (!used[x]) { used[x] = 1; arr.push(x); }
+    }
+    return arr;
+  }
+
+  function buildChips() {
+    chipsEl.innerHTML = '';
+    chips = [];
+    var list = [[2, 8, 7, 3]];               // the example from the lesson
+    for (var i = 0; i < 4; i++) list.push(randomNum());
+
+    for (var k = 0; k < list.length; k++) {
+      var num = list[k];
+      chips.push(num);
+      var b = document.createElement('div');
+      b.className = 'chip';
+      b.innerHTML = '<i class="th">' + num[0] + '</i><i class="h">' + num[1] +
+                    '</i><i class="t">' + num[2] + '</i><i class="o">' + num[3] + '</i>';
+      b.setAttribute('data-i', k);
+      b.addEventListener('click', onChip);
+      chipsEl.appendChild(b);
+    }
+  }
+
+  function onChip() {
+    var i = Number(this.getAttribute('data-i'));
+    var all = chipsEl.children;
+    for (var k = 0; k < all.length; k++) all[k].classList.remove('on');
+    this.classList.add('on');
+    big = chips[i].slice();
+    expanded = true;
+    drawBig(true);
+    pop(660, .1);
+  }
+
+  /* ================= questions ================= */
+  var ANSWERS = ['8543', '2579', '1', '6'];
+  var ansEls = [d('a1'), d('a2'), d('a3'), d('a4')];
+  var qEls = document.querySelectorAll('.q');
+
+  function clearMark(i) {
+    var mk = d('mk' + (i + 1));
+    mk.textContent = '';
+    mk.className = 'mk';
+    ansEls[i].classList.remove('ok', 'bad');
+  }
+
+  for (var j = 0; j < ansEls.length; j++) {
+    (function (idx) {
+      ansEls[idx].addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        clearMark(idx);
+      });
+      ansEls[idx].addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') check();
+      });
+    })(j);
+  }
+
+  // tapping all four digits puts the answer into that question's box
+  for (var qi = 0; qi < qEls.length; qi++) {
+    (function (i) {
+      var ds = qEls[i].querySelectorAll('.d');
+      for (var k = 0; k < ds.length; k++) {
+        ds[k].addEventListener('click', function () {
+          if (this.classList.contains('used')) return;
+          var box = ansEls[i];
+          var one = ANSWERS[i].length === 1;
+          if (one) {
+            box.value = this.getAttribute('data-d');
+          } else {
+            if (box.value.length >= 4) box.value = '';
+            box.value += this.getAttribute('data-d');
+          }
+          this.classList.add('used');
+          clearMark(i);
+          pop(600, .08);
+        });
+      }
+    })(qi);
+  }
+
+  function check() {
+    var right = 0;
+    for (var i = 0; i < 4; i++) {
+      var v = ansEls[i].value.replace(/\D/g, '');
+      var mk = d('mk' + (i + 1));
+      if (v === ANSWERS[i]) {
+        mk.textContent = '✓';
+        mk.className = 'mk ok';
+        ansEls[i].classList.add('ok');
+        ansEls[i].classList.remove('bad');
+        right++;
+      } else {
+        mk.textContent = '✗';
+        mk.className = 'mk bad';
+        ansEls[i].classList.add('bad');
+        ansEls[i].classList.remove('ok');
+      }
+    }
+    pop(right === 4 ? 880 : 380, right === 4 ? .4 : .16);
+  }
+
+  d('checkBtn').addEventListener('click', check);
+
+  // reset — clears answers and marks, and makes the digits usable again
+  function resetQ() {
+    for (var i = 0; i < 4; i++) {
+      ansEls[i].value = '';
+      clearMark(i);
+    }
+    var ds = document.querySelectorAll('.q .d');
+    for (var k = 0; k < ds.length; k++) ds[k].classList.remove('used');
+    pop(420, .15);
+  }
+
+  d('resetQ').addEventListener('click', resetQ);
+
+  /* ================= sound ================= */
+  var actx = null;
+  function pop(freq, vol) {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, actx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.5, actx.currentTime + .1);
+      g.gain.setValueAtTime(vol, actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, actx.currentTime + .2);
+      o.connect(g);
+      g.connect(actx.destination);
+      o.start();
+      o.stop(actx.currentTime + .22);
+    } catch (e) {}
+  }
+
+  /* ================= start ================= */
+  drawBig(false);
+  buildChips();
+</script>
+</body>
+</html>

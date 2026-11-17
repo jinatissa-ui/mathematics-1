@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     20 · Multiplying Whole Numbers — complete the table
+     ============================================================ */
+  .ttl { font-size: 25px; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    text-align: left;
+    text-transform: none;
+  }
+
+  /* ---------- header ---------- */
+  .cap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 376px;
+    margin: 9px auto 0;
+  }
+  .capT {
+    font-size: 15.5px;
+    font-weight: bold;
+    line-height: 1.25;
+    color: var(--teal);
+  }
+  .capN {
+    margin-left: auto;
+    padding: 2px 9px 3px;
+    border-radius: 999px;
+    background: #e7f6f1;
+    border: 1px solid #cfeadf;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.15;
+    color: var(--teal);
+  }
+  .capN.ok { color: #fff; background: var(--green); border-color: var(--green); }
+  .rst {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid #9fd6c4;
+    background: #fff;
+    color: var(--teal);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .rst:active { transform: scale(.94); background: #eaf7f2; }
+
+  /* ---------- 10 × 10 table ---------- */
+  .tbl {
+    display: grid;
+    grid-template-columns: repeat(10, 33px);
+    grid-auto-rows: 33px;
+    gap: 2px;
+    width: 362px;
+    margin: 8px auto 0;
+    padding: 6px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e6e0d2;
+    box-shadow: 0 4px 12px rgba(60, 80, 80, .10), inset 0 0 0 2px #fffdf8;
+  }
+  .cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 33px;
+    height: 33px;
+    border-radius: 6px;
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1;
+  }
+  .hc { background: #eef8f4; color: var(--teal); }
+  .corner { background: #ffe9c9; color: #b25a1d; font-size: 17px; }
+  .cb {
+    background: #fdfefd;
+    border: 1px solid #e4eee9;
+    font-size: 14.5px;
+    color: var(--green);
+    cursor: pointer;
+    transition: background .12s ease, border-color .12s ease;
+  }
+  .cb:hover { background: #fff8e3; border-color: #f0c24f; }
+  .cb.on {
+    background: #eefaf4;
+    border-color: #cfe9dd;
+    cursor: default;
+    animation: cellpop .28s ease;
+  }
+  .cb.on:hover { background: #eefaf4; border-color: #cfe9dd; }
+  @keyframes cellpop {
+    0% { transform: scale(.82); }
+    60% { transform: scale(1.07); }
+    100% { transform: scale(1); }
+  }
+
+  /* ---------- small tip that follows the mouse ---------- */
+  .tip {
+    position: absolute;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px 7px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #f0dfb9;
+    box-shadow: 0 8px 18px rgba(60, 80, 80, .18);
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--ink);
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .12s ease, transform .12s ease;
+    pointer-events: none;
+  }
+  .tip.on { opacity: 1; transform: translateY(0); }
+  .tip b { color: var(--teal); }
+  .tip b.p { color: var(--green); font-size: 16px; }
+
+  /* ---------- bottom bar ---------- */
+  .foot {
+    display: flex;
+    align-items: center;
+    width: 376px;
+    height: 34px;
+    margin: 8px auto 0;
+    padding: 0 12px;
+    border-radius: 10px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 14.5px;
+    font-weight: bold;
+    color: var(--muted);
+  }
+  .foot.ok { color: var(--green); background: #eaf9f2; border-color: #bfe8d8; }
+
+  /* ---------- when complete ---------- */
+  .party {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 20;
+  }
+  .party i {
+    position: absolute;
+    top: -16px;
+    display: block;
+    border-radius: 2px;
+    animation: pfall 1.7s cubic-bezier(.22, .55, .45, 1) forwards;
+  }
+  @keyframes pfall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateY(560px) rotate(640deg); opacity: 0; }
+  }
+  .cheer {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    z-index: 21;
+    padding: 10px 22px 12px;
+    border-radius: 16px;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 12px 30px rgba(8, 70, 54, .35);
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.5);
+    pointer-events: none;
+  }
+  .cheer b {
+    display: block;
+    font-family: Verdana, sans-serif;
+    font-size: 30px;
+    letter-spacing: .5px;
+  }
+  .cheer span { display: block; margin-top: 2px; font-size: 14px; font-weight: bold; }
+  .cheer.on { animation: cheerpop 1.8s ease forwards; }
+  @keyframes cheerpop {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.5); }
+    14% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+    24% { transform: translate(-50%, -50%) scale(1); }
+    76% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -54%) scale(.96); }
+  }
+</style>
+</head>
+<body class="en">
+  <div class="sheet" id="sheet">
+    <h2 class="ttl">Multiplying Whole Numbers</h2>
+    <div class="sub">MULTIPLICATION TABLE · 1–9</div>
+
+    <div class="cap">
+      <span class="capT">Complete the multiplication table</span>
+      <span class="capN" id="capN">0 / 81</span>
+      <button class="rst" id="rst" title="Reset">&#8635;</button>
+    </div>
+
+    <div class="tbl" id="tbl"></div>
+
+    <div class="foot" id="foot">Move the mouse over an empty box and click</div>
+
+    <div class="tip" id="tip"></div>
+    <div class="party" id="party"></div>
+    <div class="cheer" id="cheer"><b>81 / 81</b><span>Super!</span></div>
+  </div>
+
+<script>
+  /* ============================================================
+     1–9 × 1–9 table · 81 boxes · hovering shows the answer
+     ============================================================ */
+  var sheet = document.getElementById('sheet');
+  var tbl = document.getElementById('tbl');
+  var capN = document.getElementById('capN');
+  var foot = document.getElementById('foot');
+  var tip = document.getElementById('tip');
+  var partyEl = document.getElementById('party');
+  var cheerEl = document.getElementById('cheer');
+  var rst = document.getElementById('rst');
+
+  var total = 81, filled = 0;
+  var boxes = [];
+  var audioCtx = null;
+
+  function rnd(n) { return Math.floor(Math.random() * n); }
+
+  function pop(freq, vol) {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.4, audioCtx.currentTime + .1);
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .2);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + .22);
+    } catch (e) {}
+  }
+
+  function hc(txt, extra) {
+    var d = document.createElement('div');
+    d.className = 'cell hc ' + (extra || '');
+    d.textContent = txt;
+    tbl.appendChild(d);
+    return d;
+  }
+
+  function build() {
+    hc('\u00d7', 'corner');
+    for (var c = 1; c <= 9; c++) hc(c);
+
+    for (var r = 1; r <= 9; r++) {
+      hc(r);
+      for (var c2 = 1; c2 <= 9; c2++) {
+        var d = document.createElement('div');
+        d.className = 'cell cb';
+        d.dataset.r = r;
+        d.dataset.c = c2;
+        d.addEventListener('mouseenter', onEnter);
+        d.addEventListener('mouseleave', hideTip);
+        d.addEventListener('click', onFill);
+        tbl.appendChild(d);
+        boxes.push(d);
+      }
+    }
+  }
+
+  /* ---------- hovering shows “3 × 7 = 21” ---------- */
+  function onEnter(e) {
+    var cell = e.currentTarget;
+    if (cell.classList.contains('on')) return;
+    var r = +cell.dataset.r, c = +cell.dataset.c;
+    tip.innerHTML = '<b>' + r + '</b> \u00d7 <b>' + c + '</b> = <b class="p">' + (r * c) + '</b>';
+    tip.classList.add('on');
+
+    var sr = sheet.getBoundingClientRect();
+    var cr = cell.getBoundingClientRect();
+    var tw = tip.offsetWidth, th = tip.offsetHeight;
+    var left = cr.left - sr.left + cr.width / 2 - tw / 2;
+    left = Math.max(8, Math.min(left, sr.width - tw - 8));
+    var top;
+    if (r <= 2) top = cr.bottom - sr.top + 6;
+    else top = cr.top - sr.top - th - 6;
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+  }
+
+  function hideTip() { tip.classList.remove('on'); }
+
+  /* ---------- clicking writes the product ---------- */
+  function onFill(e) {
+    var cell = e.currentTarget;
+    if (cell.classList.contains('on')) return;
+    var r = +cell.dataset.r, c = +cell.dataset.c;
+    cell.textContent = r * c;
+    cell.classList.add('on');
+    filled++;
+    capN.textContent = filled + ' / ' + total;
+    hideTip();
+    pop(540 + (r + c) * 14, .05);
+    if (filled === total) finishAll();
+  }
+
+  /* ---------- all 81 boxes are filled ---------- */
+  function finishAll() {
+    foot.classList.add('ok');
+    foot.textContent = 'Complete! All 81 boxes are filled · Super!';
+    capN.classList.add('ok');
+    party();
+  }
+
+  function party() {
+    partyEl.innerHTML = '';
+    var cols = ['#ffcf3f', '#e0457b', '#0d8a64', '#2f8fd8', '#ff9b4a', '#8e6bd6'];
+    for (var i = 0; i < 26; i++) {
+      var s = document.createElement('i');
+      var w = 5 + rnd(5);
+      s.style.left = rnd(98) + '%';
+      s.style.width = w + 'px';
+      s.style.height = (w + 2) + 'px';
+      s.style.background = cols[rnd(cols.length)];
+      s.style.animationDelay = (rnd(30) / 100) + 's';
+      partyEl.appendChild(s);
+    }
+    setTimeout(function () { partyEl.innerHTML = ''; }, 2400);
+    cheerEl.classList.remove('on');
+    void cheerEl.offsetWidth;
+    cheerEl.classList.add('on');
+    pop(880, .12);
+    setTimeout(function () { pop(1100, .1); }, 170);
+    setTimeout(function () { pop(1320, .08); }, 340);
+  }
+
+  /* ---------- reset ---------- */
+  function resetAll() {
+    for (var i = 0; i < boxes.length; i++) {
+      boxes[i].textContent = '';
+      boxes[i].classList.remove('on');
+    }
+    filled = 0;
+    capN.textContent = '0 / ' + total;
+    capN.classList.remove('ok');
+    foot.classList.remove('ok');
+    foot.textContent = 'Move the mouse over an empty box and click';
+    hideTip();
+    partyEl.innerHTML = '';
+    cheerEl.classList.remove('on');
+  }
+
+  rst.addEventListener('click', resetAll);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') hideTip();
+  });
+
+  build();
+</script>
+</body>
+</html>

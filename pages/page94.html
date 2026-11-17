@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Dividing by 4 and 6</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     94 · Dividing by 4 and 6
+     (last 2 digits · 2 and 3 → 6)
+     ============================================================ */
+  .ttl { flex: none; font-size: 25px; line-height: 1.1; white-space: nowrap; }
+  .sub { flex: none; margin-top: 2px; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- top row ---------- */
+  .def {
+    flex: none;
+    margin-top: 8px;
+    padding: 6px 10px;
+    border-radius: 12px;
+    background: #fffdf4;
+    border: 1px solid #f2e6bd;
+    box-shadow: 0 4px 10px rgba(120, 100, 40, .05);
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 13.5px;
+    line-height: 1.32;
+    color: #6f6650;
+  }
+  .def .dot { flex: none; width: 7px; height: 7px; margin-top: 7px; border-radius: 50%; background: #f6c945; }
+  .def b { color: #8a5b00; }
+
+  /* ---------- sections ---------- */
+  .sec {
+    flex: none;
+    margin-top: 5px;
+    padding: 5px 10px 5px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 5px 12px rgba(30, 80, 80, .07);
+  }
+  .sh { display: flex; align-items: center; gap: 7px; min-height: 22px; }
+  .stag {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+  }
+  .stag.blue { background: #4b9be8; }
+  .stag.violet { background: #9c6ce5; }
+  .stitle { font-size: 14px; font-weight: bold; color: var(--teal); line-height: 1.25; }
+  .stitle em { font-style: normal; font-family: Verdana, sans-serif; }
+
+  /* ---------- rule rows ---------- */
+  .rline {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 1px 0;
+    font-size: 12.5px;
+    line-height: 1.28;
+    color: #6f6650;
+  }
+  .rline .lb {
+    flex: none;
+    margin-top: 1px;
+    padding: 0 4px;
+    height: 15px;
+    border-radius: 5px;
+    background: #f1f7f6;
+    border: 1px solid #dbeae8;
+    font-family: Verdana, sans-serif;
+    font-size: 10.5px;
+    font-weight: bold;
+    color: #0d6d74;
+    display: inline-flex;
+    align-items: center;
+  }
+  .rline b { color: #8a5b00; }
+  .rline .go { color: #0d8a64; font-weight: bold; }
+
+  /* ---------- example rows ---------- */
+  .xrow {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 0;
+    border: 0;
+    border-top: 1px dashed #eaf1ef;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+  }
+  .xrow:first-of-type { border-top: 0; }
+  .nfig {
+    flex: none;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c4c53;
+    white-space: nowrap;
+  }
+  .nfig .two {
+    display: inline-block;
+    padding: 0 3px;
+    border-radius: 6px;
+    background: #fff8de;
+    border: 1px solid #f2d27a;
+    color: #8a5b00;
+    transition: transform .15s ease;
+  }
+  .why {
+    font-size: 12px;
+    color: #7d8a87;
+    white-space: nowrap;
+  }
+  .why b { color: #0d8a64; font-family: Verdana, sans-serif; }
+  .nchip {
+    flex: none;
+    width: 46px;
+    height: 23px;
+    border-radius: 7px;
+    background: #fff8de;
+    border: 1px solid #f2d27a;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #8a5b00;
+  }
+  .ev { font-size: 12px; color: #7d8a87; white-space: nowrap; }
+  .ev b { font-family: Verdana, sans-serif; color: #3f5c5f; }
+  .chk {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    margin-left: 1px;
+    border-radius: 50%;
+    background: #effaf4;
+    border: 1px solid #b9e7d4;
+    color: #0d8a64;
+    font-family: Verdana, sans-serif;
+    font-size: 9px;
+    font-weight: bold;
+    vertical-align: -2px;
+    transition: transform .15s ease;
+  }
+  .divi {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: Verdana, sans-serif;
+    font-size: 12.5px;
+    font-weight: bold;
+    color: #0d8a64;
+    white-space: nowrap;
+  }
+  .dres {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 22px;
+    padding: 0 4px;
+    border-radius: 6px;
+    background: #effaf4;
+    border: 1px solid #b9e7d4;
+    color: #0d8a64;
+    font-size: 12.5px;
+    transition: transform .15s ease;
+  }
+  .tick {
+    flex: none;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: #0d8a64;
+    color: #fff;
+    font-family: Verdana, sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .note {
+    flex: none;
+    margin-top: 3px;
+    padding-left: 2px;
+    font-size: 12px;
+    line-height: 1.3;
+    color: var(--muted);
+  }
+  .note b { color: #0d6d74; }
+
+  /* ---------- extension ---------- */
+  .foot {
+    flex: none;
+    margin-top: 6px;
+    padding: 6px 10px;
+    border-radius: 12px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+    font-size: 12.5px;
+    line-height: 1.3;
+    color: #3f5c5f;
+    text-align: center;
+  }
+  .foot b { color: #0d8a64; font-family: Verdana, sans-serif; }
+
+  /* ---------- when tapped ---------- */
+  .nfig .two.lit, .chk.lit, .dres.lit { animation: lit .42s ease; }
+  @keyframes lit {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.35); }
+    100% { transform: scale(1); }
+  }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <div class="ttl">Dividing by 4 and 6</div>
+  <div class="sub">DIVISIBILITY · 4 &amp; 6</div>
+
+  <div class="def">
+    <span class="dot"></span>
+    <span>Look at the digits and decide quickly whether it divides.</span>
+  </div>
+
+  <div class="sec">
+    <div class="sh"><span class="stag blue">4</span><span class="stitle">Dividing by <em>4</em></span></div>
+    <div class="rline"><span class="lb">Last 2</span><span>Look only at the <b>last two digits</b> of the number.</span></div>
+    <div class="rline"><span class="lb">Rule</span><span>If those two digits divide by <b>4</b>, or are <b>00</b> <span class="go">→ divisible by 4</span></span></div>
+    <button class="xrow" type="button">
+      <span class="nfig">3<span class="two">16</span></span>
+      <span class="why"><b>16</b> ÷ 4 = <b>4</b></span>
+      <span class="divi">316 ÷ 4 = <span class="dres">79</span></span>
+      <span class="tick">✓</span>
+    </button>
+    <button class="xrow" type="button">
+      <span class="nfig">5<span class="two">32</span></span>
+      <span class="why"><b>32</b> ÷ 4 = <b>8</b></span>
+      <span class="divi">532 ÷ 4 = <span class="dres">133</span></span>
+      <span class="tick">✓</span>
+    </button>
+    <button class="xrow" type="button">
+      <span class="nfig">7<span class="two">00</span></span>
+      <span class="why">ends <b>00</b> → divides</span>
+      <span class="divi">700 ÷ 4 = <span class="dres">175</span></span>
+      <span class="tick">✓</span>
+    </button>
+    <div class="note">7<b>00</b>, 5<b>00</b>, 9<b>00</b> — if it ends in <b>00</b> it always divides by 4.</div>
+  </div>
+
+  <div class="sec">
+    <div class="sh"><span class="stag violet">6</span><span class="stitle">Dividing by <em>6</em></span></div>
+    <div class="rline"><span class="lb">By 2</span><span>Is the last digit <b>even</b> or <b>0</b>?</span></div>
+    <div class="rline"><span class="lb">By 3</span><span>Is the digit sum <b>3</b>, <b>6</b> or <b>9</b>?</span></div>
+    <div class="rline"><span class="lb">Rule</span><span>If it divides by both <b>2</b> and <b>3</b> <span class="go">→ divisible by 6</span></span></div>
+    <button class="xrow" type="button">
+      <span class="nchip">30</span>
+      <span class="ev">ends <b>0</b><span class="chk">✓</span></span>
+      <span class="ev"><b>3</b>+0=3<span class="chk">✓</span></span>
+      <span class="divi">30 ÷ 6 = <span class="dres">5</span></span>
+      <span class="tick">✓</span>
+    </button>
+    <button class="xrow" type="button">
+      <span class="nchip">42</span>
+      <span class="ev">ends <b>2</b><span class="chk">✓</span></span>
+      <span class="ev"><b>4</b>+2=6<span class="chk">✓</span></span>
+      <span class="divi">42 ÷ 6 = <span class="dres">7</span></span>
+      <span class="tick">✓</span>
+    </button>
+    <button class="xrow" type="button">
+      <span class="nchip">54</span>
+      <span class="ev">ends <b>4</b><span class="chk">✓</span></span>
+      <span class="ev"><b>5</b>+4=9<span class="chk">✓</span></span>
+      <span class="divi">54 ÷ 6 = <span class="dres">9</span></span>
+      <span class="tick">✓</span>
+    </button>
+    <div class="note">It must divide by both — one alone is not enough.</div>
+  </div>
+
+  <div class="foot"><b>4</b> → last 2 digits &nbsp;·&nbsp; <b>6</b> → <b>2</b> and <b>3</b></div>
+
+</div>
+
+<script>
+(function () {
+  var rows = Array.prototype.slice.call(document.querySelectorAll('.xrow'));
+
+  function play(row) {
+    var seq = Array.prototype.slice.call(row.querySelectorAll('.two, .chk, .dres'));
+    seq.forEach(function (el) { el.classList.remove('lit'); });
+    void row.offsetWidth;
+    var run = row.dataset.run = (parseInt(row.dataset.run || '0', 10) + 1);
+    seq.forEach(function (el, i) {
+      setTimeout(function () {
+        if (row.dataset.run !== String(run)) return;
+        el.classList.add('lit');
+      }, i * 150);
+    });
+  }
+
+  rows.forEach(function (row) {
+    row.addEventListener('click', function () { play(row); });
+  });
+})();
+</script>
+</body>
+</html>

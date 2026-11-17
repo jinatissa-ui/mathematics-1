@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     35 · Comparing integers — pick two ticks and see the < / > sign
+     ============================================================ */
+  .ttl { font-size: 24px; line-height: 1.2; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 12.5px;
+    line-height: 1.2;
+    letter-spacing: 2.2px;
+    text-align: left;
+  }
+  .intro {
+    margin-top: 5px;
+    font-size: 14.5px;
+    line-height: 1.25;
+    color: var(--ink-soft);
+  }
+
+  .live {
+    position: relative;
+    margin-top: 8px;
+    padding: 8px 9px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #fdfffe, #f5fcf8);
+    border: 1px solid #d9eee7;
+    box-shadow: 0 3px 9px rgba(30, 80, 80, .06);
+  }
+  .clsvg {
+    display: block;
+    width: 356px;
+    height: 124px;
+    margin: 0 auto;
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .axl { stroke: #8b9ba0; stroke-width: 1.8; stroke-linecap: round; }
+  .arw {
+    fill: none;
+    stroke: #8b9ba0;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .tk {
+    stroke: #b9c5c9;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    transition: stroke .15s ease;
+  }
+  .tnum {
+    font-family: Verdana, sans-serif;
+    font-size: 12.5px;
+    fill: #7d8e94;
+    transition: fill .15s ease;
+  }
+  .hit { fill: transparent; cursor: pointer; }
+  .thit:hover .tk { stroke: #0d8a64; }
+  .thit:hover .tnum { fill: #0d8a64; }
+
+  .ma, .mb { opacity: 0; pointer-events: none; }
+  .ma.show, .mb.show { opacity: 1; }
+  .dota { fill: #d99a12; stroke: #ffffff; }
+  .dotb { fill: #2f6fa8; stroke: #ffffff; }
+  .ringb { display: none; fill: none; stroke: #2f6fa8; stroke-width: 2.4; }
+  .mb.eq .ringb { display: block; }
+  .mb.eq .dotb, .mb.eq .tb { display: none; }
+  .ta { font-family: Verdana, sans-serif; font-size: 12.5px; font-weight: bold; fill: #b57c06; }
+  .tb { font-family: Verdana, sans-serif; font-size: 12.5px; font-weight: bold; fill: #2f6fa8; }
+  .ma.in .dota { animation: cdrop .34s cubic-bezier(.3, 1.3, .5, 1); }
+  .mb.in .dotb, .mb.in .ringb { animation: cdrop .34s cubic-bezier(.3, 1.3, .5, 1); }
+  @keyframes cdrop {
+    0%   { transform: translateY(-14px); }
+    100% { transform: none; }
+  }
+
+  .rst {
+    position: absolute;
+    top: 5px;
+    right: 7px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid #d5e8e2;
+    background: #ffffff;
+    color: #0d6d74;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .rst:active { transform: translateY(1px); }
+
+  .eq {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+    height: 40px;
+    margin-top: 1px;
+    font-family: Verdana, sans-serif;
+    font-size: 32px;
+    font-weight: bold;
+    line-height: 1;
+  }
+  .eq span { color: #b6c3c7; }
+  .eq .ea.on { color: #b57c06; }
+  .eq .eb.on { color: #2f6fa8; }
+  .eq .es.on { color: #0d8a64; font-size: 30px; }
+  .ecap {
+    height: 18px;
+    margin-top: 2px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.25;
+    color: var(--muted);
+  }
+
+  .tips {
+    margin-top: 8px;
+    padding: 7px 10px;
+    border-radius: 13px;
+    background: #ffffff;
+    border: 1px solid #e3ecef;
+    box-shadow: 0 3px 9px rgba(30, 80, 80, .05);
+  }
+  .trow2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 56px;
+  }
+  .trow2 + .trow2 { border-top: 1px dashed #e2ecef; }
+  .dir {
+    flex: 0 0 28px;
+    height: 28px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+  }
+  .dir.g { background: #e9f7f1; color: #0d8a64; }
+  .dir.b { background: #eaf1fa; color: #2f6fa8; }
+  .htxt { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .h1 { display: block; font-size: 15.5px; line-height: 1.2; color: var(--ink); }
+  .h1 b { color: var(--green); }
+  .h1 .bl { color: #2f6fa8; }
+  .h2 {
+    display: block;
+    margin-top: 0;
+    font-family: Verdana, sans-serif;
+    font-size: 13px;
+    line-height: 1.2;
+    color: var(--muted);
+  }
+
+  .sym {
+    margin-top: 8px;
+    padding: 7px 11px 8px;
+    border-radius: 11px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 14.5px;
+    line-height: 1.35;
+    color: var(--ink-soft);
+  }
+  .sym b { color: var(--teal); }
+  .sym .op {
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--green);
+  }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Comparing Integers</h2>
+    <div class="sub">COMPARING INTEGERS</div>
+    <p class="intro">Click two ticks to compare two numbers.</p>
+
+    <div class="live">
+      <button type="button" class="rst" id="rst" aria-label="Reset">↺</button>
+      <svg class="clsvg" id="cl" viewBox="0 0 356 124" aria-label="Number line from -5 to 5">
+        <line class="axl" x1="28" y1="54" x2="328" y2="54"/>
+        <path class="arw" d="M328 48.5 L336 54 L328 59.5"/>
+        <g id="cax"></g>
+        <g class="ma" id="ma">
+          <circle class="dota" cx="0" cy="0" r="6" stroke-width="2"/>
+          <text class="ta" x="0" y="-22" text-anchor="middle">0</text>
+        </g>
+        <g class="mb" id="mb">
+          <circle class="dotb" cx="0" cy="0" r="6" stroke-width="2"/>
+          <circle class="ringb" cx="0" cy="0" r="10"/>
+          <text class="tb" x="0" y="-22" text-anchor="middle">0</text>
+        </g>
+      </svg>
+
+      <div class="eq" id="eq">
+        <span class="ea" id="ea">?</span>
+        <span class="es" id="es">?</span>
+        <span class="eb" id="eb">?</span>
+      </div>
+      <div class="ecap" id="ecap">Click two ticks.</div>
+    </div>
+
+    <div class="tips">
+      <div class="trow2">
+        <span class="dir g">→</span>
+        <span class="htxt">
+          <span class="h1">Moving right, the value <b>increases</b>.</span>
+          <span class="h2">E.g. -2 &lt; 3</span>
+        </span>
+      </div>
+      <div class="trow2">
+        <span class="dir b">←</span>
+        <span class="htxt">
+          <span class="h1">Moving left, the value <span class="bl">decreases</span>.</span>
+          <span class="h2">E.g. 3 &gt; -2</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="sym">
+      In <b class="op">&lt;</b> and <b class="op">&gt;</b> the <b>open side</b> faces the larger number. If they are equal, write <b class="op">=</b>.
+    </div>
+  </div>
+
+<script>
+  var NS = 'http://www.w3.org/2000/svg';
+  var X0 = 40, STEP = 26, GY = 54;
+
+  /*
+    ★ change the examples here ★
+    the two examples on the tips card (.h2 in the HTML).
+  */
+
+  (function () {
+    var ax = document.getElementById('cax');
+    var ma = document.getElementById('ma');
+    var mb = document.getElementById('mb');
+    var ta = ma.querySelector('.ta');
+    var tb = mb.querySelector('.tb');
+    var ea = document.getElementById('ea');
+    var es = document.getElementById('es');
+    var eb = document.getElementById('eb');
+    var cap = document.getElementById('ecap');
+    var picks = [];
+    var tA = null, tB = null;
+
+    function place(g, x, timerName) {
+      g.style.transform = 'translate(' + x + 'px,' + GY + 'px)';
+      g.classList.add('show');
+      g.classList.remove('in');
+      void g.getBoundingClientRect();
+      g.classList.add('in');
+      if (timerName === 'a') {
+        if (tA) clearTimeout(tA);
+        tA = setTimeout(function () { ma.classList.remove('in'); }, 420);
+      } else {
+        if (tB) clearTimeout(tB);
+        tB = setTimeout(function () { mb.classList.remove('in'); }, 420);
+      }
+    }
+
+    function resetEq() {
+      ea.textContent = '?'; ea.className = 'ea';
+      es.textContent = '?'; es.className = 'es';
+      eb.textContent = '?'; eb.className = 'eb';
+      cap.textContent = 'Click two ticks.';
+    }
+
+    function clearAll() {
+      picks = [];
+      ma.classList.remove('show', 'in');
+      mb.classList.remove('show', 'in', 'eq');
+      resetEq();
+    }
+
+    function choose(v, x) {
+      if (picks.length === 2) {
+        picks = [];
+        mb.classList.remove('show', 'in', 'eq');
+        resetEq();
+      }
+      picks.push({ v: v, x: x });
+
+      if (picks.length === 1) {
+        ta.textContent = v;
+        place(ma, x, 'a');
+        ea.textContent = v; ea.className = 'ea on';
+        cap.textContent = 'Click one more tick.';
+        return;
+      }
+
+      var a = picks[0], b = picks[1];
+      place(mb, x, 'b');
+      tb.textContent = b.v;
+
+      ea.textContent = a.v; ea.className = 'ea on';
+      eb.textContent = b.v; eb.className = 'eb on';
+
+      if (a.v === b.v) {
+        mb.classList.add('eq');
+        es.textContent = '='; es.className = 'es on';
+        cap.textContent = 'The two numbers are equal.';
+      } else if (a.v < b.v) {
+        es.textContent = '<'; es.className = 'es on';
+        cap.textContent = a.v + ' is less than ' + b.v + '.';
+      } else {
+        es.textContent = '>'; es.className = 'es on';
+        cap.textContent = a.v + ' is greater than ' + b.v + '.';
+      }
+    }
+
+    for (var i = 0; i <= 10; i++) {
+      (function (idx) {
+        var x = X0 + idx * STEP;
+        var v = idx - 5;
+
+        var g = document.createElementNS(NS, 'g');
+        g.setAttribute('class', 'thit');
+
+        var tick = document.createElementNS(NS, 'line');
+        tick.setAttribute('class', 'tk');
+        tick.setAttribute('x1', x);
+        tick.setAttribute('y1', 40);
+        tick.setAttribute('x2', x);
+        tick.setAttribute('y2', 68);
+        g.appendChild(tick);
+
+        var lbl = document.createElementNS(NS, 'text');
+        lbl.setAttribute('class', 'tnum');
+        lbl.setAttribute('x', x);
+        lbl.setAttribute('y', 94);
+        lbl.setAttribute('text-anchor', 'middle');
+        lbl.textContent = v;
+        g.appendChild(lbl);
+
+        var hit = document.createElementNS(NS, 'rect');
+        hit.setAttribute('class', 'hit');
+        hit.setAttribute('x', x - 12);
+        hit.setAttribute('y', 26);
+        hit.setAttribute('width', 24);
+        hit.setAttribute('height', 72);
+        g.appendChild(hit);
+        ax.appendChild(g);
+
+        hit.addEventListener('click', function () { choose(v, x); });
+      })(i);
+    }
+
+    document.getElementById('rst').addEventListener('click', clearAll);
+
+    resetEq();
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Number Patterns</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     104 · Number Patterns
+     (5 buttons · continuously falling numbers · pattern change)
+     ============================================================ */
+  .ttl { flex: none; font-size: 25px; line-height: 1.1; white-space: nowrap; }
+  .sub { flex: none; margin-top: 2px; font-size: 13px; letter-spacing: 1.8px; }
+
+  /* ---------- instruction ---------- */
+  .instr {
+    flex: none;
+    margin-top: 7px;
+    padding: 5px 10px;
+    border-radius: 11px;
+    background: #fffdf4;
+    border: 1px solid #f2e6bd;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: #6f6650;
+    min-height: 34px;
+    box-sizing: border-box;
+  }
+  .instr .ib {
+    flex: none;
+    height: 19px;
+    padding: 0 7px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    background: #0d6d74;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+  }
+
+  /* ---------- pattern buttons ---------- */
+  .tabs { flex: none; display: flex; gap: 4px; margin-top: 6px; }
+  .tab {
+    flex: 1;
+    min-width: 0;
+    height: 54px;
+    padding: 5px 2px 4px;
+    border-radius: 10px;
+    border: 1px solid #e2ebe9;
+    border-top: 3px solid var(--c);
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(30, 70, 70, .05);
+  }
+  .tab b {
+    font-size: 11.5px;
+    font-weight: bold;
+    color: #4f6462;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  .tab em {
+    font-style: normal;
+    font-family: Verdana, sans-serif;
+    font-size: 9px;
+    color: #a3b1ae;
+    white-space: nowrap;
+  }
+  .tab:active { transform: translateY(1px); }
+  .tab:focus { outline: none; }
+  .tab:focus-visible { outline: 2px solid #4b9be8; outline-offset: 1px; }
+  .tab.cnt { --c: #0d6d74; --bg: #eef9f6; --bd: #bfe4d8; --ink: #0d6d74; }
+  .tab.odd { --c: #e8a020; --bg: #fff8e6; --bd: #f0d795; --ink: #a8720a; }
+  .tab.even { --c: #0d8a64; --bg: #effaf4; --bd: #b9e7d4; --ink: #0d8a64; }
+  .tab.sq { --c: #4b9be8; --bg: #eff6fd; --bd: #b9d7f2; --ink: #2f7fd0; }
+  .tab.tri { --c: #9c6ce5; --bg: #f5f0fd; --bd: #d8c8f4; --ink: #7c4fc4; }
+  .tab.on { background: var(--bg); border-color: var(--bd); border-top-color: var(--c); }
+  .tab.on b { color: var(--ink); }
+  .tab.on em { color: var(--ink); opacity: .7; }
+
+  /* ---------- falling-numbers box ---------- */
+  .stream {
+    flex: none;
+    margin-top: 6px;
+    padding: 8px 9px 9px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 5px 12px rgba(30, 80, 80, .07);
+  }
+  .bh { display: flex; align-items: center; gap: 6px; height: 26px; }
+  .bname {
+    flex: 1;
+    min-width: 0;
+    font-size: 13.5px;
+    font-weight: bold;
+    color: #6f7f7c;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .live {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 19px;
+    padding: 0 7px;
+    border-radius: 10px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+    font-size: 9.5px;
+    font-weight: bold;
+    color: #0d8a64;
+  }
+  .live i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #0d8a64;
+    animation: blip 1.2s ease-in-out infinite;
+  }
+  @keyframes blip {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .35; transform: scale(.65); }
+  }
+  .live.off { visibility: hidden; }
+  .hbtn {
+    flex: none;
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    border-radius: 8px;
+    border: 1px solid #dcebe7;
+    background: linear-gradient(180deg, #fff, #f4fbf8);
+    font-family: Verdana, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    color: #4f6462;
+    cursor: pointer;
+  }
+  .hbtn:active { transform: translateY(1px); background: #e9f7f1; }
+  .hbtn:focus { outline: none; }
+  .hbtn:focus-visible { outline: 2px solid #4b9be8; outline-offset: 1px; }
+  .hbtn.off { visibility: hidden; }
+
+  .grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 42px;
+    gap: 5px;
+    margin-top: 5px;
+    height: 230px;
+    align-content: flex-start;
+  }
+  .empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: 1.5px dashed #e0ebe8;
+    background: #fbfdfc;
+    font-size: 12.5px;
+    color: #9aaba7;
+    text-align: center;
+    line-height: 1.6;
+  }
+  .tile {
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    background: #f7fbfa;
+    border: 1px solid #e2ebe9;
+    color: #3f5c5f;
+  }
+  .tile.k-cnt { background: #eef9f6; border-color: #bfe4d8; color: #0d6d74; }
+  .tile.k-odd { background: #fff8e6; border-color: #f0d795; color: #a8720a; }
+  .tile.k-even { background: #effaf4; border-color: #b9e7d4; color: #0d8a64; }
+  .tile.k-sq { background: #eff6fd; border-color: #b9d7f2; color: #2f7fd0; }
+  .tile.k-tri { background: #f5f0fd; border-color: #d8c8f4; color: #7c4fc4; }
+  .tile.drop { animation: fall .38s cubic-bezier(.2, 1.25, .5, 1); }
+  @keyframes fall {
+    0% { opacity: 0; transform: translateY(-16px) scale(.82); }
+    65% { opacity: 1; }
+    100% { opacity: 1; transform: none; }
+  }
+
+  .stream[data-k="cnt"] .bname { color: #0d6d74; }
+  .stream[data-k="odd"] .bname { color: #a8720a; }
+  .stream[data-k="even"] .bname { color: #0d8a64; }
+  .stream[data-k="sq"] .bname { color: #2f7fd0; }
+  .stream[data-k="tri"] .bname { color: #7c4fc4; }
+
+  /* ---------- pattern rule ---------- */
+  .rulecard {
+    flex: none;
+    margin-top: 6px;
+    padding: 6px 10px;
+    border-radius: 11px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 44px;
+    box-sizing: border-box;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: #4f6462;
+  }
+  .rulecard .rb {
+    flex: none;
+    height: 17px;
+    padding: 0 6px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    background: #0d8a64;
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: bold;
+  }
+  .rulecard b { font-family: Verdana, sans-serif; }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <div class="ttl">Number Patterns</div>
+  <div class="sub">NUMBER PATTERNS</div>
+
+  <div class="instr">
+    <span class="ib">Pattern</span>
+    <span>Tap a pattern. Numbers keep dropping into the box.</span>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab cnt" type="button" data-k="cnt"><b>Counting</b><em>1,2,3…</em></button>
+    <button class="tab odd" type="button" data-k="odd"><b>Odd</b><em>1,3,5…</em></button>
+    <button class="tab even" type="button" data-k="even"><b>Even</b><em>0,2,4…</em></button>
+    <button class="tab sq" type="button" data-k="sq"><b>Square</b><em>1,4,9…</em></button>
+    <button class="tab tri" type="button" data-k="tri"><b>Triangular</b><em>1,3,6…</em></button>
+  </div>
+
+  <div class="stream" id="box">
+    <div class="bh">
+      <span class="bname" id="bname">Choose a pattern</span>
+      <span class="live off" id="live"><i></i>Live</span>
+      <button class="hbtn off" id="pz" type="button" title="Pause">II</button>
+      <button class="hbtn" id="rst" type="button" title="Reset">↻</button>
+    </div>
+    <div class="grid" id="nums">
+      <div class="empty" id="empty">Tap one of the pattern buttons above.<br>Numbers keep dropping here.</div>
+    </div>
+  </div>
+
+  <div class="rulecard" id="rule">
+    <span class="rb">Pattern</span>
+    <span id="rtext">Choose a pattern and see its numbers.</span>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var P = {
+    cnt: {
+      name: 'Counting numbers',
+      seq: function (n) { return n; },
+      rule: '1, 2, 3, 4, 5 … add <b>1</b> each time.'
+    },
+    odd: {
+      name: 'Odd numbers',
+      seq: function (n) { return 2 * n - 1; },
+      rule: '1, 3, 5, 7 … add <b>2</b> each time.'
+    },
+    even: {
+      name: 'Even numbers',
+      seq: function (n) { return 2 * (n - 1); },
+      rule: '0, 2, 4, 6 … add <b>2</b> each time.'
+    },
+    sq: {
+      name: 'Square numbers',
+      seq: function (n) { return n * n; },
+      rule: '1, 4, 9, 16 … the difference grows <b>3, 5, 7, 9</b> …'
+    },
+    tri: {
+      name: 'Triangular numbers',
+      seq: function (n) { return n * (n + 1) / 2; },
+      rule: '1, 3, 6, 10 … the difference grows <b>2, 3, 4, 5</b> …'
+    }
+  };
+
+  var MAX = 30;
+  var box = document.getElementById('box');
+  var nums = document.getElementById('nums');
+  var bname = document.getElementById('bname');
+  var live = document.getElementById('live');
+  var pz = document.getElementById('pz');
+  var rst = document.getElementById('rst');
+  var rtext = document.getElementById('rtext');
+  var tabs = document.getElementById('tabs');
+
+  var cur = null;
+  var idx = 0;
+  var timer = null;
+  var paused = false;
+
+  function clearTimer() {
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  function startTimer() {
+    clearTimer();
+    timer = setInterval(tick, 780);
+  }
+
+  function tick() {
+    if (!cur) return;
+    idx += 1;
+    add(P[cur].seq(idx));
+  }
+
+  function add(v) {
+    var t = document.createElement('span');
+    t.className = 'tile k-' + cur + ' drop';
+    t.textContent = v;
+    nums.appendChild(t);
+    while (nums.children.length > MAX) {
+      nums.removeChild(nums.firstChild);
+    }
+    setTimeout(function () { t.classList.remove('drop'); }, 420);
+  }
+
+  function markTab(k) {
+    Array.prototype.forEach.call(tabs.children, function (b) {
+      b.classList.toggle('on', b.dataset.k === k);
+    });
+  }
+
+  function start(k) {
+    cur = k;
+    idx = 0;
+    paused = false;
+    clearTimer();
+    nums.innerHTML = '';
+    box.dataset.k = k;
+    bname.textContent = P[k].name;
+    rtext.innerHTML = P[k].rule;
+    live.classList.remove('off');
+    pz.classList.remove('off');
+    pz.textContent = 'II';
+    markTab(k);
+    add(P[k].seq(1));
+    idx = 1;
+    startTimer();
+  }
+
+  tabs.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.tab') : null;
+    if (b) start(b.dataset.k);
+  });
+
+  rst.addEventListener('click', function () {
+    if (cur) start(cur);
+  });
+
+  pz.addEventListener('click', function () {
+    if (!cur) return;
+    paused = !paused;
+    if (paused) {
+      clearTimer();
+      pz.textContent = '▶';
+      live.classList.add('off');
+    } else {
+      startTimer();
+      pz.textContent = 'II';
+      live.classList.remove('off');
+    }
+  });
+})();
+</script>
+</body>
+</html>

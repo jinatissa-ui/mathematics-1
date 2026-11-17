@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     30 · Number Line — four measuring tools in turn
+     ============================================================ */
+  .ttl { font-size: 26px; line-height: 1.2; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 13.5px;
+    line-height: 1.2;
+    letter-spacing: 2.5px;
+    text-align: left;
+  }
+  .intro {
+    margin-top: 5px;
+    font-size: 14.5px;
+    line-height: 1.3;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- animation stage ---------- */
+  .stage {
+    position: relative;
+    width: 376px;
+    margin-top: 8px;
+    padding: 6px 8px 6px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #fffdf8, #fdfaf1);
+    border: 1px solid #e8e1d0;
+    box-shadow: 0 4px 12px rgba(60, 80, 80, .09), inset 0 0 0 3px #fffdf8;
+  }
+  .stag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 22px;
+    padding: 0 3px;
+  }
+  .stag-n {
+    flex: 0 0 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff2c9;
+    color: #a8730c;
+    font: bold 10.5px/18px Verdana, sans-serif;
+    text-align: center;
+  }
+  .stag b {
+    font-size: 12.5px;
+    line-height: 1;
+    color: var(--teal);
+    white-space: nowrap;
+  }
+  .stag i {
+    flex: 1;
+    min-width: 0;
+    font-style: normal;
+    font-size: 10.5px;
+    line-height: 1;
+    color: #9a948a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tabs { display: flex; gap: 4px; flex: 0 0 auto; }
+  .tab {
+    width: 19px;
+    height: 19px;
+    padding: 0;
+    border: 1px solid #e0d8c6;
+    border-radius: 50%;
+    background: #fff;
+    color: #9a948a;
+    font: bold 10px/1 Verdana, sans-serif;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab.on {
+    background: var(--gold);
+    border-color: #e6b52e;
+    color: #7a5200;
+  }
+
+  .scenes {
+    position: relative;
+    width: 360px;
+    height: 166px;
+    margin: 3px auto 0;
+  }
+  .scenes svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 360px;
+    height: 166px;
+    opacity: 0;
+    transition: opacity .35s ease;
+    pointer-events: none;
+  }
+  .scenes svg.on { opacity: 1; }
+
+  /* ---------- 1 · thermometer ---------- */
+  #merc { transition: transform .6s cubic-bezier(.4, 0, .2, 1); }
+  .tl {
+    font-family: Verdana, sans-serif;
+    font-size: 12px;
+    fill: #8b9ba0;
+    transition: fill .18s ease;
+  }
+  .tl.neg { fill: #4a86b8; }
+  .tl.pos { fill: #c98a6e; }
+  .tl.on { fill: #d2413c; font-weight: bold; }
+
+  /* ---------- 2 · ruler ---------- */
+  #drawLine { transition: stroke-dashoffset .32s ease; }
+  #pencil { transition: transform .32s ease, opacity .25s ease; }
+
+  /* ---------- 3 · measuring jug ---------- */
+  #water { transition: transform .55s cubic-bezier(.4, 0, .2, 1); transform-origin: 238px 154px; }
+  #wave  { transition: transform .55s cubic-bezier(.4, 0, .2, 1); }
+  .bm {
+    font-family: Verdana, sans-serif;
+    font-size: 10.5px;
+    fill: #7fa5b8;
+    transition: fill .2s ease;
+  }
+  .bm.on { fill: #1f7fae; font-weight: bold; }
+
+  /* ---------- 4 · spring balance ---------- */
+  #spring {
+    transform-origin: 106px 26px;
+    transition: transform .5s cubic-bezier(.4, 0, .2, 1);
+  }
+  #ptr, #pan, #wstack {
+    transition: transform .5s cubic-bezier(.4, 0, .2, 1);
+  }
+  #rod {
+    transform-origin: 110px 106px;
+    transition: transform .5s cubic-bezier(.4, 0, .2, 1);
+  }
+  .wg { transition: opacity .25s ease, transform .25s ease; }
+  .chip { transition: fill .2s ease, stroke .2s ease; }
+  .chip.on { fill: #ffcf3f; stroke: #d9a417; }
+
+  /* ---------- learning goals ---------- */
+  .goals {
+    margin-top: 8px;
+    padding: 5px 10px 6px;
+    border-radius: 13px;
+    background: #fff;
+    border: 1px solid #e4eee8;
+    box-shadow: 0 3px 8px rgba(30, 80, 80, .06);
+  }
+  .goals-t {
+    margin: 0 2px 3px;
+    font-size: 15px;
+    line-height: 1.25;
+    color: var(--green);
+    font-weight: bold;
+  }
+  .goal {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    height: 20px;
+  }
+  .gn {
+    flex: 0 0 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: var(--bg);
+    color: var(--c);
+    font: bold 10px/17px Verdana, sans-serif;
+    text-align: center;
+  }
+  .gt {
+    font-size: 14.5px;
+    line-height: 1.2;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+
+  .nline {
+    margin-top: 6px;
+    padding: 4px 10px 5px;
+    border-radius: 11px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 13px;
+    line-height: 1.3;
+    color: var(--ink-soft);
+  }
+  .nline b { color: var(--teal); }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">3. Number Line</h2>
+    <div class="sub">NUMBER LINE</div>
+    <p class="intro">Watch the four measuring tools one after another.</p>
+
+    <div class="stage">
+      <div class="stag">
+        <span class="stag-n" id="stagN">1</span>
+        <b id="stagName">Thermometer</b>
+        <i id="stagSub">Mercury rises · falls</i>
+        <div class="tabs">
+          <button class="tab on" data-s="0">1</button>
+          <button class="tab" data-s="1">2</button>
+          <button class="tab" data-s="2">3</button>
+          <button class="tab" data-s="3">4</button>
+        </div>
+      </div>
+
+      <div class="scenes">
+        <!-- ================= 1 · thermometer ================= -->
+        <svg id="sc1" class="scene on" viewBox="0 0 360 166" aria-label="Thermometer">
+          <defs>
+            <clipPath id="tubeClip"><rect x="104" y="18" width="12" height="124" rx="6"/></clipPath>
+          </defs>
+          <rect x="96" y="8" width="28" height="128" rx="14" fill="#fffdfa" stroke="#d7dfe2" stroke-width="2"/>
+          <g clip-path="url(#tubeClip)">
+            <rect id="merc" x="104" y="18" width="12" height="124" fill="#e2574c"
+                  style="transform-origin:110px 142px;transform:scaleY(.13)"/>
+          </g>
+          <circle cx="110" cy="142" r="14" fill="#e2574c" stroke="#c7473d" stroke-width="1.5"/>
+          <circle cx="106" cy="138" r="4" fill="#ff9b8f" opacity=".65"/>
+
+          <g stroke="#a9b8bc" stroke-width="1.1">
+            <line x1="124" y1="126" x2="132" y2="126"/>
+            <line x1="124" y1="109" x2="132" y2="109"/>
+            <line x1="124" y1="92"  x2="134" y2="92"/>
+            <line x1="124" y1="75"  x2="132" y2="75"/>
+            <line x1="124" y1="58"  x2="132" y2="58"/>
+            <line x1="124" y1="41"  x2="132" y2="41"/>
+            <line x1="124" y1="24"  x2="132" y2="24"/>
+          </g>
+          <text class="tl neg" data-v="-20" x="137" y="130">-20</text>
+          <text class="tl neg" data-v="-10" x="137" y="113">-10</text>
+          <text class="tl"     data-v="0"   x="137" y="96">0</text>
+          <text class="tl pos" data-v="10"  x="137" y="79">10</text>
+          <text class="tl pos" data-v="20"  x="137" y="62">20</text>
+          <text class="tl pos" data-v="30"  x="137" y="45">30</text>
+          <text class="tl pos" data-v="40"  x="137" y="28">40</text>
+          <text x="160" y="16" font-size="10.5" fill="#9a948a">°C</text>
+
+          <rect x="192" y="30" width="152" height="100" rx="15" fill="#fff6ef" stroke="#f3d9ca"/>
+          <text x="268" y="50" text-anchor="middle" font-size="12.5" fill="#a2735e">Mercury level</text>
+          <text id="tval" x="268" y="90" text-anchor="middle" font-family="Verdana, sans-serif"
+                font-size="34" font-weight="bold" fill="#c7473d">-20 °C</text>
+          <text id="tcap" x="268" y="112" text-anchor="middle" font-size="11.5" fill="#a2735e">Below 0 · negative numbers</text>
+        </svg>
+
+        <!-- ================= 2 · ruler ================= -->
+        <svg id="sc2" class="scene" viewBox="0 0 360 166" aria-label="Ruler">
+          <rect x="8" y="2" width="136" height="34" rx="17" fill="#fff8e8" stroke="#efd59a"/>
+          <text id="rlen" x="76" y="26" text-anchor="middle" font-family="Verdana, sans-serif"
+                font-size="19" font-weight="bold" fill="#b7791f">0 cm</text>
+          <!-- ruler strip -->
+          <rect x="30" y="54" width="314" height="52" rx="6" fill="#ffe9b6" stroke="#d9ad57" stroke-width="1.5"/>
+          <rect x="30" y="54" width="314" height="7" rx="3" fill="#f8d98f"/>
+          <g stroke="#a97f34" stroke-width="1.3">
+            <line x1="54"  y1="54" x2="54"  y2="72"/>
+            <line x1="100" y1="54" x2="100" y2="72"/>
+            <line x1="146" y1="54" x2="146" y2="72"/>
+            <line x1="192" y1="54" x2="192" y2="72"/>
+            <line x1="238" y1="54" x2="238" y2="72"/>
+            <line x1="284" y1="54" x2="284" y2="72"/>
+            <line x1="330" y1="54" x2="330" y2="72"/>
+          </g>
+          <g stroke="#c39a4c" stroke-width="1">
+            <line x1="77"  y1="54" x2="77"  y2="63"/>
+            <line x1="123" y1="54" x2="123" y2="63"/>
+            <line x1="169" y1="54" x2="169" y2="63"/>
+            <line x1="215" y1="54" x2="215" y2="63"/>
+            <line x1="261" y1="54" x2="261" y2="63"/>
+            <line x1="307" y1="54" x2="307" y2="63"/>
+          </g>
+          <g font-family="Verdana, sans-serif" font-size="11.5" fill="#8a6420" text-anchor="middle">
+            <text x="54"  y="96">0</text>
+            <text x="100" y="96">1</text>
+            <text x="146" y="96">2</text>
+            <text x="192" y="96">3</text>
+            <text x="238" y="96">4</text>
+            <text x="284" y="96">5</text>
+            <text x="330" y="96">6</text>
+          </g>
+
+          <!-- the line being drawn -->
+          <line id="drawLine" x1="54" y1="46" x2="330" y2="46" stroke="#0d8d7e" stroke-width="3.5"
+                stroke-linecap="round" stroke-dasharray="276" stroke-dashoffset="276"/>
+          <circle cx="54" cy="46" r="2.6" fill="#0d8d7e"/>
+
+          <!-- pencil -->
+          <g id="pencil" transform="translate(54,46) rotate(-58)" opacity="0">
+            <polygon points="0,0 8,-3 8,3" fill="#f2c79b" stroke="#c99a68" stroke-width=".8"/>
+            <polygon points="0,0 3.4,-1.2 3.4,1.2" fill="#4a3b33"/>
+            <rect x="8" y="-3.2" width="18" height="6.4" fill="#ffcf3f" stroke="#d9a417" stroke-width=".8"/>
+            <rect x="26" y="-3.2" width="5" height="6.4" rx="1.4" fill="#e58aa8" stroke="#c96e8c" stroke-width=".6"/>
+          </g>
+
+          <text x="30" y="124" font-size="11" fill="#9a948a">Measure from 0 · one box = 1 cm</text>
+        </svg>
+
+        <!-- ================= 3 · measuring jug ================= -->
+        <svg id="sc3" class="scene" viewBox="0 0 360 166" aria-label="Measuring jug">
+          <defs>
+            <clipPath id="bclip">
+              <path d="M192 32 L284 32 L284 150 Q284 156 278 156 L198 156 Q192 156 192 150 Z"/>
+            </clipPath>
+          </defs>
+
+          <rect x="6" y="34" width="150" height="92" rx="15" fill="#eff8fd" stroke="#cfe6f4"/>
+          <text x="81" y="52" text-anchor="middle" font-size="12.5" fill="#4b87a8">Water level</text>
+          <text id="bval" x="68" y="92" text-anchor="middle" font-family="Verdana, sans-serif"
+                font-size="30" font-weight="bold" fill="#1f7fae">0</text>
+          <text x="122" y="90" font-size="13" fill="#4b87a8">mL</text>
+          <text x="81" y="114" text-anchor="middle" font-size="11" fill="#7fa5b8">Jug scale</text>
+
+          <g clip-path="url(#bclip)">
+            <rect id="water" x="190" y="32" width="96" height="122" fill="#74c6e8" opacity=".9"
+                  style="transform:scaleY(0)"/>
+            <ellipse id="wave" cx="238" cy="154" rx="47" ry="4" fill="#a4def5"
+                     style="transform:translateY(0)"/>
+          </g>
+          <path d="M190 28 L286 28 L286 150 Q286 158 278 158 L198 158 Q190 158 190 150 Z"
+                fill="none" stroke="#8fc4e0" stroke-width="2.2"/>
+          <path d="M190 28 q-9 -3 -12 5 q9 3 12 -1" fill="#dff2fb" stroke="#8fc4e0" stroke-width="1.6"/>
+          <ellipse cx="238" cy="28" rx="48" ry="5.5" fill="none" stroke="#8fc4e0" stroke-width="1.8" opacity=".7"/>
+
+          <g stroke="#7fb6d2" stroke-width="1.2">
+            <line x1="286" y1="132" x2="296" y2="132"/>
+            <line x1="286" y1="110" x2="296" y2="110"/>
+            <line x1="286" y1="80"  x2="296" y2="80"/>
+            <line x1="286" y1="32"  x2="296" y2="32"/>
+          </g>
+          <text class="bm" data-v="100"  x="299" y="136">100</text>
+          <text class="bm" data-v="250"  x="299" y="114">250</text>
+          <text class="bm" data-v="500"  x="299" y="84">500</text>
+          <text class="bm" data-v="1000" x="299" y="36">1 000</text>
+          <text x="299" y="18" font-size="10" fill="#9a948a">mL</text>
+        </svg>
+
+        <!-- ================= 4 · spring balance ================= -->
+        <svg id="sc4" class="scene" viewBox="0 0 360 166" aria-label="Spring balance">
+          <rect x="48" y="2" width="116" height="8" rx="4" fill="#b9834f"/>
+          <rect x="101" y="10" width="10" height="8" rx="2" fill="#8a5a36"/>
+
+          <rect x="74" y="18" width="72" height="88" rx="11" fill="#fff8ea" stroke="#e2c48c" stroke-width="1.8"/>
+          <rect x="86" y="26" width="40" height="74" rx="7" fill="#f4fafb" stroke="#d5e3e6" stroke-width="1.2"/>
+          <path id="spring" d="M106 26 L114 29 L98 32 L114 35 L98 38 L114 41 L98 44 L114 47 L106 50"
+                fill="none" stroke="#8a98a0" stroke-width="2" stroke-linejoin="round"
+                stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+          <line id="ptr" x1="86" y1="50" x2="126" y2="50" stroke="#e2574c" stroke-width="2.2"/>
+
+          <g stroke="#c9a86a" stroke-width="1">
+            <line x1="126" y1="50"  x2="132" y2="50"/>
+            <line x1="126" y1="60"  x2="132" y2="60"/>
+            <line x1="126" y1="70"  x2="132" y2="70"/>
+            <line x1="126" y1="80"  x2="132" y2="80"/>
+            <line x1="126" y1="90"  x2="132" y2="90"/>
+            <line x1="126" y1="100" x2="132" y2="100"/>
+          </g>
+          <g font-family="Verdana, sans-serif" font-size="8.5" fill="#a98a4f">
+            <text x="134" y="53">0</text>
+            <text x="134" y="63">1</text>
+            <text x="134" y="73">2</text>
+            <text x="134" y="83">3</text>
+            <text x="134" y="93">4</text>
+            <text x="134" y="103">5</text>
+          </g>
+
+          <rect id="rod" x="108.5" y="106" width="3" height="20" fill="#9aa8ad"/>
+          <ellipse id="pan" cx="110" cy="126" rx="26" ry="4.5" fill="#a7b4ba" stroke="#7f8f96" stroke-width="1.2"/>
+          <g id="wstack" transform="translate(0,126)">
+            <rect class="wg" x="92" y="-7"  width="36" height="6.5" rx="2" fill="#6fa9c9" stroke="#4f8dae" stroke-width=".8" opacity="0"/>
+            <rect class="wg" x="92" y="-14" width="36" height="6.5" rx="2" fill="#6fa9c9" stroke="#4f8dae" stroke-width=".8" opacity="0"/>
+            <rect class="wg" x="92" y="-21" width="36" height="6.5" rx="2" fill="#6fa9c9" stroke="#4f8dae" stroke-width=".8" opacity="0"/>
+            <rect class="wg" x="92" y="-28" width="36" height="6.5" rx="2" fill="#6fa9c9" stroke="#4f8dae" stroke-width=".8" opacity="0"/>
+            <rect class="wg" x="92" y="-35" width="36" height="6.5" rx="2" fill="#6fa9c9" stroke="#4f8dae" stroke-width=".8" opacity="0"/>
+          </g>
+
+          <rect x="178" y="18" width="174" height="122" rx="15" fill="#fbf7ec" stroke="#e8dcc0"/>
+          <text x="265" y="38" text-anchor="middle" font-size="12.5" fill="#9a7b45">Total weight</text>
+          <text id="wval" x="265" y="70" text-anchor="middle" font-family="Verdana, sans-serif"
+                font-size="28" font-weight="bold" fill="#b7791f">0 kg</text>
+
+          <g stroke="#d9c79a" fill="#fffdf7">
+            <rect class="chip" x="193" y="86" width="24" height="20" rx="5"/>
+            <rect class="chip" x="222" y="86" width="24" height="20" rx="5"/>
+            <rect class="chip" x="251" y="86" width="24" height="20" rx="5"/>
+            <rect class="chip" x="280" y="86" width="24" height="20" rx="5"/>
+            <rect class="chip" x="309" y="86" width="24" height="20" rx="5"/>
+          </g>
+          <g font-family="Verdana, sans-serif" font-size="10.5" font-weight="bold" fill="#a98a4f" text-anchor="middle">
+            <text x="205" y="100">1</text>
+            <text x="234" y="100">2</text>
+            <text x="263" y="100">3</text>
+            <text x="292" y="100">4</text>
+            <text x="321" y="100">5</text>
+          </g>
+          <text x="265" y="127" text-anchor="middle" font-size="11" fill="#9a7b45">1 kilogram each</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="goals">
+      <div class="goals-t">In this lesson you will learn</div>
+      <div class="goal" style="--c:#0d6d74;--bg:#e4f5f3"><span class="gn">1</span><span class="gt">Identifying the number line</span></div>
+      <div class="goal" style="--c:#1a6aa8;--bg:#e7f2fc"><span class="gn">2</span><span class="gt">Identifying negative numbers</span></div>
+      <div class="goal" style="--c:#7b3fbe;--bg:#f2eafd"><span class="gn">3</span><span class="gt">Identifying integers</span></div>
+      <div class="goal" style="--c:#0d8a64;--bg:#e7f8f0"><span class="gn">4</span><span class="gt">Practising marking integers on the line</span></div>
+      <div class="goal" style="--c:#c0671e;--bg:#fff3e4"><span class="gn">5</span><span class="gt">Comparing integers</span></div>
+      <div class="goal" style="--c:#c22e5d;--bg:#fdeaf1"><span class="gn">6</span><span class="gt">Finding integers between two integers</span></div>
+    </div>
+
+    <div class="nline">
+      A line with marks at equal gaps is a <b>number line</b>. Positive to the right of 0, negative to the left.
+    </div>
+  </div>
+
+<script>
+  /* ============================================================
+     Measuring instruments 4 — animations that take turns
+     ============================================================ */
+  var NAMES = [
+    ['Thermometer', 'Mercury rises · falls'],
+    ['Ruler', 'Draw a line along the edge'],
+    ['Beaker', 'The water level rises'],
+    ['Spring balance', 'Pulls down when a weight is added']
+  ];
+
+  var scenes = [
+    document.getElementById('sc1'),
+    document.getElementById('sc2'),
+    document.getElementById('sc3'),
+    document.getElementById('sc4')
+  ];
+  var tabs = document.querySelectorAll('.tab');
+  var stagN = document.getElementById('stagN');
+  var stagName = document.getElementById('stagName');
+  var stagSub = document.getElementById('stagSub');
+
+  /* ---------- thermometer ---------- */
+  var merc = document.getElementById('merc');
+  var tval = document.getElementById('tval');
+  var tcap = document.getElementById('tcap');
+  var tls = document.querySelectorAll('#sc1 .tl');
+
+  function setTemp(v) {
+    var y = 126 - (v + 20) * 1.7;
+    var k = (142 - y) / 124;
+    merc.style.transform = 'scaleY(' + k.toFixed(3) + ')';
+    tval.textContent = v + ' °C';
+    tval.setAttribute('fill', v < 0 ? '#2f6fa8' : (v === 0 ? '#0d6d74' : '#c7473d'));
+    tcap.textContent = v < 0 ? 'Below 0 · negative numbers'
+                    : (v === 0 ? 'Midpoint · 0' : 'Above 0 · positive numbers');
+    for (var i = 0; i < tls.length; i++) {
+      tls[i].classList.toggle('on', Number(tls[i].getAttribute('data-v')) === v);
+    }
+  }
+
+  /* ---------- ruler ---------- */
+  var drawLine = document.getElementById('drawLine');
+  var pencil = document.getElementById('pencil');
+  var rlen = document.getElementById('rlen');
+
+  function setLen(n) {
+    drawLine.style.strokeDashoffset = String(276 - 46 * n);
+    pencil.setAttribute('transform', 'translate(' + (54 + 46 * n) + ',46) rotate(-58)');
+    pencil.style.opacity = n > 0 ? '1' : '0';
+    rlen.textContent = n + ' cm';
+  }
+
+  /* ---------- beaker ---------- */
+  var water = document.getElementById('water');
+  var wave = document.getElementById('wave');
+  var bval = document.getElementById('bval');
+  var bms = document.querySelectorAll('#sc3 .bm');
+
+  function setWater(v) {
+    /* 100 → 22, 250 → 44, 500 → 74, 1000 → 122 */
+    var h = v === 100 ? 22 : (v === 250 ? 44 : (v === 500 ? 74 : (v === 1000 ? 122 : 0)));
+    water.style.transform = 'scaleY(' + (h / 122).toFixed(4) + ')';
+    wave.style.transform = 'translateY(' + (-h) + 'px)';
+    wave.style.opacity = h > 0 ? '1' : '0';
+    bval.textContent = v >= 1000 ? '1 000' : String(v);
+    for (var i = 0; i < bms.length; i++) {
+      bms[i].classList.toggle('on', Number(bms[i].getAttribute('data-v')) === v);
+    }
+  }
+
+  /* ---------- spring balance ---------- */
+  var spring = document.getElementById('spring');
+  var ptr = document.getElementById('ptr');
+  var rod = document.getElementById('rod');
+  var pan = document.getElementById('pan');
+  var wstack = document.getElementById('wstack');
+  var wval = document.getElementById('wval');
+  var wgs = document.querySelectorAll('#sc4 .wg');
+  var chips = document.querySelectorAll('#sc4 .chip');
+
+  function setWeight(kg) {
+    var h = 24 + kg * 10;
+    spring.style.transform = 'scaleY(' + (h / 24).toFixed(3) + ')';
+    ptr.style.transform = 'translateY(' + (h - 24) + 'px)';
+
+    var shift = kg * 4.8;
+    pan.style.transform = 'translateY(' + shift + 'px)';
+    rod.style.transform = 'scaleY(' + ((20 + shift) / 20).toFixed(3) + ')';
+    wstack.style.transform = 'translate(0,' + (126 + shift) + 'px)';
+
+    for (var i = 0; i < wgs.length; i++) {
+      wgs[i].style.opacity = i < kg ? '1' : '0';
+    }
+    for (var j = 0; j < chips.length; j++) {
+      chips[j].classList.toggle('on', j < kg);
+    }
+    wval.textContent = kg + ' kg';
+  }
+
+  /* ---------- shared animation engine ---------- */
+  var timers = [];
+
+  function later(ms, fn) { timers.push(setTimeout(fn, ms)); }
+
+  function clearTimers() {
+    timers.forEach(clearTimeout);
+    timers = [];
+  }
+
+  function resetAll() {
+    setTemp(-20);
+    setLen(0);
+    setWater(0);
+    setWeight(0);
+  }
+
+  function show(i) {
+    clearTimers();
+    resetAll();
+
+    for (var s = 0; s < scenes.length; s++) {
+      scenes[s].classList.toggle('on', s === i);
+      tabs[s].classList.toggle('on', s === i);
+    }
+    stagN.textContent = i + 1;
+    stagName.textContent = NAMES[i][0];
+    stagSub.textContent = NAMES[i][1];
+
+    var t = 300;
+    if (i === 0) {
+      var temps = [-20, -10, 0, 10, 20, 30, 40, 30, 20, 10, 0, -10];
+      for (var a = 0; a < temps.length; a++) {
+        later(t + a * 680, (function (v) {
+          return function () { setTemp(v); };
+        })(temps[a]));
+      }
+      later(t + temps.length * 680 + 900, function () { show(1); });
+    } else if (i === 1) {
+      for (var b = 1; b <= 6; b++) {
+        later(t + (b - 1) * 640, (function (n) {
+          return function () { setLen(n); };
+        })(b));
+      }
+      later(t + 6 * 640 + 900, function () { show(2); });
+    } else if (i === 2) {
+      var levs = [100, 250, 500, 1000];
+      for (var c = 0; c < levs.length; c++) {
+        later(t + c * 780, (function (v) {
+          return function () { setWater(v); };
+        })(levs[c]));
+      }
+      later(t + levs.length * 780 + 950, function () { show(3); });
+    } else {
+      for (var d = 1; d <= 5; d++) {
+        later(t + (d - 1) * 760, (function (kg) {
+          return function () { setWeight(kg); };
+        })(d));
+      }
+      later(t + 5 * 760 + 950, function () { show(0); });
+    }
+  }
+
+  for (var k = 0; k < tabs.length; k++) {
+    tabs[k].addEventListener('click', function () {
+      show(Number(this.getAttribute('data-s')));
+    });
+  }
+
+  show(0);
+</script>
+</body>
+</html>

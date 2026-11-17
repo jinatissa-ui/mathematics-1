@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ===== the 5 types of angles ===== */
+  .kinds {
+    margin-top: 7px;
+    padding: 2px 9px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #d5eee6;
+    box-shadow: 0 3px 9px rgba(30, 80, 80, .06);
+  }
+  .krow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+  }
+  .krow + .krow { border-top: 1px dashed #e4f0ec; }
+  .kico { flex: 0 0 40px; height: 40px; }
+  .kinfo { flex: 1; min-width: 0; }
+  .kname {
+    font-size: 15.5px;
+    font-weight: bold;
+    line-height: 1.15;
+    color: #0d6d74;
+  }
+  .keng {
+    margin-left: 4px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: .2px;
+    color: #9a8f88;
+  }
+  .kdesc {
+    margin-top: 1px;
+    font-size: 14px;
+    line-height: 1.2;
+    color: #5b7480;
+  }
+  .krow.acute    .kname { color: #2f6fa8; }
+  .krow.right    .kname { color: #0d8a64; }
+  .krow.obtuse   .kname { color: #b25a13; }
+  .krow.straight .kname { color: #6a35b8; }
+  .krow.reflex   .kname { color: #c1267b; }
+
+  /* ===== where an angle is made ===== */
+  .mk {
+    margin-top: 8px;
+    padding: 7px 9px 8px;
+    border-radius: 14px;
+    background: linear-gradient(160deg, #fffdf7 0%, #f2fbf7 100%);
+    border: 1px solid #d5eee6;
+    box-shadow: inset 0 1px 0 #fff, 0 3px 9px rgba(30, 80, 80, .06);
+  }
+  .mkhead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .mkhead span {
+    font-size: 14px;
+    color: #8b9ba0;
+  }
+  .mkhead button {
+    flex: 0 0 auto;
+    height: 26px;
+    padding: 0 11px;
+    border: 0;
+    border-radius: 999px;
+    background: #0d6d74;
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(13, 109, 116, .28);
+  }
+  .mkhead button:active { transform: translateY(1px); }
+  .mkbody {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+  }
+  #stage {
+    flex: 0 0 180px;
+    width: 180px;
+    height: 168px;
+    touch-action: none;
+    cursor: default;
+  }
+  #stage .grab { cursor: grab; }
+  #stage .grab.drag { cursor: grabbing; }
+  .kside {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .klab { font-size: 14px; color: #8b9ba0; }
+  .ktarget {
+    display: inline-block;
+    align-self: flex-start;
+    margin-top: 2px;
+    padding: 2px 9px 3px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    white-space: nowrap;
+    background: #e9f8f2;
+    color: #0d8a64;
+  }
+  .ktarget.acute    { background: #eaf3fc; color: #2f6fa8; }
+  .ktarget.right    { background: #e9f8f2; color: #0d8a64; }
+  .ktarget.obtuse   { background: #fff3e2; color: #b25a13; }
+  .ktarget.straight { background: #f2edfc; color: #6a35b8; }
+  .ktarget.reflex   { background: #fdebf2; color: #c1267b; }
+  .kfeed {
+    min-height: 56px;
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.3;
+    color: #8b9ba0;
+  }
+  .kfeed b { font-size: 15px; }
+  .kfeed.ok { color: #0d8a64; font-weight: bold; }
+  .kfeed.no { color: #b25a13; font-weight: bold; }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <h2 class="ttl">Types of Angles</h2>
+  <div class="sub">TYPES OF ANGLES</div>
+
+  <div class="kinds">
+    <div class="krow acute">
+      <svg class="kico" width="40" height="40" viewBox="0 0 40 40">
+        <line x1="17" y1="25" x2="31" y2="25" stroke="#33454c" stroke-width="2.4" stroke-linecap="round"/>
+        <line x1="17" y1="25" x2="26.9" y2="15.1" stroke="#0d6d74" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M24 25 A7 7 0 0 0 21.95 20.05" fill="none" stroke="#e0454a" stroke-width="1.8"/>
+        <circle cx="17" cy="25" r="1.6" fill="#33454c"/>
+      </svg>
+      <div class="kinfo">
+        <div class="kname">Acute angle<span class="keng">UNDER 90°</span></div>
+        <div class="kdesc">Smaller than a right angle</div>
+      </div>
+    </div>
+
+    <div class="krow right">
+      <svg class="kico" width="40" height="40" viewBox="0 0 40 40">
+        <line x1="17" y1="25" x2="31" y2="25" stroke="#33454c" stroke-width="2.4" stroke-linecap="round"/>
+        <line x1="17" y1="25" x2="17" y2="11" stroke="#0d6d74" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M24 25 A7 7 0 0 0 17 18" fill="none" stroke="#e0454a" stroke-width="1.8"/>
+        <circle cx="17" cy="25" r="1.6" fill="#33454c"/>
+      </svg>
+      <div class="kinfo">
+        <div class="kname">Right angle<span class="keng">EXACTLY 90°</span></div>
+        <div class="kdesc">Exactly 90°</div>
+      </div>
+    </div>
+
+    <div class="krow obtuse">
+      <svg class="kico" width="40" height="40" viewBox="0 0 40 40">
+        <line x1="17" y1="25" x2="31" y2="25" stroke="#33454c" stroke-width="2.4" stroke-linecap="round"/>
+        <line x1="17" y1="25" x2="8" y2="14.3" stroke="#0d6d74" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M24 25 A7 7 0 0 0 12.5 19.64" fill="none" stroke="#e0454a" stroke-width="1.8"/>
+        <circle cx="17" cy="25" r="1.6" fill="#33454c"/>
+      </svg>
+      <div class="kinfo">
+        <div class="kname">Obtuse angle<span class="keng">90° TO 180°</span></div>
+        <div class="kdesc">More than a right angle · less than two</div>
+      </div>
+    </div>
+
+    <div class="krow straight">
+      <svg class="kico" width="40" height="40" viewBox="0 0 40 40">
+        <line x1="17" y1="25" x2="31" y2="25" stroke="#33454c" stroke-width="2.4" stroke-linecap="round"/>
+        <line x1="17" y1="25" x2="3" y2="25" stroke="#0d6d74" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M24 25 A7 7 0 0 0 10 25" fill="none" stroke="#e0454a" stroke-width="1.8"/>
+        <circle cx="17" cy="25" r="1.6" fill="#33454c"/>
+      </svg>
+      <div class="kinfo">
+        <div class="kname">Straight angle<span class="keng">180°</span></div>
+        <div class="kdesc">The size of two right angles</div>
+      </div>
+    </div>
+
+    <div class="krow reflex">
+      <svg class="kico" width="40" height="40" viewBox="0 0 40 40">
+        <line x1="17" y1="25" x2="31" y2="25" stroke="#33454c" stroke-width="2.4" stroke-linecap="round"/>
+        <line x1="17" y1="25" x2="12.2" y2="38.2" stroke="#0d6d74" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M24 25 A7 7 0 1 0 14.6 31.6" fill="none" stroke="#e0454a" stroke-width="1.8"/>
+        <circle cx="17" cy="25" r="1.6" fill="#33454c"/>
+      </svg>
+      <div class="kinfo">
+        <div class="kname">Reflex angle<span class="keng">OVER 180°</span></div>
+        <div class="kdesc">More than two right angles</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- where you make an angle and check it -->
+  <div class="mk">
+    <div class="mkhead">
+      <span>Drag the arm to turn it</span>
+      <button id="rnd">Random angle</button>
+    </div>
+    <div class="mkbody">
+      <svg id="stage" width="180" height="168" viewBox="0 0 180 168">
+        <!-- small arrow showing the direction of turn -->
+        <g id="khint">
+          <path d="M121.6 78.7 A38 38 0 0 0 101.8 50.4"
+                fill="none" stroke="#d7a92e" stroke-width="2"
+                stroke-dasharray="4 4" stroke-linecap="round"/>
+          <path d="M0 0 L-9 4 L-9 -4 Z" fill="#d7a92e"
+                transform="translate(101.8 50.4) rotate(-152)"/>
+        </g>
+        <!-- the fixed arm -->
+        <line x1="84" y1="84" x2="154" y2="84"
+              stroke="#33454c" stroke-width="4" stroke-linecap="round"/>
+        <!-- angle arc -->
+        <path id="karc" d="" fill="none" stroke="#e0454a"
+              stroke-width="2.6" stroke-linecap="round" opacity="0"/>
+        <!-- the turning arm -->
+        <g id="marm" class="grab" pointer-events="all">
+          <line x1="84" y1="84" x2="154" y2="84"
+                stroke="rgba(0,0,0,0)" stroke-width="18" stroke-linecap="round"/>
+          <line x1="84" y1="84" x2="154" y2="84"
+                stroke="#0d6d74" stroke-width="4.5" stroke-linecap="round"/>
+          <circle cx="154" cy="84" r="7" fill="#ffcf3f" stroke="#b57c06" stroke-width="2"/>
+          <circle cx="154" cy="84" r="2" fill="#b57c06"/>
+        </g>
+        <circle cx="84" cy="84" r="3.8" fill="#33454c"/>
+        <circle cx="84" cy="84" r="1.6" fill="#fff"/>
+      </svg>
+
+      <div class="kside">
+        <div class="klab">Make</div>
+        <div class="ktarget" id="ktarget">Obtuse angle</div>
+        <div class="kfeed" id="kfeed">Turn the arm and let go.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var VX = 84, VY = 84, AR = 24;
+  var stage  = document.getElementById('stage'),
+      arm    = document.getElementById('marm'),
+      arc    = document.getElementById('karc'),
+      hint   = document.getElementById('khint'),
+      target = document.getElementById('ktarget'),
+      feed   = document.getElementById('kfeed'),
+      rnd    = document.getElementById('rnd');
+
+  var TYPES = [
+    { k: 'acute',    name: 'Acute angle' },
+    { k: 'right',    name: 'Right angle' },
+    { k: 'obtuse',   name: 'Obtuse angle' },
+    { k: 'straight', name: 'Straight angle' },
+    { k: 'reflex',   name: 'Reflex angle' }
+  ];
+  var ti = Math.floor(Math.random() * TYPES.length);
+  var th = 0, dragging = false;
+
+  function setAngle(t) {
+    th = t;
+    arm.setAttribute('transform', 'rotate(' + (-t).toFixed(2) + ' ' + VX + ' ' + VY + ')');
+    if (t < 0.8) {
+      arc.setAttribute('opacity', '0');
+      return;
+    }
+    var r = t * Math.PI / 180;
+    var ex = VX + AR * Math.cos(r), ey = VY - AR * Math.sin(r);
+    arc.setAttribute('d', 'M ' + (VX + AR) + ' ' + VY +
+      ' A ' + AR + ' ' + AR + ' 0 ' + (t > 180 ? 1 : 0) + ' 0 ' +
+      ex.toFixed(2) + ' ' + ey.toFixed(2));
+    arc.setAttribute('opacity', '1');
+  }
+
+  function kindOf(t) {
+    if (t < 6) return null;
+    if (t < 84) return 'acute';
+    if (t <= 96) return 'right';
+    if (t < 174) return 'obtuse';
+    if (t <= 186) return 'straight';
+    return 'reflex';
+  }
+
+  function byKey(k) {
+    for (var i = 0; i < TYPES.length; i++) {
+      if (TYPES[i].k === k) return TYPES[i];
+    }
+    return null;
+  }
+
+  function showTarget() {
+    var t = TYPES[ti];
+    target.textContent = t.name;
+    target.className = 'ktarget ' + t.k;
+  }
+
+  function resetForNew() {
+    setAngle(0);
+    feed.className = 'kfeed';
+    feed.textContent = 'Turn the arm and let go.';
+    hint.setAttribute('opacity', '1');
+  }
+
+  function check() {
+    var k = kindOf(th);
+    if (!k) {
+      feed.className = 'kfeed';
+      feed.textContent = 'Drag the arm to turn it.';
+      hint.setAttribute('opacity', '1');
+      return;
+    }
+    var made = byKey(k);
+    var good = (k === TYPES[ti].k);
+    feed.className = 'kfeed ' + (good ? 'ok' : 'no');
+    feed.innerHTML = '<b>' + (good ? '✓' : '✗') + '</b> ' +
+      (good ? 'Correct! ' : 'Wrong! ') + 'This is ' + (/^[aeiou]/i.test(made.name) ? 'an ' : 'a ') + made.name.toLowerCase() + '.' +
+      (good ? '' : ' Turn it again.');
+  }
+
+  function pointerAngle(e) {
+    var r = stage.getBoundingClientRect();
+    var px = (e.clientX - r.left) * (180 / r.width);
+    var py = (e.clientY - r.top) * (168 / r.height);
+    var t = Math.atan2(VY - py, px - VX) * 180 / Math.PI;
+    return t < 0 ? t + 360 : t;
+  }
+
+  arm.addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    dragging = true;
+    arm.classList.add('drag');
+    hint.setAttribute('opacity', '0');
+    feed.className = 'kfeed';
+    feed.textContent = 'Turn the arm and let go.';
+    try { stage.setPointerCapture(e.pointerId); } catch (_) {}
+    setAngle(pointerAngle(e));
+  });
+
+  stage.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    setAngle(pointerAngle(e));
+  });
+
+  function release(e) {
+    if (!dragging) return;
+    dragging = false;
+    arm.classList.remove('drag');
+    setAngle(pointerAngle(e));
+    check();
+  }
+  stage.addEventListener('pointerup', release);
+  stage.addEventListener('pointercancel', function () {
+    if (!dragging) return;
+    dragging = false;
+    arm.classList.remove('drag');
+    check();
+  });
+
+  rnd.addEventListener('click', function () {
+    var n;
+    do { n = Math.floor(Math.random() * TYPES.length); } while (n === ti);
+    ti = n;
+    showTarget();
+    resetForNew();
+  });
+
+  showTarget();
+  setAngle(0);
+})();
+</script>
+</body>
+</html>

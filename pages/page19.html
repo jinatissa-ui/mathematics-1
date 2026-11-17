@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     19 · Subtraction Practice 2 — write four answers and check
+     ============================================================ */
+  .ttl { font-size: 25px; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    text-align: left;
+    text-transform: none;
+  }
+
+  /* ---------- question cards ---------- */
+  .qcard {
+    position: relative;
+    margin-top: 11px;
+    padding: 13px 12px 14px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #e6e0d2;
+    box-shadow: 0 2px 6px rgba(60, 80, 80, .05);
+  }
+  .qrow {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .qn {
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ffe9c9;
+    color: #b25a1d;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 20px;
+    text-align: center;
+  }
+  .eq {
+    font-family: Verdana, "Iskoola Pota", sans-serif;
+    font-size: 17px;
+    line-height: 1.3;
+    letter-spacing: .2px;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+
+  /* ---------- answer box ---------- */
+  .ansbox {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex: none;
+    min-width: 76px;
+    height: 32px;
+    margin-left: 2px;
+    padding: 0 8px;
+    border-radius: 7px;
+    background: #f5fcf9;
+    border: 1.5px solid #a9d6c6;
+    box-shadow: inset 0 1px 2px rgba(20, 70, 60, .05);
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--green);
+    cursor: pointer;
+  }
+  .ansbox.act {
+    background: #fffdf5;
+    border-color: #f0c24f;
+    box-shadow: inset 0 0 0 2px #ffcf3f;
+  }
+  .ansbox.act::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 50%;
+    width: 2px;
+    height: 19px;
+    transform: translateY(-50%);
+    background: #0d8a64;
+    animation: caretblink .9s steps(1) infinite;
+  }
+  @keyframes caretblink { 50% { opacity: 0; } }
+  .mk {
+    flex: 0 0 16px;
+    width: 16px;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    line-height: 1;
+    text-align: center;
+  }
+  .mk.ok { color: var(--green); }
+  .mk.no { color: #d64545; }
+
+  /* ---------- digit buttons ---------- */
+  .pad {
+    display: flex;
+    gap: 3px;
+    width: 376px;
+    margin: 11px auto 0;
+  }
+  .pad button {
+    flex: 1;
+    height: 36px;
+    border-radius: 8px;
+    border: 1.5px solid #d9e9e3;
+    background: #fff;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--ink);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pad button:active { background: #eaf7f2; transform: scale(.97); }
+  .pad .bksp { border-color: #f0d3b6; background: #fff6ec; color: #bf6427; font-size: 16px; }
+
+  /* ---------- result bar ---------- */
+  .resbar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 376px;
+    height: 34px;
+    margin: 9px auto 0;
+    padding: 0 12px;
+    border-radius: 10px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--teal);
+    text-align: left;
+  }
+  .resbar.ok { color: var(--green); background: #eaf9f2; border-color: #bfe8d8; }
+  .resbar.no { color: #c9483f; background: #fdf1ef; border-color: #f4d3cf; }
+  .resbar.barpop { animation: barpop .8s ease; }
+  @keyframes barpop {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.05); }
+    60% { transform: scale(.985); }
+    100% { transform: scale(1); }
+  }
+
+  /* ---------- 100% celebration ---------- */
+  .party {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 30;
+  }
+  .party i {
+    position: absolute;
+    top: -16px;
+    display: block;
+    border-radius: 2px;
+    animation: pfall 1.7s cubic-bezier(.22, .55, .45, 1) forwards;
+  }
+  @keyframes pfall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateY(560px) rotate(640deg); opacity: 0; }
+  }
+  .cheer {
+    position: absolute;
+    left: 50%;
+    top: 44%;
+    transform: translate(-50%, -50%) scale(.5);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 31;
+    padding: 9px 22px 11px;
+    border-radius: 16px;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 12px 30px rgba(8, 70, 54, .35);
+  }
+  .cheer b {
+    display: block;
+    font-family: Verdana, sans-serif;
+    font-size: 32px;
+    letter-spacing: 1px;
+  }
+  .cheer span { display: block; margin-top: 1px; font-size: 14px; font-weight: bold; }
+  .cheer.on { animation: cheerpop 2.1s ease forwards; }
+  @keyframes cheerpop {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.5); }
+    14% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+    24% { transform: translate(-50%, -50%) scale(1); }
+    78% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -57%) scale(.96); }
+  }
+
+  .acts {
+    display: flex;
+    gap: 8px;
+    width: 376px;
+    margin: 9px auto 0;
+  }
+  .goBtn, .againBtn {
+    height: 40px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 15.5px;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .goBtn {
+    flex: 1.45;
+    border: 0;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(13, 128, 94, .28), inset 0 1px 0 rgba(255, 255, 255, .35);
+  }
+  .againBtn {
+    flex: 1;
+    border: 1.5px solid #9fd6c4;
+    background: #fff;
+    color: var(--teal);
+  }
+  .goBtn:active, .againBtn:active { transform: scale(.99); }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Subtraction Practice 2</h2>
+    <div class="sub">SUBTRACTION · FOUR PROBLEMS</div>
+
+    <div class="qcard">
+      <div class="qrow">
+        <b class="qn">1</b>
+        <span class="eq">1&nbsp;400 &minus; 675 =</span>
+        <span class="ansbox" data-q="0"></span>
+        <span class="mk" id="m1"></span>
+      </div>
+    </div>
+
+    <div class="qcard">
+      <div class="qrow">
+        <b class="qn">2</b>
+        <span class="eq">500 &minus; 65 &minus; 142 &minus; 87 =</span>
+        <span class="ansbox" data-q="1"></span>
+        <span class="mk" id="m2"></span>
+      </div>
+    </div>
+
+    <div class="qcard">
+      <div class="qrow">
+        <b class="qn">3</b>
+        <span class="eq">25&nbsp;462 &minus; 5&nbsp;868 =</span>
+        <span class="ansbox" data-q="2"></span>
+        <span class="mk" id="m3"></span>
+      </div>
+    </div>
+
+    <div class="qcard">
+      <div class="qrow">
+        <b class="qn">4</b>
+        <span class="eq">437 + 12&nbsp;456 &minus; 8&nbsp;975 =</span>
+        <span class="ansbox" data-q="3"></span>
+        <span class="mk" id="m4"></span>
+      </div>
+    </div>
+
+    <div class="pad" id="pad"></div>
+
+    <div class="resbar" id="resbar">Write the answers and tap “Check answers”</div>
+
+    <div class="acts">
+      <button class="goBtn" id="checkBtn">Check answers</button>
+      <button class="againBtn" id="againBtn">Again</button>
+    </div>
+
+    <div class="party" id="party"></div>
+    <div class="cheer" id="cheer"><b>100%</b><span>Super!</span></div>
+  </div>
+
+<script>
+  /* ============================================================
+     Answers: 1) 725   2) 206   3) 19 594   4) 3 918
+     25 marks per problem · 100 in total
+     ============================================================ */
+  var CORRECT = [725, 206, 19594, 3918];
+
+  var padEl = document.getElementById('pad');
+  var resbar = document.getElementById('resbar');
+  var checkBtn = document.getElementById('checkBtn');
+  var againBtn = document.getElementById('againBtn');
+  var partyEl = document.getElementById('party');
+  var cheerEl = document.getElementById('cheer');
+
+  var boxes = [], marks = [], answers = ['', '', '', ''];
+  var focusQ = 0, checked = false, audioCtx = null;
+
+  function rnd(n) { return Math.floor(Math.random() * n); }
+  function fmt(s) { return s.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'); }
+
+  function pop(freq, vol) {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.4, audioCtx.currentTime + .1);
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .2);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + .22);
+    } catch (e) {}
+  }
+
+  /* ---------- typing pad ----------
+     digits are added from the units — the new digit goes in front, the cursor to its left */
+  function paint() {
+    for (var i = 0; i < 4; i++) {
+      boxes[i].textContent = fmt(answers[i]);
+      boxes[i].classList.toggle('act', i === focusQ && !checked);
+    }
+  }
+
+  function clearMarks() {
+    for (var i = 0; i < 4; i++) {
+      marks[i].textContent = '';
+      marks[i].className = 'mk';
+    }
+  }
+
+  function idleBar() {
+    resbar.className = 'resbar';
+    resbar.textContent = 'Write the answers and tap “Check answers”';
+  }
+
+  function typeDigit(d) {
+    if (focusQ < 0) focusQ = 0;
+    if (answers[focusQ].length >= 5) return;
+    checked = false;
+    answers[focusQ] = d + answers[focusQ];
+    clearMarks();
+    idleBar();
+    paint();
+    pop(560 + (+d) * 20, .05);
+  }
+
+  function backspace() {
+    if (focusQ < 0) return;
+    checked = false;
+    answers[focusQ] = answers[focusQ].slice(1);
+    clearMarks();
+    idleBar();
+    paint();
+  }
+
+  function buildPad() {
+    var keys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\u2190'];
+    keys.forEach(function (k) {
+      var b = document.createElement('button');
+      b.textContent = k;
+      if (k === '\u2190') b.className = 'bksp';
+      b.addEventListener('click', function () {
+        if (k === '\u2190') backspace(); else typeDigit(k);
+      });
+      padEl.appendChild(b);
+    });
+
+    boxes = Array.prototype.slice.call(document.querySelectorAll('.ansbox'));
+    boxes.forEach(function (b, i) {
+      b.addEventListener('click', function () {
+        focusQ = i;
+        checked = false;
+        clearMarks();
+        idleBar();
+        paint();
+      });
+    });
+    marks = [
+      document.getElementById('m1'), document.getElementById('m2'),
+      document.getElementById('m3'), document.getElementById('m4')
+    ];
+    focusQ = 0;
+    paint();
+  }
+
+  /* ---------- score ---------- */
+  function checkAll() {
+    var filled = answers.some(function (a) { return a !== ''; });
+    if (!filled) {
+      resbar.className = 'resbar';
+      resbar.textContent = 'Write the answers and check';
+      pop(260, .06);
+      return;
+    }
+    var score = 0;
+    for (var i = 0; i < 4; i++) {
+      var ok = answers[i] !== '' && parseInt(answers[i], 10) === CORRECT[i];
+      if (ok) score += 25;
+      marks[i].textContent = ok ? '\u2713' : '\u2717';
+      marks[i].className = 'mk ' + (ok ? 'ok' : 'no');
+    }
+    resbar.className = 'resbar ' + (score === 100 ? 'ok' : (score < 40 ? 'no' : ''));
+    resbar.textContent = 'Score ' + score + ' / 100 · ' + score + '%' + (score === 100 ? ' · Super!' : '');
+    checked = true;
+    paint();
+    if (score === 100) party(); else pop(620, .12);
+  }
+
+  /* ---------- 100% celebration ---------- */
+  function party() {
+    partyEl.innerHTML = '';
+    var cols = ['#ffcf3f', '#e0457b', '#0d8a64', '#2f8fd8', '#ff9b4a', '#8e6bd6'];
+    for (var i = 0; i < 26; i++) {
+      var s = document.createElement('i');
+      var w = 5 + rnd(5);
+      s.style.left = rnd(98) + '%';
+      s.style.width = w + 'px';
+      s.style.height = (w + 2) + 'px';
+      s.style.background = cols[rnd(cols.length)];
+      s.style.animationDelay = (rnd(28) / 100) + 's';
+      partyEl.appendChild(s);
+    }
+    setTimeout(function () { partyEl.innerHTML = ''; }, 2400);
+    cheerEl.classList.remove('on');
+    void cheerEl.offsetWidth;
+    cheerEl.classList.add('on');
+    resbar.classList.remove('barpop');
+    void resbar.offsetWidth;
+    resbar.classList.add('barpop');
+    pop(980, .14);
+  }
+
+  /* ---------- again ---------- */
+  function resetAll() {
+    answers = ['', '', '', ''];
+    checked = false;
+    focusQ = 0;
+    clearMarks();
+    partyEl.innerHTML = '';
+    cheerEl.classList.remove('on');
+    resbar.classList.remove('barpop');
+    idleBar();
+    paint();
+  }
+
+  checkBtn.addEventListener('click', checkAll);
+  againBtn.addEventListener('click', resetAll);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key >= '0' && e.key <= '9') { typeDigit(e.key); e.preventDefault(); }
+    else if (e.key === 'Backspace') { backspace(); e.preventDefault(); }
+  });
+
+  buildPad();
+</script>
+</body>
+</html>

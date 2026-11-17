@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     9 · Number Zones Practice
+     ============================================================ */
+  .ttl { font-size: 26px; }
+  .sub { font-size: 14px; letter-spacing: 2.5px; }
+
+  /* ---------- questions ---------- */
+  .qs { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
+  .q {
+    padding: 5px 7px;
+    border-radius: 10px;
+    background: #fbfdfc;
+    border: 1px solid #e7f1ee;
+  }
+  .qt {
+    font-size: 16px;
+    line-height: 1.3;
+    letter-spacing: -.15px;
+    color: var(--ink-soft);
+  }
+  .qno {
+    display: inline-block;
+    min-width: 17px;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--teal);
+  }
+  .qnum {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--teal);
+    letter-spacing: .3px;
+    white-space: nowrap;
+  }
+  .qs.fade { animation: qfade .28s ease-out; }
+  @keyframes qfade {
+    0%   { opacity: .25; transform: translateY(4px); }
+    100% { opacity: 1;   transform: none; }
+  }
+
+  .ansline {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
+  }
+  .mk {
+    width: 18px;
+    font-size: 19px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+  }
+  .mk.ok  { color: var(--green); }
+  .mk.bad { color: var(--pink); }
+
+  .ans {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 30px;
+    padding: 0 9px;
+    border: 1.5px solid #c9ded9;
+    border-radius: 8px;
+    background: #fff;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    letter-spacing: .5px;
+    color: var(--teal);
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .ans::placeholder {
+    font-size: 14px;
+    font-weight: normal;
+    letter-spacing: 0;
+    color: #b5c4c8;
+  }
+  .ans:focus { border-color: #17b183; box-shadow: 0 0 0 3px rgba(23, 177, 131, .13); }
+  .ans.ok  { border-color: #17b183; background: #f0fdf8; color: var(--green); }
+  .ans.bad { border-color: var(--pink); background: #fff5f8; color: var(--pink); }
+
+  /* ---------- number keypad ---------- */
+  .keypad {
+    display: flex;
+    gap: 3px;
+    margin-top: 7px;
+  }
+  .key {
+    flex: 1 1 0;
+    height: 32px;
+    border: 1.5px solid #dbe9e6;
+    border-radius: 8px;
+    background: #fff;
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--teal);
+    line-height: 1;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 2px 0 rgba(30, 80, 80, .07);
+  }
+  .key:active { transform: translateY(1px); box-shadow: none; }
+  .key.space {
+    flex: 1.5 1 0;
+    font-family: inherit;
+    font-size: 14px;
+  }
+  .key.del { flex: 1.15 1 0; color: #5d7378; }
+
+  /* ---------- buttons ---------- */
+  .actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    margin-top: 7px;
+  }
+  .checkBtn {
+    width: 150px;
+    height: 36px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #17b183, #0b8058);
+    color: #fff;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: .3px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(9, 110, 79, .3), 0 6px 12px rgba(13, 138, 100, .18);
+  }
+  .checkBtn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgba(9, 110, 79, .3);
+  }
+  .resetBtn {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 11px;
+    background: #eef4f3;
+    color: #5d7378;
+    font-size: 19px;
+    text-align: center;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .resetBtn:active { transform: translateY(2px); }
+
+  .score {
+    min-width: 126px;
+    height: 26px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #eef7f4;
+    border: 1px solid #d5e9e2;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #7d8f95;
+    white-space: nowrap;
+  }
+  .score.ok {
+    background: #eafaf2;
+    border-color: #bfe8d9;
+    color: var(--green);
+  }
+
+  /* ---------- new questions ---------- */
+  .setrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .setBtn {
+    height: 32px;
+    padding: 0 15px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1.5px solid #bfe3d8;
+    color: var(--green);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background .15s ease, transform .12s ease;
+  }
+  .setBtn:hover { background: #f1fbf7; }
+  .setBtn:active { transform: translateY(1px); }
+  .setCount {
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h5 class="ttl">Number Zones Practice</h5>
+    <div class="sub">NUMBER ZONES &middot; EXERCISE</div>
+
+    <div class="qs" id="qs">
+      <div class="q">
+        <div class="qt"><span class="qno">1</span> <b class="qnum" id="q1num">52489321807</b> Write it in standard form.</div>
+        <div class="ansline"><span class="mk" id="mk1"></span><input class="ans" id="a1" maxlength="24" autocomplete="off" placeholder="Answer"></div>
+      </div>
+
+      <div class="q">
+        <div class="qt"><span class="qno">2</span> Write the value of the digit <b class="qnum" id="q2digit">3</b> in it, in standard form.</div>
+        <div class="ansline"><span class="mk" id="mk2"></span><input class="ans" id="a2" maxlength="24" autocomplete="off" placeholder="Answer"></div>
+      </div>
+
+      <div class="q">
+        <div class="qt"><span class="qno">3</span> <span id="q3words">three hundred and fifty thousand and eight</span> — write it in digits.</div>
+        <div class="ansline"><span class="mk" id="mk3"></span><input class="ans" id="a3" maxlength="24" autocomplete="off" placeholder="Answer"></div>
+      </div>
+
+      <div class="q">
+        <div class="qt"><span class="qno">4</span> <span id="q4words">one billion twenty-five million five thousand three hundred and eleven</span> — write it in digits.</div>
+        <div class="ansline"><span class="mk" id="mk4"></span><input class="ans" id="a4" maxlength="24" autocomplete="off" placeholder="Answer"></div>
+      </div>
+    </div>
+
+    <div class="keypad" id="keypad">
+      <button type="button" class="key" data-k="0">0</button>
+      <button type="button" class="key" data-k="1">1</button>
+      <button type="button" class="key" data-k="2">2</button>
+      <button type="button" class="key" data-k="3">3</button>
+      <button type="button" class="key" data-k="4">4</button>
+      <button type="button" class="key" data-k="5">5</button>
+      <button type="button" class="key" data-k="6">6</button>
+      <button type="button" class="key" data-k="7">7</button>
+      <button type="button" class="key" data-k="8">8</button>
+      <button type="button" class="key" data-k="9">9</button>
+      <button type="button" class="key space" data-k=" ">Space</button>
+      <button type="button" class="key del" data-k="del">⌫</button>
+    </div>
+
+    <div class="actions">
+      <button class="checkBtn" id="checkBtn">Check answers</button>
+      <button class="resetBtn" id="resetQ" title="Reset">↺</button>
+      <span class="score" id="score">Score —</span>
+    </div>
+
+    <div class="setrow">
+      <button class="setBtn" id="nextSet">New questions</button>
+      <span class="setCount" id="setCount">1 / 5</span>
+    </div>
+  </div>
+
+<script>
+  function d(id) { return document.getElementById(id); }
+
+  /* ================= English words ================= */
+  var ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+  var TEENS = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+  var TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+  var HUND = ['', 'one hundred', 'two hundred', 'three hundred', 'four hundred', 'five hundred', 'six hundred', 'seven hundred', 'eight hundred', 'nine hundred'];
+
+  function comb2(n) {
+    if (n < 10) return ONES[n];
+    if (n < 20) return TEENS[n - 10];
+    var t = Math.floor(n / 10), u = n % 10;
+    return u ? TENS[t] + '-' + ONES[u] : TENS[t];
+  }
+  function comb(n) {
+    var h = Math.floor(n / 100), r = n % 100;
+    if (!h) return comb2(r);
+    return r ? HUND[h] + ' and ' + comb2(r) : HUND[h];
+  }
+  function abs2(n) { return comb2(n); }
+  function abs(n) { return comb(n); }
+  /* same word before a scale name */
+  function combTh(n) { return comb(n); }
+
+  function words3(n) {
+    var k = Math.floor(n / 1000), u = n % 1000, out = [];
+    if (k) out.push(combTh(k) + ' thousand');
+    if (u) out.push((k ? 'and ' : '') + abs(u));
+    return out.join(' ');
+  }
+  function words4(n) {
+    var b = Math.floor(n / 1e9),
+        m = Math.floor(n / 1e6) % 1000,
+        k = Math.floor(n / 1000) % 1000,
+        u = n % 1000, out = [];
+    if (b) out.push(comb(b) + ' billion');
+    if (m) out.push(comb(m) + ' million');
+    if (k) out.push(combTh(k) + ' thousand');
+    if (u) out.push((k ? 'and ' : '') + abs(u));
+    return out.join(' ');
+  }
+
+  /* ================= 5 sets of questions ================= */
+  var SETS = [
+    { n1: '52489321807', d2: '3', n3: 350008,     n4: 1025005311 },
+    { n1: '72845196304', d2: '8', n3: 740008,     n4: 3000400062 },
+    { n1: '63017584920', d2: '7', n3: 268090,     n4: 7250080019 },
+    { n1: '98104725631', d2: '9', n3: 902040,     n4: 4125050307 },
+    { n1: '40612958731', d2: '4', n3: 603020,     n4: 6305090074 }
+  ];
+
+  var idx = 0;
+  var cur = null;
+
+  var ansEls = [d('a1'), d('a2'), d('a3'), d('a4')];
+  var active = ansEls[0];
+
+  function norm(s) { return s.replace(/[^0-9]/g, ''); }
+
+  /* place value of the digit */
+  function placeValue(num, dig) {
+    var i = num.indexOf(dig);
+    if (i < 0) return '';
+    return dig + new Array(num.length - i).join('0');
+  }
+
+  function build(i) {
+    idx = (i + SETS.length) % SETS.length;
+    var s = SETS[idx];
+    cur = {
+      a1: s.n1,
+      a2: placeValue(s.n1, s.d2),
+      a3: String(s.n3),
+      a4: String(s.n4)
+    };
+    d('q1num').textContent = s.n1;
+    d('q2digit').textContent = s.d2;
+    d('q3words').textContent = words3(s.n3);
+    d('q4words').textContent = words4(s.n4);
+    d('setCount').textContent = (idx + 1) + ' / ' + SETS.length;
+    resetQ(false);
+  }
+
+  /* ---------- score ---------- */
+  function markEl(i) { return d('mk' + (i + 1)); }
+
+  function clearMark(i) {
+    markEl(i).textContent = '';
+    markEl(i).className = 'mk';
+    ansEls[i].classList.remove('ok', 'bad');
+  }
+
+  function clearScore() {
+    var sc = d('score');
+    sc.textContent = 'Score —';
+    sc.classList.remove('ok');
+  }
+
+  function edited(el) {
+    clearMark(ansEls.indexOf(el));
+    clearScore();
+  }
+
+  /* ---------- keypad ---------- */
+  function insert(txt) {
+    var el = active || ansEls[0];
+    var s = (el.selectionStart == null) ? el.value.length : el.selectionStart;
+    var e = (el.selectionEnd == null) ? el.value.length : el.selectionEnd;
+    var v = el.value.slice(0, s) + txt + el.value.slice(e);
+    if (v.length > 24) v = v.slice(0, 24);
+    el.value = v;
+    var pos = Math.min(s + txt.length, v.length);
+    el.focus();
+    try { el.setSelectionRange(pos, pos); } catch (err) {}
+    edited(el);
+    pop(590, .07);
+  }
+
+  function delChar() {
+    var el = active || ansEls[0];
+    var s = (el.selectionStart == null) ? el.value.length : el.selectionStart;
+    var e = (el.selectionEnd == null) ? el.value.length : el.selectionEnd;
+    var v;
+    if (s !== e) {
+      v = el.value.slice(0, s) + el.value.slice(e);
+    } else {
+      if (s === 0) return;
+      v = el.value.slice(0, s - 1) + el.value.slice(s);
+      s = s - 1;
+    }
+    el.value = v;
+    el.focus();
+    try { el.setSelectionRange(s, s); } catch (err) {}
+    edited(el);
+    pop(360, .06);
+  }
+
+  d('keypad').addEventListener('mousedown', function (e) {
+    if (e.target.closest('.key')) e.preventDefault();
+  });
+
+  d('keypad').addEventListener('click', function (e) {
+    var b = e.target.closest('.key');
+    if (!b) return;
+    var k = b.getAttribute('data-k');
+    if (k === 'del') delChar();
+    else insert(k);
+  });
+
+  for (var i = 0; i < ansEls.length; i++) {
+    (function (n) {
+      var el = ansEls[n];
+      el.addEventListener('focus', function () { active = el; });
+      el.addEventListener('click', function () { active = el; });
+      el.addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9 ]/g, '');
+        clearMark(n);
+        clearScore();
+      });
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') check();
+      });
+    })(i);
+  }
+
+  /* ---------- checking ---------- */
+  function check() {
+    var keys = ['a1', 'a2', 'a3', 'a4'];
+    var right = 0;
+    for (var i = 0; i < ansEls.length; i++) {
+      var v = norm(ansEls[i].value);
+      var ok = v !== '' && v === cur[keys[i]];
+      var mk = markEl(i);
+      if (ok) {
+        mk.textContent = '✓';
+        mk.className = 'mk ok';
+        ansEls[i].classList.add('ok');
+        ansEls[i].classList.remove('bad');
+        right++;
+      } else {
+        mk.textContent = '✗';
+        mk.className = 'mk bad';
+        ansEls[i].classList.add('bad');
+        ansEls[i].classList.remove('ok');
+      }
+    }
+    var pct = right * 25;
+    var sc = d('score');
+    sc.textContent = 'Score ' + right + '/4 · ' + pct + '%';
+    sc.classList.toggle('ok', pct === 100);
+    pop(pct === 100 ? 880 : 380, pct === 100 ? .4 : .16);
+  }
+
+  d('checkBtn').addEventListener('click', check);
+
+  function resetQ(sound) {
+    for (var i = 0; i < ansEls.length; i++) {
+      ansEls[i].value = '';
+      clearMark(i);
+    }
+    clearScore();
+    active = ansEls[0];
+    if (sound !== false) pop(420, .15);
+  }
+
+  d('resetQ').addEventListener('click', function () { resetQ(true); });
+
+  /* ---------- new questions ---------- */
+  d('nextSet').addEventListener('click', function () {
+    build(idx + 1);
+    var qsEl = d('qs');
+    qsEl.classList.remove('fade');
+    void qsEl.offsetWidth;
+    qsEl.classList.add('fade');
+    pop(620, .12);
+  });
+
+  /* ---------- sound ---------- */
+  var actx = null;
+  function pop(freq, vol) {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, actx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.5, actx.currentTime + .1);
+      g.gain.setValueAtTime(vol, actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, actx.currentTime + .2);
+      o.connect(g);
+      g.connect(actx.destination);
+      o.start();
+      o.stop(actx.currentTime + .22);
+    } catch (e) {}
+  }
+
+  /* ================= start ================= */
+  build(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     17 · Subtracting whole numbers — column subtraction with borrowing
+     ============================================================ */
+  .ttl { font-size: 23px; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    text-align: left;
+    text-transform: none;
+  }
+  .intro {
+    margin-top: 5px;
+    font-size: 15px;
+    line-height: 1.3;
+    text-align: left;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- working board ---------- */
+  .board {
+    position: relative;
+    width: 320px;
+    margin: 9px auto 0;
+    padding: 12px 10px 14px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #ffffff, #fdfbf5);
+    border: 1px solid #e6e0d2;
+    box-shadow: 0 4px 12px rgba(60, 80, 80, .10), inset 0 0 0 3px #fffdf8;
+  }
+  .qno {
+    position: absolute;
+    top: 5px;
+    left: 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-family: Verdana, sans-serif;
+    line-height: 1;
+  }
+  .qno b {
+    font-size: 19px;
+    color: #dd8422;
+  }
+  .qno span {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  /* gap between the ten-thousands digit and the last 3 digits */
+  .grid {
+    display: grid;
+    grid-template-columns: 30px 50px 50px 14px 50px 50px 50px;
+    grid-template-rows: 26px 58px 58px 14px 58px 12px;
+    justify-content: center;
+    margin-top: 14px;
+  }
+  .cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+  }
+  .sign { font-size: 32px; font-weight: bold; color: var(--ink); }
+  .acell, .bcell, .rcell {
+    font-size: 42px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: var(--ink);
+    line-height: 1;
+    border-radius: 9px;
+  }
+  .acell.on, .bcell.on {
+    background: #fff3cc;
+    box-shadow: inset 0 0 0 2px #ffcf3f;
+  }
+  .acell.spent { opacity: .32; }
+  .acell.lent { outline: 2px dashed #e09a2d; outline-offset: -2px; }
+  .rcell { color: var(--green); }
+  .rcell.drop { animation: dropin .32s ease; }
+  @keyframes dropin {
+    0%   { opacity: 0; transform: translateY(-14px) scale(1.25); }
+    100% { opacity: 1; transform: none; }
+  }
+  .ncell { align-items: center; }
+  .nchip {
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 20px;
+    padding: 0 6px;
+    border-radius: 6px;
+    background: #fff3df;
+    border: 1px solid #f1d3a6;
+    color: #bf6427;
+    opacity: 0;
+    transform: scale(.7);
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  .nchip.on { opacity: 1; transform: none; }
+  .nchip.blink { animation: nblink .6s ease 3; }
+  @keyframes nblink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .12; }
+  }
+  .eline {
+    border-top: 2.5px solid #33454c;
+    margin-top: 4px;
+  }
+  .dline {
+    height: 8px;
+    margin-top: 3px;
+    border-top: 2px solid #33454c;
+    border-bottom: 2px solid #33454c;
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform .4s ease;
+  }
+  .dline.on { transform: scaleX(1); }
+
+  /* ---------- step bar ---------- */
+  .step {
+    width: 376px;
+    height: 58px;
+    margin: 10px auto 0;
+    padding: 6px 12px 7px;
+    border-radius: 11px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    overflow: hidden;
+  }
+  .slabel {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.2;
+    color: var(--muted);
+  }
+  .sline2 {
+    margin-top: 2px;
+    font-size: 15.5px;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .sline2 b { color: var(--green); }
+
+  /* ---------- buttons ---------- */
+  .btns {
+    display: flex;
+    gap: 9px;
+    width: 376px;
+    margin: 10px auto 0;
+  }
+  .startBtn, .newBtn {
+    flex: 1;
+    height: 42px;
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: 16.5px;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .startBtn {
+    border: 0;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(13, 128, 94, .28), inset 0 1px 0 rgba(255, 255, 255, .35);
+  }
+  .startBtn:active { transform: scale(.99); }
+  .newBtn {
+    border: 1.5px solid #9fd6c4;
+    background: #fff;
+    color: var(--teal);
+  }
+  .newBtn:active { transform: scale(.99); }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Subtracting whole numbers</h2>
+    <div class="sub">Subtracting whole numbers</div>
+    <p class="intro">Subtract place by place. If you cannot subtract, borrow 1 from the left.</p>
+
+    <div class="board">
+      <div class="qno" id="qno"><b>(1).</b><span>/ 10</span></div>
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <div class="step">
+      <div class="slabel" id="slabel">Problem 1</div>
+      <div class="sline2" id="sline2">Tap Start</div>
+    </div>
+
+    <div class="btns">
+      <button class="startBtn" id="startBtn">Start</button>
+      <button class="newBtn" id="newBtn">Another problem</button>
+    </div>
+  </div>
+
+<script>
+  /* ============================================================
+     10 problems — answers verified
+     ============================================================ */
+  var PROBLEMS = [
+    /*  1 */ { a: 23565, b: 5578 },   /* = 17 987 */
+    /*  2 */ { a: 41236, b: 7649 },   /* = 33 587 */
+    /*  3 */ { a: 62814, b: 6937 },   /* = 55 877 */
+    /*  4 */ { a: 67425, b: 8796 },   /* = 58 629 */
+    /*  5 */ { a: 38754, b: 9876 },   /* = 28 878 */
+    /*  6 */ { a: 74613, b: 5728 },   /* = 68 885 */
+    /*  7 */ { a: 52387, b: 6594 },   /* = 45 793 */
+    /*  8 */ { a: 54981, b: 6294 },   /* = 48 687 */
+    /*  9 */ { a: 46932, b: 7845 },   /* = 39 087 */
+    /* 10 */ { a: 73458, b: 9679 }    /* = 63 779 */
+  ];
+  var PLACES = ['ten thousands place', 'thousands place', 'hundreds place', 'tens place', 'ones place'];
+  var SHORT = ['ten thousands', 'thousands', 'hundreds', 'tens', 'ones'];
+  var GCOLS = [2, 3, 5, 6, 7];
+
+  var grid = document.getElementById('grid');
+  var qno = document.getElementById('qno');
+  var slabel = document.getElementById('slabel');
+  var sline2 = document.getElementById('sline2');
+  var startBtn = document.getElementById('startBtn');
+  var newBtn = document.getElementById('newBtn');
+  var aCells = [], bCells = [], rCells = [], nCells = [], nChips = [];
+  var dline;
+  var idx = 0, cur = null, timers = [], runId = 0, audioCtx = null;
+
+  function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'); }
+
+  function pop(freq, vol) {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.4, audioCtx.currentTime + .1);
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .2);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + .22);
+    } catch (e) {}
+  }
+
+  function cell(cls, col, row) {
+    var e = document.createElement('div');
+    e.className = 'cell ' + cls;
+    e.style.gridColumn = col;
+    e.style.gridRow = row;
+    grid.appendChild(e);
+    return e;
+  }
+
+  function buildBoard() {
+    var signCell = cell('sign', 1, 3);
+    signCell.textContent = '\u2212';
+    for (var i = 0; i < 5; i++) {
+      var col = GCOLS[i];
+      var n = cell('ncell', col, 1);
+      var chip = document.createElement('span');
+      chip.className = 'nchip';
+      n.appendChild(chip);
+      nChips.push(chip);
+      nCells.push(n);
+      aCells.push(cell('acell', col, 2));
+      bCells.push(cell('bcell', col, 3));
+      rCells.push(cell('rcell', col, 5));
+    }
+    var rule = cell('', '1 / 8', 4);
+    rule.className = 'cell eline';
+    dline = cell('dline', '1 / 8', 6);
+  }
+
+  function digitsOf(n) {
+    var s = ('     ' + n).slice(-5);
+    var out = [];
+    for (var i = 0; i < 5; i++) out.push(s.charAt(i) === ' ' ? '' : s.charAt(i));
+    return out;
+  }
+
+  /* if a digit cannot be subtracted, take 1 (ten) from the digit on its left */
+  function solve(a, b) {
+    var sa = String(a), sb = String(b), borrow = 0, steps = [];
+    for (var k = 0; k < 5; k++) {
+      var da = +(sa.charAt(sa.length - 1 - k) || 0);
+      var db = +(sb.charAt(sb.length - 1 - k) || 0);
+      var raw = da - borrow;
+      var need = raw < db;
+      var use = need ? raw + 10 : raw;
+      steps.push({
+        col: 4 - k, da: da, db: db, borrowIn: borrow,
+        need: need, use: use, rd: use - db, borrowOut: need ? 1 : 0,
+        lenderDa: 0
+      });
+      borrow = need ? 1 : 0;
+    }
+    for (var j = 0; j < steps.length - 1; j++) steps[j].lenderDa = steps[j + 1].da;
+    return steps;
+  }
+
+  function clearMarks() {
+    for (var i = 0; i < 5; i++) {
+      aCells[i].classList.remove('on', 'spent', 'lent');
+      bCells[i].classList.remove('on');
+      nChips[i].classList.remove('on', 'blink');
+      nChips[i].textContent = '';
+    }
+  }
+
+  function loadProblem(n) {
+    runId++;
+    timers.forEach(clearTimeout);
+    timers = [];
+    idx = ((n % PROBLEMS.length) + PROBLEMS.length) % PROBLEMS.length;
+    var p = PROBLEMS[idx];
+    cur = { a: p.a, b: p.b, steps: solve(p.a, p.b) };
+    var da = digitsOf(p.a), db = digitsOf(p.b);
+    for (var i = 0; i < 5; i++) {
+      aCells[i].textContent = da[i];
+      bCells[i].textContent = db[i];
+      rCells[i].textContent = '';
+      nChips[i].textContent = '';
+      nChips[i].classList.remove('on', 'blink');
+      aCells[i].classList.remove('on', 'spent', 'lent');
+      bCells[i].classList.remove('on');
+    }
+    dline.classList.remove('on');
+    qno.querySelector('b').textContent = '(' + (idx + 1) + ').';
+    slabel.textContent = 'Problem ' + (idx + 1);
+    sline2.textContent = 'Tap Start';
+  }
+
+  function later(ms, fn) { timers.push(setTimeout(fn, ms)); }
+
+  function highlight(col) {
+    for (var i = 0; i < 5; i++) {
+      aCells[i].classList.remove('on');
+      bCells[i].classList.remove('on');
+    }
+    aCells[col].classList.add('on');
+    bCells[col].classList.add('on');
+  }
+
+  function showChip(col, text, blink) {
+    var c = nChips[col];
+    c.textContent = text;
+    c.classList.remove('on', 'blink');
+    void c.offsetWidth;
+    c.classList.add('on');
+    if (blink) c.classList.add('blink');
+  }
+
+  function startAnim() {
+    if (!cur) return;
+    runId++;
+    var my = runId;
+    timers.forEach(clearTimeout);
+    timers = [];
+    clearMarks();
+    for (var i = 0; i < 5; i++) rCells[i].textContent = '';
+    dline.classList.remove('on');
+    sline2.textContent = '';
+
+    /* slow speed — 2.1 s per place */
+    var STEP = 2100, t = 450;
+
+    cur.steps.forEach(function (st, n) {
+      var col = st.col, lender = col - 1;
+
+      later(t, function () {
+        if (my !== runId) return;
+        highlight(col);
+        slabel.textContent = 'Step ' + (n + 1) + ' · ' + PLACES[col];
+        if (st.need) {
+          aCells[lender].classList.add('lent');
+          sline2.textContent = st.da + ' < ' + st.db + ' · borrow 1 from the ' +
+            SHORT[lender];
+          pop(500 + n * 40, .08);
+        } else {
+          sline2.textContent = st.use + ' \u2212 ' + st.db + ' = ' + st.rd + ' · write ' + st.rd;
+          pop(520 + n * 40, .08);
+        }
+      });
+
+      if (st.need) {
+        later(t + 550, function () {
+          if (my !== runId) return;
+          showChip(lender, String(st.lenderDa - 1), true);
+          showChip(col, String(st.use), false);
+          aCells[lender].classList.add('spent');
+          pop(680, .1);
+        });
+        later(t + 1250, function () {
+          if (my !== runId) return;
+          sline2.textContent = st.lenderDa + ' \u2192 ' + (st.lenderDa - 1) +
+            ' · ' + st.use + ' \u2212 ' + st.db + ' = ' + st.rd + ' · write ' + st.rd;
+        });
+      }
+
+      later(t + 1500, function () {
+        if (my !== runId) return;
+        var rc = rCells[col];
+        rc.textContent = st.rd;
+        rc.classList.remove('drop');
+        void rc.offsetWidth;
+        rc.classList.add('drop');
+        pop(720, .09);
+      });
+
+      if (st.need) {
+        later(t + 1980, function () {
+          if (my !== runId) return;
+          aCells[lender].classList.remove('lent');
+        });
+      }
+
+      t += STEP;
+    });
+
+    later(t, function () {
+      if (my !== runId) return;
+      for (var i = 0; i < 5; i++) {
+        aCells[i].classList.remove('on', 'lent');
+        bCells[i].classList.remove('on');
+      }
+      dline.classList.add('on');
+      slabel.textContent = 'Finished';
+      sline2.innerHTML = 'Answer: <b>' + fmt(cur.a - cur.b) + '</b>';
+      pop(980, .14);
+      later(700, function () {
+        if (my !== runId) return;
+        clearMarks();
+        for (var i = 0; i < 5; i++) nChips[i].textContent = '';
+      });
+    });
+  }
+
+  buildBoard();
+  loadProblem(0);
+
+  startBtn.addEventListener('click', startAnim);
+  newBtn.addEventListener('click', function () { loadProblem(idx + 1); });
+</script>
+</body>
+</html>

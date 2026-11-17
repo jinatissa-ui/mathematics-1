@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>The 24-Hour Clock</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     67 · The 24-hour clock
+     (live 24-hour face · 12/24 notation · elapsed time)
+     ============================================================ */
+  .ttl { flex: none; font-size: 24px; line-height: 1.1; }
+  .sub { flex: none; margin-top: 1px; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- clock ---------- */
+  .clockwrap {
+    flex: none;
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .clock {
+    width: 200px;
+    height: 200px;
+    filter: drop-shadow(0 8px 14px rgba(30, 80, 80, .18));
+  }
+  .clock text {
+    font-family: "Iskoola Pota", "Nirmala UI", "Noto Sans Sinhala", sans-serif;
+    font-weight: bold;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  .clock .n12 { font-size: 34px; fill: #22343b; }
+  .clock .n24 { font-size: 20px; fill: #e0454a; }
+
+  /* ---------- two ways to write it ---------- */
+  .pcard {
+    flex: none;
+    margin-top: 8px;
+    padding: 7px 11px 8px;
+    border-radius: 13px;
+    background: #fff;
+    border: 1px solid #e2efe9;
+  }
+  .prow {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    height: 40px;
+    padding: 0 9px;
+    border-radius: 9px;
+    border-left: 3px solid #9fb9c0;
+    background: #f6f9fa;
+  }
+  .prow + .prow { margin-top: 5px; }
+  .prow.two { border-left-color: #43c3a0; background: #f1fcf7; }
+
+  .tag {
+    flex: none;
+    font-size: 14px;
+    font-weight: bold;
+    color: #45606a;
+    background: #e8eef1;
+    padding: 2px 9px 3px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .prow.two .tag { color: #0d8a64; background: #dff6ec; }
+
+  .pv {
+    font-family: Verdana, "Iskoola Pota", sans-serif;
+    font-size: 20px;
+    line-height: 1.1;
+    font-weight: bold;
+    color: #33454c;
+    letter-spacing: .3px;
+    white-space: nowrap;
+  }
+  .pv.si {
+    font-family: "Iskoola Pota", "Nirmala UI", "Noto Sans Sinhala", sans-serif;
+    font-size: 19px;
+    letter-spacing: 0;
+  }
+  .prow.two .pv { color: #0d6d74; }
+
+  .pnote {
+    margin-top: 4px;
+    font-size: 14px;
+    line-height: 1.25;
+    color: var(--muted);
+  }
+
+  /* ---------- extra knowledge ---------- */
+  .tcard {
+    flex: none;
+    margin-top: 8px;
+    padding: 8px 11px 9px;
+    border-radius: 13px;
+    background: #fff;
+    border: 1px solid #e2efe9;
+  }
+  .thead {
+    font-size: 14px;
+    line-height: 1.25;
+    color: #7d8f94;
+  }
+  .thead b {
+    font-size: 14px;
+    color: #0d8a64;
+    margin-right: 4px;
+  }
+  .cols {
+    display: flex;
+    margin-top: 5px;
+    border-top: 1px dashed #d9e8e2;
+  }
+  .col {
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
+    padding: 5px 3px 0;
+    border-left: 1px dashed #e6f0ec;
+  }
+  .col:first-child { border-left: 0; }
+  .ch {
+    font-size: 14px;
+    line-height: 1.15;
+    height: 33px;
+    color: #0d8a64;
+    font-weight: bold;
+  }
+  .cv {
+    margin-top: 1px;
+    font-family: Verdana, "Iskoola Pota", sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    color: #0d6d74;
+    letter-spacing: .2px;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+  <div class="ttl">The 24-Hour Clock</div>
+  <div class="sub">24-HOUR CLOCK</div>
+
+  <div class="clockwrap">
+    <svg class="clock" viewBox="0 0 300 300" aria-label="24-hour clock">
+      <circle cx="150" cy="150" r="146" fill="#fffdf8"></circle>
+      <circle cx="150" cy="150" r="146" fill="none" stroke="#22343b" stroke-width="5"></circle>
+      <circle cx="150" cy="150" r="138" fill="none" stroke="#dfe8e6" stroke-width="1.6"></circle>
+      <g id="ticks"></g>
+      <g id="nums24"></g>
+      <g id="nums12"></g>
+      <line id="minute" x1="150" y1="150" x2="150" y2="46" stroke="#22343b" stroke-width="5.5" stroke-linecap="round"></line>
+      <line id="hour"   x1="150" y1="150" x2="150" y2="74" stroke="#22343b" stroke-width="7.5" stroke-linecap="round"></line>
+      <line id="second" x1="150" y1="150" x2="150" y2="38" stroke="#e0454a" stroke-width="2" stroke-linecap="round"></line>
+      <circle cx="150" cy="150" r="8" fill="#22343b"></circle>
+      <circle cx="150" cy="150" r="3" fill="#e0454a"></circle>
+    </svg>
+  </div>
+
+  <div class="pcard">
+    <div class="prow">
+      <span class="tag">12-hour</span>
+      <span class="pv si" id="t12">8:20:10 a.m.</span>
+    </div>
+    <div class="prow two">
+      <span class="tag">24-hour · standard</span>
+      <span class="pv" id="t24">08:20:10</span>
+    </div>
+    <div class="pnote">For p.m. hours 1 to 11, add 12.</div>
+  </div>
+
+  <div class="tcard">
+    <div class="thead"><b>Extra knowledge</b> — time passed since the day began</div>
+    <div class="cols">
+      <div class="col">
+        <div class="ch">Hours, minutes<br>and seconds</div>
+        <div class="cv" id="e1">14:35:22</div>
+      </div>
+      <div class="col">
+        <div class="ch">Minutes and<br>seconds</div>
+        <div class="cv" id="e2">875:22</div>
+      </div>
+      <div class="col">
+        <div class="ch">Seconds</div>
+        <div class="cv" id="e3">52 522</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+
+  /* ---------- face : 24-hour numerals ---------- */
+  var ticks = document.getElementById('ticks');
+  for (var t = 0; t < 60; t++) {
+    var big = t % 5 === 0;
+    var a = t * 6 * Math.PI / 180;
+    var r1 = big ? 127 : 132, r2 = 139;
+    var ln = document.createElementNS(NS, 'line');
+    ln.setAttribute('x1', 150 + Math.sin(a) * r1);
+    ln.setAttribute('y1', 150 - Math.cos(a) * r1);
+    ln.setAttribute('x2', 150 + Math.sin(a) * r2);
+    ln.setAttribute('y2', 150 - Math.cos(a) * r2);
+    ln.setAttribute('stroke', big ? '#22343b' : '#aabdbc');
+    ln.setAttribute('stroke-width', big ? 2.6 : 1.1);
+    ln.setAttribute('stroke-linecap', 'round');
+    ticks.appendChild(ln);
+  }
+
+  /* outer : 1–12 (black) · inner : 13–24, 00 under 12 (red) */
+  var nums12 = document.getElementById('nums12');
+  for (var n = 1; n <= 12; n++) {
+    var ang = n * 30 * Math.PI / 180;
+    var tx = document.createElementNS(NS, 'text');
+    tx.setAttribute('class', 'n12');
+    tx.setAttribute('x', 150 + Math.sin(ang) * 100);
+    tx.setAttribute('y', 150 - Math.cos(ang) * 100);
+    tx.textContent = n;
+    nums12.appendChild(tx);
+  }
+
+  var nums24 = document.getElementById('nums24');
+  for (var k = 13; k <= 24; k++) {
+    var a24 = ((k - 12) % 12) * 30 * Math.PI / 180;
+    var tx2 = document.createElementNS(NS, 'text');
+    tx2.setAttribute('class', 'n24');
+    tx2.setAttribute('x', 150 + Math.sin(a24) * 70);
+    tx2.setAttribute('y', 150 - Math.cos(a24) * 70);
+    tx2.textContent = k === 24 ? '00' : k;
+    nums24.appendChild(tx2);
+  }
+
+  var hh = document.getElementById('hour');
+  var mm = document.getElementById('minute');
+  var ss = document.getElementById('second');
+  var t12 = document.getElementById('t12');
+  var t24 = document.getElementById('t24');
+  var e1 = document.getElementById('e1');
+  var e2 = document.getElementById('e2');
+  var e3 = document.getElementById('e3');
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function tick() {
+    var d = new Date();
+    var h = d.getHours(), m = d.getMinutes(), s = d.getSeconds();
+
+    hh.setAttribute('transform', 'rotate(' + (((h % 12) + m / 60) * 30) + ' 150 150)');
+    mm.setAttribute('transform', 'rotate(' + ((m + s / 60) * 6) + ' 150 150)');
+    ss.setAttribute('transform', 'rotate(' + (s * 6) + ' 150 150)');
+
+    var h12 = h % 12;
+    if (h12 === 0) h12 = 12;
+
+    t12.textContent = h12 + ':' + pad(m) + ':' + pad(s) + (h < 12 ? ' a.m.' : ' p.m.');
+    t24.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
+
+    var tot = h * 3600 + m * 60 + s;
+    e1.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
+    e2.textContent = Math.floor(tot / 60) + ':' + pad(tot % 60);
+    e3.textContent = String(tot).replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009');
+  }
+
+  tick();
+  setInterval(tick, 250);
+})();
+</script>
+</body>
+</html>

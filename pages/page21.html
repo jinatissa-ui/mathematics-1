@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     21 · Multiplying Whole Numbers — two methods
+     ============================================================ */
+  .ttl { font-size: 25px; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    text-align: left;
+    text-transform: none;
+  }
+
+  /* ---------- question strip ---------- */
+  .qstrip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 376px;
+    height: 44px;
+    margin: 12px auto 0;
+    padding: 0 10px;
+    border-radius: 12px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+  }
+  .qeq {
+    font-family: Verdana, sans-serif;
+    font-size: 21px;
+    font-weight: bold;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .qeq b { color: var(--teal); }
+  .qans {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 78px;
+    height: 32px;
+    padding: 0 8px;
+    border-radius: 8px;
+    background: #fff;
+    border: 1.5px dashed #c9dcd5;
+    font-family: Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--muted);
+  }
+  .qans.on {
+    border-style: solid;
+    border-color: #bfe8d8;
+    background: #eaf9f2;
+    color: var(--green);
+  }
+  .qcnt {
+    margin-left: auto;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--muted);
+  }
+
+  /* ---------- the two method cards ---------- */
+  .mwrap {
+    display: flex;
+    gap: 8px;
+    width: 376px;
+    margin: 12px auto 0;
+  }
+  .mcard {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    border-radius: 12px;
+    background: #fffdf8;
+    border: 1px solid #e6e0d2;
+    box-shadow: 0 3px 10px rgba(60, 80, 80, .07);
+  }
+  .mhd {
+    padding: 8px 9px 7px;
+    border-bottom: 1px dashed #e6e0d2;
+    text-align: center;
+  }
+  .mhd b {
+    display: block;
+    font-size: 15px;
+    line-height: 1.2;
+    color: var(--teal);
+  }
+  .mhd span {
+    display: block;
+    margin-top: 1px;
+    font-size: 14px;
+    line-height: 1.2;
+    color: var(--muted);
+  }
+  .m2 .mhd b { color: #b25a1d; }
+
+  /* ---------- method 1 ---------- */
+  .split {
+    margin: 12px 0 3px;
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+    color: var(--ink);
+  }
+  .split b.t { color: var(--teal); }
+  .split b.o { color: #b25a1d; }
+
+  .mline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: 30px;
+    font-family: Verdana, sans-serif;
+    font-size: 14.5px;
+    font-weight: bold;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .mline b.v { color: var(--green); }
+  .mline b.v.t { color: var(--teal); }
+  .mline b.v.o { color: #b25a1d; }
+
+  .msum {
+    width: 92px;
+    margin: 3px auto 0;
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--ink);
+  }
+  .msum .srow {
+    display: flex;
+    justify-content: flex-end;
+    align-items: baseline;
+    gap: 3px;
+    height: 23px;
+    white-space: nowrap;
+  }
+  .msum .srow i {
+    font-style: normal;
+    color: #b25a1d;
+  }
+  .msum .sline {
+    height: 0;
+    margin: 2px 0;
+    border-top: 2px solid var(--ink);
+  }
+  .msum .tot span { color: var(--green); }
+
+  .mnote {
+    margin: auto 9px 9px;
+    padding-top: 6px;
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* ---------- method 2 · column ---------- */
+  .wtbl { padding: 8px 9px 9px; }
+  .m2 .wtbl { margin: auto 0; }
+  .wr {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 28px;
+    padding-right: 45px;
+  }
+  .ws {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+    color: #b25a1d;
+  }
+  .wd {
+    flex: none;
+    width: 19px;
+    font-family: Verdana, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    color: var(--ink);
+  }
+  .wl {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .wr.prod1 .wd, .wr.prod1 .wl { color: #b25a1d; }
+  .wr.prod2 .wd, .wr.prod2 .wl { color: var(--teal); }
+  .wr.res .wd { color: var(--green); }
+  .wln {
+    height: 2px;
+    margin: 2px 45px 2px auto;
+    border-radius: 2px;
+    background: var(--ink);
+  }
+
+  /* ---------- step strip ---------- */
+  .stepbar {
+    display: flex;
+    align-items: center;
+    width: 376px;
+    height: 48px;
+    margin: 10px auto 0;
+    padding: 0 11px;
+    border-radius: 10px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 14.5px;
+    font-weight: bold;
+    line-height: 1.3;
+    color: var(--teal);
+  }
+
+  /* ---------- buttons ---------- */
+  .acts {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 9px;
+  }
+  .acts button {
+    height: 38px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: bold;
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .nxt {
+    width: 172px;
+    border: 1px solid transparent;
+    background: linear-gradient(140deg, #149f86, #0d6d74);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(13, 109, 116, .25);
+  }
+  .nxt:active { transform: scale(.97); }
+  .oth {
+    width: 128px;
+    background: #fff;
+    border: 1.5px solid #cfeadf;
+    color: var(--teal);
+  }
+  .oth:active { transform: scale(.97); background: #eaf7f2; }
+
+  /* ---------- display ---------- */
+  .hid { opacity: 0; transform: translateY(5px); }
+  .mline, .msum, .wr, .wln, .split {
+    transition: opacity .32s ease, transform .32s ease;
+  }
+  .nxt:disabled { opacity: .72; cursor: default; }
+</style>
+</head>
+<body class="en">
+  <div class="sheet" id="sheet">
+    <h2 class="ttl">Multiplying Whole Numbers</h2>
+    <div class="sub">TWO METHODS · STEP BY STEP</div>
+
+    <div class="qstrip">
+      <span class="qeq"><b id="qA">56</b> × <b id="qB">15</b> =</span>
+      <span class="qans" id="qAns">?</span>
+      <span class="qcnt" id="qCnt">1 / 10</span>
+    </div>
+
+    <div class="mwrap">
+      <section class="mcard m1">
+        <div class="mhd"><b>Method 1</b><span id="m1sub">Split into 10 and 5</span></div>
+        <div class="split hid" id="split"><b class="t">15</b> = <b class="t">10</b> + <b class="o">5</b></div>
+        <div class="mline hid" id="l1"><span id="l1e">56 × 10 =</span><b class="v t" id="l1v">560</b></div>
+        <div class="mline hid" id="l2"><span id="l2e">56 × 5 =</span><b class="v o" id="l2v">280</b></div>
+        <div class="msum hid" id="msum">
+          <div class="srow"><span id="s1">560</span></div>
+          <div class="srow"><i>+</i><span id="s2">280</span></div>
+          <div class="sline hid" id="sline"></div>
+          <div class="srow tot hid" id="stot"><span id="s3">840</span></div>
+        </div>
+        <div class="mnote">Add the two — that is the answer.</div>
+      </section>
+
+      <section class="mcard m2">
+        <div class="mhd"><b>Method 2</b><span>Multiply in columns</span></div>
+        <div class="wtbl" id="wtbl"></div>
+      </section>
+    </div>
+
+    <div class="stepbar" id="stepbar">Tap Start to see 56 × 15 multiplied step by step.</div>
+
+    <div class="acts">
+      <button class="nxt" id="nxt">Start</button>
+      <button class="oth" id="oth">Other</button>
+    </div>
+  </div>
+
+<script>
+  /* ============================================================
+     multiplying two numbers like 56 × 15 — in two ways
+     ============================================================ */
+  var PROBS = [
+    [56, 15], [235, 47], [48, 23], [137, 26], [64, 32],
+    [305, 18], [79, 43], [152, 54], [86, 37], [248, 65]
+  ];
+  var idx = 0, running = false, done = false;
+  var a = 0, b = 0, t = 0, o = 0, p1 = 0, p2 = 0, ans = 0;
+  var timerIds = [];
+  var audioCtx = null;
+
+  var qA = document.getElementById('qA');
+  var qB = document.getElementById('qB');
+  var qAns = document.getElementById('qAns');
+  var qCnt = document.getElementById('qCnt');
+  var split = document.getElementById('split');
+  var m1sub = document.getElementById('m1sub');
+  var l1 = document.getElementById('l1'), l2 = document.getElementById('l2');
+  var l1e = document.getElementById('l1e'), l1v = document.getElementById('l1v');
+  var l2e = document.getElementById('l2e'), l2v = document.getElementById('l2v');
+  var msum = document.getElementById('msum');
+  var s1 = document.getElementById('s1'), s2 = document.getElementById('s2'), s3 = document.getElementById('s3');
+  var sline = document.getElementById('sline'), stot = document.getElementById('stot');
+  var wtbl = document.getElementById('wtbl');
+  var stepbar = document.getElementById('stepbar');
+  var nxt = document.getElementById('nxt');
+  var oth = document.getElementById('oth');
+
+  var colA = null, colB = null, colLine1 = null;
+  var colTen = null, colOne = null, colLine2 = null, colRes = null;
+
+  function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'); }
+
+  function show(el) { if (el) el.classList.remove('hid'); }
+  function hide(el) { if (el) el.classList.add('hid'); }
+
+  function after(ms, fn) { timerIds.push(setTimeout(fn, ms)); }
+  function clearTimers() {
+    for (var i = 0; i < timerIds.length; i++) clearTimeout(timerIds[i]);
+    timerIds = [];
+  }
+
+  function pop(freq, vol) {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.25, audioCtx.currentTime + .1);
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .22);
+      osc.connect(g); g.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + .24);
+    } catch (e) {}
+  }
+
+  /* ---------- a row in the column method ---------- */
+  function pad5(n) {
+    var s = '' + n, out = [];
+    for (var i = s.length; i < 5; i++) out.push('');
+    for (var j = 0; j < s.length; j++) out.push(s.charAt(j));
+    return out;
+  }
+
+  function wrow(sign, n, label, extra, signRight) {
+    var r = document.createElement('div');
+    r.className = 'wr' + (extra ? ' ' + extra : '');
+    var s = document.createElement('span');
+    s.className = 'ws';
+    s.textContent = sign || '';
+    if (sign) s.style.right = (signRight || 0) + 'px';
+    r.appendChild(s);
+    pad5(n).forEach(function (d) {
+      var x = document.createElement('span');
+      x.className = 'wd';
+      x.textContent = d;
+      r.appendChild(x);
+    });
+    if (label) {
+      var l = document.createElement('span');
+      l.className = 'wl';
+      l.textContent = label;
+      r.appendChild(l);
+    }
+    return r;
+  }
+
+  function wline(extra, width) {
+    var d = document.createElement('div');
+    d.className = 'wln' + (extra ? ' ' + extra : '');
+    if (width) d.style.width = width + 'px';
+    return d;
+  }
+
+  function buildColumn() {
+    var maxLen = Math.max(
+      ('' + a).length, ('' + b).length,
+      ('' + p1).length, ('' + p2).length, ('' + ans).length
+    );
+    var lw = maxLen * 19 + 10;
+    var signRight = 45 + 19 * ('' + b).length + 3;
+
+    wtbl.innerHTML = '';
+    colA = wrow('', a, '', 'hid');
+    colB = wrow('\u00d7', b, '', 'hid', signRight);
+    colLine1 = wline('hid', lw);
+    colTen = wrow('', p1, '\u00d7 ' + t, 'prod2 hid');
+    colOne = wrow('', p2, '\u00d7 ' + o, 'prod1 hid');
+    colLine2 = wline('hid', lw);
+    colRes = wrow('', ans, '', 'res hid');
+
+    wtbl.appendChild(colA);
+    wtbl.appendChild(colB);
+    wtbl.appendChild(colLine1);
+    wtbl.appendChild(colTen);
+    wtbl.appendChild(colOne);
+    wtbl.appendChild(colLine2);
+    wtbl.appendChild(colRes);
+  }
+
+  /* ---------- initial state ---------- */
+  function resetVisual() {
+    clearTimers();
+    running = false;
+    done = false;
+
+    hide(split); hide(l1); hide(l2); hide(msum);
+    hide(sline); hide(stot);
+
+    hide(colA); hide(colB); hide(colLine1);
+    hide(colTen); hide(colOne); hide(colLine2); hide(colRes);
+
+    qAns.textContent = '?';
+    qAns.classList.remove('on');
+
+    nxt.disabled = false;
+    nxt.textContent = 'Start';
+    stepbar.textContent = 'Tap Start to see ' + fmt(a) + ' × ' + b + ' multiplied step by step.';
+  }
+
+  /* ---------- slowly multiplying ---------- */
+  function start() {
+    if (running) return;
+    running = true;
+    done = false;
+    nxt.disabled = true;
+    nxt.textContent = 'Multiplying…';
+    stepbar.textContent = fmt(b) + ' = ' + fmt(t) + ' + ' + fmt(o) + '. Write ' + b + ' under ' + fmt(a) + ' and draw a line.';
+
+    after(120, function () { show(split); pop(480, .04); });
+    after(560, function () { show(colA); pop(520, .04); });
+    after(950, function () { show(colB); });
+    after(1230, function () { show(colLine1); pop(560, .04); });
+
+    after(2100, function () {
+      show(l1); show(colTen);
+      stepbar.textContent = fmt(a) + ' × ' + fmt(t) + ' = ' + fmt(p1) + ' · the part multiplied by tens';
+      pop(620, .05);
+    });
+    after(3800, function () {
+      show(l2); show(colOne);
+      stepbar.textContent = fmt(a) + ' × ' + fmt(o) + ' = ' + fmt(p2) + ' · the part multiplied by ones';
+      pop(700, .05);
+    });
+    after(5500, function () {
+      show(msum); show(colLine2);
+      stepbar.textContent = 'Now add ' + fmt(p1) + ' and ' + fmt(p2) + '.';
+      pop(760, .05);
+    });
+    after(7200, function () {
+      show(sline); show(stot); show(colRes);
+      qAns.textContent = fmt(ans);
+      qAns.classList.add('on');
+      stepbar.textContent = fmt(p1) + ' + ' + fmt(p2) + ' = ' + fmt(ans) + ' · the answer is ' + fmt(ans);
+      pop(880, .08);
+      after(180, function () { pop(1100, .06); });
+      running = false;
+      done = true;
+      nxt.disabled = false;
+      nxt.textContent = 'View again';
+    });
+  }
+
+  /* ---------- show the problem ---------- */
+  function load(i) {
+    idx = (i + PROBS.length) % PROBS.length;
+    var p = PROBS[idx];
+    a = p[0];
+    b = p[1];
+    t = Math.floor(b / 10) * 10;
+    o = b % 10;
+    p1 = a * t;
+    p2 = a * o;
+    ans = a * b;
+
+    qA.textContent = fmt(a);
+    qB.textContent = b;
+    qCnt.textContent = (idx + 1) + ' / ' + PROBS.length;
+
+    split.innerHTML = '<b class="t">' + b + '</b> = <b class="t">' + t + '</b> + <b class="o">' + o + '</b>';
+    m1sub.textContent = 'Split into ' + t + ' and ' + o;
+    l1e.textContent = a + ' × ' + t + ' =';
+    l1v.textContent = fmt(p1);
+    l2e.textContent = a + ' × ' + o + ' =';
+    l2v.textContent = fmt(p2);
+    s1.textContent = fmt(p1);
+    s2.textContent = fmt(p2);
+    s3.textContent = fmt(ans);
+
+    buildColumn();
+    resetVisual();
+  }
+
+  nxt.addEventListener('click', function () {
+    if (running) return;
+    if (done) resetVisual();
+    start();
+  });
+  oth.addEventListener('click', function () { load(idx + 1); });
+
+  load(0);
+</script>
+</body>
+</html>

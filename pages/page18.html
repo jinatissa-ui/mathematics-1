@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     18 · Subtraction Practice 1 — write answers with the digit buttons
+     ============================================================ */
+  .ttl { font-size: 25px; text-align: left; }
+  .sub {
+    margin-top: 1px;
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    text-align: left;
+    text-transform: none;
+  }
+
+  /* ---------- board ---------- */
+  .board {
+    position: relative;
+    width: 340px;
+    height: 246px;
+    margin: 10px auto 0;
+    padding: 10px 12px;
+    overflow: hidden;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #ffffff, #fdfbf5);
+    border: 1px solid #e6e0d2;
+    box-shadow: 0 4px 12px rgba(60, 80, 80, .10), inset 0 0 0 3px #fffdf8;
+  }
+  .board.done { height: 306px; }
+  .qno {
+    position: absolute;
+    top: 5px;
+    left: 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-family: Verdana, sans-serif;
+    line-height: 1;
+  }
+  .qno b { font-size: 19px; color: #dd8422; }
+  .qno span { font-size: 14px; color: var(--muted); }
+  .mark {
+    position: absolute;
+    top: 0;
+    right: 13px;
+    font-family: Verdana, sans-serif;
+    font-size: 26px;
+    font-weight: bold;
+    line-height: 1.1;
+    opacity: 0;
+    transition: opacity .2s ease;
+  }
+  .mark.ok { color: var(--green); opacity: 1; }
+  .mark.no { color: #d64545; opacity: 1; }
+
+  /* ---------- calculation ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: 30px 42px 42px 12px 42px 42px 42px;
+    grid-template-rows: 30px 58px 58px 14px 62px;
+    justify-content: center;
+  }
+  .cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, sans-serif;
+  }
+  .minus { font-size: 27px; font-weight: bold; color: var(--ink); }
+  .acell {
+    font-size: 38px;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .eline {
+    border-top: 2.5px solid #33454c;
+    margin-top: 4px;
+  }
+  .slot {
+    position: relative;
+    width: 38px;
+    height: 52px;
+    border-radius: 9px;
+    background: #f4fbf8;
+    border: 1.5px solid #d9e9e3;
+    font-size: 34px;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--green);
+  }
+  .slot.act {
+    background: #fff8e3;
+    border-color: #f0c24f;
+    box-shadow: inset 0 0 0 2px #ffcf3f;
+  }
+  .slot.act::before {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 50%;
+    width: 2px;
+    height: 24px;
+    border-radius: 1px;
+    transform: translateY(-50%);
+    background: #e0a400;
+    animation: blink 1s steps(2) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---------- digit buttons ---------- */
+  .keys {
+    display: flex;
+    gap: 3px;
+    width: 376px;
+    margin: 9px auto 0;
+  }
+  .board.done ~ .keys { display: none; }
+  .keys button {
+    flex: 1;
+    height: 36px;
+    border-radius: 8px;
+    border: 1.5px solid #d9e9e3;
+    background: #fff;
+    font-family: Verdana, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--ink);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .keys button:active { background: #eaf7f2; transform: scale(.97); }
+  .keys .bksp {
+    flex: 1.02;
+    border-color: #f0d3b6;
+    background: #fff6ec;
+    color: #bf6427;
+    font-size: 17px;
+  }
+
+  /* ---------- step strip ---------- */
+  .step {
+    width: 376px;
+    height: 48px;
+    margin: 8px auto 0;
+    padding: 5px 12px 6px;
+    border-radius: 11px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    overflow: hidden;
+  }
+  .slabel {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.2;
+    color: var(--muted);
+  }
+  .sline2 {
+    margin-top: 2px;
+    font-size: 15.5px;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+
+  /* ---------- buttons ---------- */
+  .btns {
+    display: flex;
+    gap: 9px;
+    width: 376px;
+    margin: 8px auto 0;
+  }
+  .startBtn, .newBtn {
+    flex: 1;
+    height: 40px;
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .startBtn {
+    border: 0;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(13, 128, 94, .28), inset 0 1px 0 rgba(255, 255, 255, .35);
+  }
+  .startBtn:active { transform: scale(.99); }
+  .newBtn {
+    flex: .8;
+    border: 1.5px solid #9fd6c4;
+    background: #fff;
+    color: var(--teal);
+  }
+  .newBtn:active { transform: scale(.99); }
+
+  /* ---------- final score box ---------- */
+  .res {
+    display: none;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .board.done .grid { display: none; }
+  .board.done .qno { display: none; }
+  .board.done .res { display: flex; }
+  .pct {
+    font-family: Verdana, sans-serif;
+    font-size: 46px;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--teal);
+  }
+  .pct.perfect { color: var(--green); }
+  .rline {
+    margin-top: 5px;
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+  .joy { width: 224px; height: 120px; margin-top: 2px; }
+  .joy .hands { display: none; }
+  .joy.perfect .hands { display: block; }
+  .joy.perfect .face {
+    animation: bounce .8s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-5px) scale(1.03); }
+  }
+  .joy.perfect .handL {
+    animation: clapL .42s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: 70% 30%;
+  }
+  .joy.perfect .handR {
+    animation: clapR .42s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: 30% 30%;
+  }
+  @keyframes clapL {
+    0%, 100% { transform: translateX(-5px) rotate(-9deg); }
+    50%      { transform: translateX(9px) rotate(3deg); }
+  }
+  @keyframes clapR {
+    0%, 100% { transform: translateX(5px) rotate(9deg); }
+    50%      { transform: translateX(-9px) rotate(-3deg); }
+  }
+  .rm {
+    margin-top: 2px;
+    font-size: 15.5px;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .conf { position: absolute; inset: 0; pointer-events: none; display: none; }
+  .board.perfect .conf { display: block; }
+  .conf i {
+    position: absolute;
+    top: 30px;
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    opacity: 0;
+    animation: fall 2s ease-in infinite;
+  }
+  @keyframes fall {
+    0%   { transform: translateY(-10px) rotate(0deg); opacity: 0; }
+    15%  { opacity: .9; }
+    100% { transform: translateY(230px) rotate(260deg); opacity: 0; }
+  }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Subtraction Practice 1</h2>
+    <div class="sub">COLUMN SUBTRACTION · 10 PROBLEMS</div>
+
+    <div class="board" id="board">
+      <div class="qno" id="qno"><b>(1).</b><span>/ 10</span></div>
+      <div class="mark" id="mark"></div>
+      <div class="grid" id="grid"></div>
+
+      <div class="res" id="res">
+        <div class="pct" id="pct">80%</div>
+        <div class="rline" id="rline">Score 8 / 10</div>
+        <svg class="joy" id="joy" viewBox="0 0 220 120" aria-hidden="true">
+          <g class="hands">
+            <g class="handL">
+              <rect x="28" y="72" width="28" height="40" rx="14" fill="#f7c98f" stroke="#d9a05f" stroke-width="2"/>
+              <path d="M36 76v9M43 76v10M50 76v9" stroke="#e0b072" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <g class="handR">
+              <rect x="164" y="72" width="28" height="40" rx="14" fill="#f7c98f" stroke="#d9a05f" stroke-width="2"/>
+              <path d="M170 76v9M177 76v10M184 76v9" stroke="#e0b072" stroke-width="2" stroke-linecap="round"/>
+            </g>
+          </g>
+          <g class="face">
+            <circle cx="110" cy="60" r="38" fill="#ffd24d" stroke="#e8a800" stroke-width="3"/>
+            <circle cx="97" cy="52" r="4.5" fill="#6b4e0a"/>
+            <circle cx="123" cy="52" r="4.5" fill="#6b4e0a"/>
+            <path d="M94 68 Q110 84 126 68" stroke="#8a5b00" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <circle cx="85" cy="67" r="6" fill="#ffb04a" opacity=".5"/>
+            <circle cx="135" cy="67" r="6" fill="#ffb04a" opacity=".5"/>
+          </g>
+        </svg>
+        <div class="rm" id="rm">Good! Let’s practise a little more.</div>
+      </div>
+      <div class="conf" id="conf"></div>
+    </div>
+
+    <div class="keys" id="keys"></div>
+
+    <div class="step">
+      <div class="slabel" id="slabel">Worksheet</div>
+      <div class="sline2" id="sline2">Tap the digit buttons and write the answer</div>
+    </div>
+
+    <div class="btns">
+      <button class="startBtn" id="mainBtn">Check answers</button>
+      <button class="newBtn" id="newBtn">New problems</button>
+    </div>
+  </div>
+
+<script>
+  /* ============================================================
+     10 problems · answers up to 5 digits · borrowing problems
+     ============================================================ */
+  var grid = document.getElementById('grid');
+  var board = document.getElementById('board');
+  var qno = document.getElementById('qno');
+  var mark = document.getElementById('mark');
+  var pctEl = document.getElementById('pct');
+  var rline = document.getElementById('rline');
+  var rm = document.getElementById('rm');
+  var joy = document.getElementById('joy');
+  var conf = document.getElementById('conf');
+  var keys = document.getElementById('keys');
+  var slabel = document.getElementById('slabel');
+  var sline2 = document.getElementById('sline2');
+  var mainBtn = document.getElementById('mainBtn');
+  var newBtn = document.getElementById('newBtn');
+
+  var COLS = [2, 3, 5, 6, 7];      /* 5 digits · 4 = the gap */
+  var aEls = [], bEls = [], slots = [];
+  var set = [], idx = 0, score = 0, ans = '';
+  var checked = false, started = false, mode = 'start';
+  var timer = null, audioCtx = null;
+
+  function rnd(n) { return Math.floor(Math.random() * n); }
+
+  /* does borrowing happen at each place? */
+  function needsBorrow(a, b) {
+    var borrow = 0;
+    for (var k = 0; k < 5; k++) {
+      var da = Math.floor(a / Math.pow(10, k)) % 10;
+      var db = Math.floor(b / Math.pow(10, k)) % 10;
+      if (da - borrow < db) return true;
+      borrow = 0;
+    }
+    return false;
+  }
+
+  function makeSet(withFixed) {
+    var out = withFixed ? [{ a: 34628, b: 7367 }] : [];
+    while (out.length < 10) {
+      var five = out.length >= 7;
+      var a = 10000 + rnd(90000);
+      var b = five ? 10000 + rnd(a - 10000) : 1000 + rnd(9000);
+      if (a - b < 1000) continue;
+      if (!needsBorrow(a, b)) continue;
+      out.push({ a: a, b: b });
+    }
+    return out;
+  }
+
+  function pop(freq, vol) {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.4, audioCtx.currentTime + .1);
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .2);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + .22);
+    } catch (e) {}
+  }
+
+  function cell(cls, col, row) {
+    var e = document.createElement('div');
+    e.className = 'cell ' + cls;
+    e.style.gridColumn = col;
+    e.style.gridRow = row;
+    grid.appendChild(e);
+    return e;
+  }
+
+  function buildBoard() {
+    for (var c = 0; c < 5; c++) aEls.push(cell('acell', COLS[c], 2));
+    for (var c2 = 0; c2 < 5; c2++) bEls.push(cell('acell', COLS[c2], 3));
+
+    var m = cell('minus', 1, 3);
+    m.textContent = '\u2212';
+
+    var line = cell('', '2 / 8', 4);
+    line.className = 'cell eline';
+
+    for (var k = 0; k < 5; k++) {
+      var s = cell('slot', COLS[k], 5);
+      s.style.justifySelf = 'center';
+      slots.push(s);
+    }
+
+    var digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\u2190'];
+    digits.forEach(function (d) {
+      var b = document.createElement('button');
+      b.textContent = d;
+      if (d === '\u2190') {
+        b.className = 'bksp';
+        b.addEventListener('click', back);
+      } else {
+        b.addEventListener('click', function () { typeDigit(d); });
+      }
+      keys.appendChild(b);
+    });
+
+    for (var i = 0; i < 12; i++) {
+      var i2 = document.createElement('i');
+      i2.style.left = (8 + i * 7.4) + '%';
+      i2.style.background = ['#ffcf3f', '#0d8a64', '#e0457b', '#3aa0d8'][i % 4];
+      i2.style.animationDelay = (i * 0.13) + 's';
+      conf.appendChild(i2);
+    }
+  }
+
+  function paintRow(els, num) {
+    var s = String(num);
+    for (var c = 0; c < 5; c++) els[c].textContent = '';
+    for (var d = 0; d < s.length; d++) els[5 - s.length + d].textContent = s.charAt(d);
+  }
+
+  /* the answer fills from the right · the cursor blinks to its left */
+  function paintAnswers() {
+    var len = ans.length;
+    for (var c = 0; c < 5; c++) {
+      slots[c].textContent = (c >= 5 - len) ? ans.charAt(c - (5 - len)) : '';
+      slots[c].classList.remove('act');
+    }
+    var ci = 4 - len;
+    if (!checked && ci >= 0) slots[ci].classList.add('act');
+  }
+
+  function showProblem(i) {
+    checked = false;
+    mark.className = 'mark';
+    var p = set[i];
+    paintRow(aEls, p.a);
+    paintRow(bEls, p.b);
+    ans = '';
+    paintAnswers();
+    qno.querySelector('b').textContent = '(' + (i + 1) + ').';
+    slabel.textContent = 'Write the answer';
+    sline2.textContent = 'Tap the digit buttons, then Check';
+  }
+
+  function typeDigit(d) {
+    if (!started || checked || ans.length >= 5) return;
+    ans = d + ans;
+    paintAnswers();
+    pop(560 + (+d) * 22, .06);
+  }
+
+  function back() {
+    if (!started || checked || !ans.length) return;
+    ans = ans.slice(1);
+    paintAnswers();
+    pop(300, .05);
+  }
+
+  function check() {
+    if (!started || checked) return;
+    if (!ans) {
+      slabel.textContent = 'Write the answer';
+      sline2.textContent = 'Tap the digit buttons';
+      pop(260, .06);
+      return;
+    }
+    var p = set[idx];
+    var ok = parseInt(ans, 10) === p.a - p.b;
+    checked = true;
+    if (ok) score++;
+    mark.textContent = ok ? '\u2713' : '\u2717';
+    mark.className = 'mark ' + (ok ? 'ok' : 'no');
+    slabel.textContent = ok ? 'Correct! \u2713' : 'Wrong \u2717';
+    sline2.textContent = 'Next problem…';
+    paintAnswers();
+    pop(ok ? 920 : 240, .12);
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      idx++;
+      if (idx >= 10) finish(); else showProblem(idx);
+    }, 1500);
+  }
+
+  function finish() {
+    started = false;
+    mode = 'end';
+    var pct = score * 10;
+    board.classList.add('done');
+    board.classList.toggle('perfect', pct === 100);
+    pctEl.textContent = pct + '%';
+    pctEl.classList.toggle('perfect', pct === 100);
+    rline.textContent = 'Score ' + score + ' / 10';
+    joy.classList.toggle('perfect', pct === 100);
+    rm.textContent = pct === 100
+      ? 'Super! Every problem is correct.'
+      : (pct >= 80 ? 'Good! Let’s practise a little more.' : 'Let’s try again.');
+    slabel.textContent = 'Final';
+    sline2.textContent = 'Score ' + score + ' / 10 · ' + pct + '%';
+    mainBtn.textContent = 'Try again';
+    if (pct === 100) {
+      pop(880, .12);
+      setTimeout(function () { pop(1100, .1); }, 180);
+      setTimeout(function () { pop(1320, .08); }, 360);
+    }
+  }
+
+  function newSet(withFixed) {
+    set = makeSet(withFixed);
+    idx = 0;
+    score = 0;
+    started = true;
+    mode = 'run';
+    clearTimeout(timer);
+    board.classList.remove('done', 'perfect');
+    mainBtn.textContent = 'Check answers';
+    showProblem(0);
+  }
+
+  mainBtn.addEventListener('click', function () {
+    if (mode === 'run') check();
+    else newSet(false);
+  });
+  newBtn.addEventListener('click', function () { newSet(false); });
+
+  document.addEventListener('keydown', function (e) {
+    if (!started) return;
+    if (e.key >= '0' && e.key <= '9') { typeDigit(e.key); e.preventDefault(); }
+    else if (e.key === 'Backspace') { back(); e.preventDefault(); }
+    else if (e.key === 'Enter') { check(); e.preventDefault(); }
+  });
+
+  buildBoard();
+  newSet(true);
+</script>
+</body>
+</html>

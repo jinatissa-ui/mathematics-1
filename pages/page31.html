@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     31 · Drawing number lines — two lines on a squared-ruler page
+     ============================================================ */
+  .sheet { padding: 20px 22px 14px; }
+
+  .ttl {
+    margin-top: 0;
+    font-size: 24px;
+    line-height: 1.2;
+    text-align: left;
+  }
+
+  /* ---------- buttons ---------- */
+  .bar {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+    height: 34px;
+  }
+  .bar2 {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+    height: 34px;
+  }
+  .btn {
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background .2s, color .2s, border-color .2s;
+  }
+  .draw {
+    width: 186px;
+    background: var(--teal);
+    color: #fff;
+    box-shadow: 0 3px 0 #0a565b;
+  }
+  .neg {
+    width: 168px;
+    background: #2f6fa8;
+    color: #fff;
+    box-shadow: 0 3px 0 #21527d;
+  }
+  .again {
+    width: 54px;
+    background: #fff;
+    color: var(--ink-soft);
+    border: 1.6px solid #cfe0e6;
+  }
+  .draw:disabled, .neg:disabled {
+    background: #b8cbd9;
+    color: #eef4f8;
+    box-shadow: none;
+    cursor: default;
+  }
+
+  /* ---------- squared-ruler page ---------- */
+  .paper {
+    width: 352px;
+    height: 376px;
+    margin: 8px auto 0;
+    border: 1px solid #e4edf4;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fff;
+    background-image:
+      linear-gradient(#dceaf4 1px, transparent 1px),
+      linear-gradient(90deg, #dceaf4 1px, transparent 1px);
+    background-size: 15px 15px;
+    background-position: 0 0;
+    box-shadow: 0 4px 12px rgba(30, 80, 80, .09);
+  }
+  .paper svg { display: block; }
+
+  /* ---------- lines and marks ---------- */
+  #pos, #negline {
+    fill: none;
+    stroke: #33454c;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+  }
+  .tk {
+    stroke: #33454c;
+    stroke-width: 2;
+    stroke-linecap: round;
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .tk.on { opacity: 1; }
+  .lbl {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    fill: #33454c;
+    text-anchor: middle;
+    opacity: 0;
+    transition: opacity .22s;
+  }
+  .lbl.on { opacity: 1; }
+  .lbl.zero { fill: var(--teal); }
+  #arrowR, #arrowB {
+    fill: none;
+    stroke: #33454c;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+    transition: opacity .25s;
+  }
+  #arrowR.on, #arrowB.on { opacity: 1; }
+
+  /* ---------- ruler and pencil ---------- */
+  #ruler {
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  #ruler.in { opacity: 1; }
+  #pen { opacity: 0; transition: opacity .25s; }
+  #pen.on { opacity: 1; }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+
+    <h1 class="ttl">Drawing number lines</h1>
+
+    <div class="bar">
+      <button type="button" class="btn draw" id="draw">Number line</button>
+      <button type="button" class="btn again" id="again">Again</button>
+    </div>
+
+    <div class="paper">
+      <svg id="stage" width="352" height="376" viewBox="0 0 352 376" aria-hidden="true">
+        <!-- ruler: top edge = 0, the pencil runs along it -->
+        <g id="ruler" transform="translate(0,90)">
+          <rect x="8" y="0" width="336" height="32" rx="5"
+                fill="#fff8e3" stroke="#e2cfa0" stroke-width="1.4"/>
+          <g stroke="#c8b276" stroke-width="1" stroke-linecap="round">
+            <line x1="15" y1="1" x2="15" y2="8"/>
+            <line x1="23" y1="1" x2="23" y2="5"/>
+            <line x1="31" y1="1" x2="31" y2="8"/>
+            <line x1="39" y1="1" x2="39" y2="5"/>
+            <line x1="47" y1="1" x2="47" y2="8"/>
+            <line x1="55" y1="1" x2="55" y2="5"/>
+            <line x1="63" y1="1" x2="63" y2="8"/>
+            <line x1="71" y1="1" x2="71" y2="5"/>
+            <line x1="79" y1="1" x2="79" y2="8"/>
+            <line x1="87" y1="1" x2="87" y2="5"/>
+            <line x1="95" y1="1" x2="95" y2="8"/>
+            <line x1="103" y1="1" x2="103" y2="5"/>
+            <line x1="111" y1="1" x2="111" y2="8"/>
+            <line x1="119" y1="1" x2="119" y2="5"/>
+            <line x1="127" y1="1" x2="127" y2="8"/>
+            <line x1="135" y1="1" x2="135" y2="5"/>
+            <line x1="143" y1="1" x2="143" y2="8"/>
+            <line x1="151" y1="1" x2="151" y2="5"/>
+            <line x1="159" y1="1" x2="159" y2="8"/>
+            <line x1="167" y1="1" x2="167" y2="5"/>
+            <line x1="175" y1="1" x2="175" y2="8"/>
+            <line x1="183" y1="1" x2="183" y2="5"/>
+            <line x1="191" y1="1" x2="191" y2="8"/>
+            <line x1="199" y1="1" x2="199" y2="5"/>
+            <line x1="207" y1="1" x2="207" y2="8"/>
+            <line x1="215" y1="1" x2="215" y2="5"/>
+            <line x1="223" y1="1" x2="223" y2="8"/>
+            <line x1="231" y1="1" x2="231" y2="5"/>
+            <line x1="239" y1="1" x2="239" y2="8"/>
+            <line x1="247" y1="1" x2="247" y2="5"/>
+            <line x1="255" y1="1" x2="255" y2="8"/>
+            <line x1="263" y1="1" x2="263" y2="5"/>
+            <line x1="271" y1="1" x2="271" y2="8"/>
+            <line x1="279" y1="1" x2="279" y2="5"/>
+            <line x1="287" y1="1" x2="287" y2="8"/>
+            <line x1="295" y1="1" x2="295" y2="5"/>
+            <line x1="303" y1="1" x2="303" y2="8"/>
+            <line x1="311" y1="1" x2="311" y2="5"/>
+            <line x1="319" y1="1" x2="319" y2="8"/>
+            <line x1="327" y1="1" x2="327" y2="5"/>
+            <line x1="335" y1="1" x2="335" y2="8"/>
+          </g>
+          <text x="340" y="22" font-size="8" fill="#a38c58" text-anchor="end"
+                font-family="Georgia, serif">cm</text>
+        </g>
+
+        <!-- top line: 0 .. 10, on the horizontal grid lines -->
+        <path id="pos" d="M15 90 H335" pathLength="1"
+              stroke-dasharray="1" stroke-dashoffset="1"/>
+        <path id="arrowR" d="M327 83.5 L335 90 L327 96.5"/>
+
+        <!-- bottom line: 0 going left -1 .. -10, arrow on the right -->
+        <path id="negline" d="M8 300 H335" pathLength="1"
+              stroke-dasharray="1" stroke-dashoffset="1"/>
+        <path id="arrowB" d="M327 293.5 L335 300 L327 306.5"/>
+
+        <g id="ticks"></g>
+        <g id="nums"></g>
+
+        <!-- pencil -->
+        <g id="pen" transform="translate(15,90) rotate(-38)">
+          <polygon points="0,0 13,-5.5 13,5.5" fill="#f2c37a" stroke="#c99a4e" stroke-width="1"/>
+          <polygon points="0,0 5,-2.2 5,2.2" fill="#3b4a52"/>
+          <rect x="13" y="-6" width="41" height="12" rx="2"
+                fill="#ffd35c" stroke="#d9a62e" stroke-width="1"/>
+          <rect x="47" y="-6" width="8" height="12" rx="2"
+                fill="#ef9bb2" stroke="#c9748c" stroke-width="1"/>
+          <line x1="20" y1="-6" x2="20" y2="6" stroke="#e8b53a" stroke-width="1"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="bar2">
+      <button type="button" class="btn neg" id="neg" disabled>Negative numbers</button>
+    </div>
+
+  </div>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var TX0 = 15, TXEND = 335, TY = 90, STEP = 30;   /* top line: 0..10 */
+  var BX0 = 8, BXEND = 335, BY = 300;              /* bottom line */
+  var BZERO = 315;                                 /* 0 on the bottom line */
+
+  var pos     = document.getElementById('pos');
+  var negline = document.getElementById('negline');
+  var arrowR  = document.getElementById('arrowR');
+  var arrowB  = document.getElementById('arrowB');
+  var ruler   = document.getElementById('ruler');
+  var pen     = document.getElementById('pen');
+  var tickG   = document.getElementById('ticks');
+  var numG    = document.getElementById('nums');
+  var b1      = document.getElementById('draw');
+  var b2      = document.getElementById('neg');
+  var b3      = document.getElementById('again');
+
+  var pt = {}, pl = {}, nt = {}, nl = {};
+  var busy = false, stage = 0, seq = 0, timers = [], interval = null;
+
+  function el(name, attrs) {
+    var n = document.createElementNS(NS, name);
+    for (var k in attrs) { n.setAttribute(k, attrs[k]); }
+    return n;
+  }
+
+  /* marks 0..10 on the top line (right on the grid lines) */
+  for (var i = 0; i <= 10; i++) {
+    var x = TX0 + i * STEP;
+    var t = el('line', { x1: x, y1: 84, x2: x, y2: 96, 'class': 'tk' });
+    tickG.appendChild(t); pt[i] = t;
+
+    var tx = el('text', { x: x, y: 116, 'class': 'lbl' + (i === 0 ? ' zero' : '') });
+    tx.textContent = String(i);
+    numG.appendChild(tx); pl[i] = tx;
+  }
+
+  /* marks 0, -1..-10 on the bottom line (0 on the right, negatives to the left) */
+  for (var j = 0; j >= -10; j--) {
+    var nx = BZERO + j * STEP;
+    var n1 = el('line', { x1: nx, y1: 294, x2: nx, y2: 306, 'class': 'tk' });
+    tickG.appendChild(n1); nt[j] = n1;
+
+    var n2 = el('text', { x: nx, y: 326, 'class': 'lbl' + (j === 0 ? ' zero' : '') });
+    n2.textContent = j < 0 ? '−' + Math.abs(j) : '0';
+    numG.appendChild(n2); nl[j] = n2;
+  }
+
+  function later(ms, fn) {
+    var my = seq;
+    timers.push(setTimeout(function () { if (my === seq) { fn(); } }, ms));
+  }
+  function clearAll() {
+    seq++;
+    timers.forEach(clearTimeout);
+    timers = [];
+    if (interval) { clearInterval(interval); interval = null; }
+  }
+
+  function placeRuler(y) {
+    ruler.setAttribute('transform', 'translate(0,' + y + ')');
+  }
+
+  /* ---------- first line: along the ruler edge, left to right ---------- */
+  function drawTop() {
+    if (busy || stage >= 1) { return; }
+    busy = true;
+    b1.disabled = true;
+
+    placeRuler(TY);
+    ruler.classList.add('in');
+    pen.classList.add('on');
+
+    var dur = 1800, t0 = Date.now();
+    interval = setInterval(function () {
+      var p = Math.min(1, (Date.now() - t0) / dur);
+      pos.style.strokeDashoffset = String(1 - p);
+      var x = TX0 + (TXEND - TX0) * p;
+      pen.setAttribute('transform', 'translate(' + x.toFixed(2) + ',' + TY + ') rotate(-38)');
+      if (p >= 1) {
+        clearInterval(interval); interval = null;
+        later(420, function () {
+          ruler.classList.remove('in');
+          pen.classList.remove('on');
+          afterTop();
+        });
+      }
+    }, 16);
+  }
+
+  function afterTop() {
+    var T = 200;
+    for (var i = 0; i <= 10; i++) {
+      (function (v) {
+        later(v * T, function () { pt[v].classList.add('on'); });
+      })(i);
+    }
+    later(11 * T + 300, function () { arrowR.classList.add('on'); });
+
+    var n0 = 11 * T + 300 + 340;
+    for (var k = 0; k <= 10; k++) {
+      (function (v) {
+        later(n0 + v * T, function () { pl[v].classList.add('on'); });
+      })(k);
+    }
+    later(n0 + 11 * T + 160, function () {
+      busy = false;
+      stage = 1;
+      b2.disabled = false;
+    });
+  }
+
+  /* ---------- bottom line: ruler + pencil, then negatives leftwards from 0 ---------- */
+  function drawBottom() {
+    if (busy || stage !== 1) { return; }
+    busy = true;
+    b2.disabled = true;
+
+    placeRuler(BY);
+    ruler.classList.add('in');
+    pen.classList.add('on');
+
+    var dur = 1600, t0 = Date.now();
+    interval = setInterval(function () {
+      var p = Math.min(1, (Date.now() - t0) / dur);
+      negline.style.strokeDashoffset = String(1 - p);
+      var x = BX0 + (BXEND - BX0) * p;
+      pen.setAttribute('transform', 'translate(' + x.toFixed(2) + ',' + BY + ') rotate(-38)');
+      if (p >= 1) {
+        clearInterval(interval); interval = null;
+        later(420, function () {
+          ruler.classList.remove('in');
+          pen.classList.remove('on');
+          afterBottom();
+        });
+      }
+    }, 16);
+  }
+
+  function afterBottom() {
+    nt[0].classList.add('on');
+    nl[0].classList.add('on');
+    later(380, function () { arrowB.classList.add('on'); });
+
+    var T = 240, base = 480;
+    for (var i = 1; i <= 10; i++) {
+      (function (v) {
+        later(base + (v - 1) * T, function () { nt[-v].classList.add('on'); });
+        later(base + (v - 1) * T + 90, function () { nl[-v].classList.add('on'); });
+      })(i);
+    }
+    later(base + 10 * T + 420, function () {
+      busy = false;
+      stage = 2;
+    });
+  }
+
+  /* ---------- again ---------- */
+  function reset() {
+    clearAll();
+    busy = false;
+    stage = 0;
+
+    pos.style.strokeDashoffset = '1';
+    negline.style.strokeDashoffset = '1';
+    ruler.classList.remove('in');
+    pen.classList.remove('on');
+    pen.setAttribute('transform', 'translate(' + TX0 + ',' + TY + ') rotate(-38)');
+    placeRuler(TY);
+    arrowR.classList.remove('on');
+    arrowB.classList.remove('on');
+
+    for (var i = 0; i <= 10; i++) {
+      pt[i].classList.remove('on');
+      pl[i].classList.remove('on');
+      nt[-i].classList.remove('on');
+      nl[-i].classList.remove('on');
+    }
+
+    b1.disabled = false;
+    b2.disabled = true;
+  }
+
+  b1.addEventListener('click', drawTop);
+  b2.addEventListener('click', drawBottom);
+  b3.addEventListener('click', reset);
+})();
+</script>
+</body>
+</html>

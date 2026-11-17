@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* extra parts for this page — the abacus frame */
+  .ttl { font-size: 25px; }
+
+  .abacus {
+    display: flex;
+    margin-top: 8px;
+    padding: 10px 8px 8px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #fff7e8, #ffeacd);
+    border: 6px solid #e0b07a;
+    box-shadow: inset 0 0 0 2px #fffaf0, 0 6px 14px rgba(120, 80, 30, .16);
+  }
+
+  .rod {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+  }
+  .rod.h { --c1: #9c6ce5; --c2: #6a35b8; }
+  .rod.t { --c1: #4b9be8; --c2: #2a68c1; }
+  .rod.o { --c1: #ff9250; --c2: #e2541f; }
+
+  .rod-tag {
+    font-size: 17px;
+    font-weight: bold;
+    color: var(--c2);
+    padding: 0 9px 1px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 2px 0 rgba(150, 100, 50, .18);
+    line-height: 1.35;
+  }
+
+  .wire {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    margin-top: 5px;
+    display: flex;
+    justify-content: center;
+  }
+  .wire::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #c9a877, #a3814f);
+    box-shadow: 1px 0 0 rgba(255, 255, 255, .5) inset;
+  }
+
+  .beads {
+    position: absolute;
+    bottom: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 1px;
+  }
+
+  .bead {
+    position: relative;
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    cursor: pointer;
+    background:
+      radial-gradient(circle at 32% 26%, rgba(255, 255, 255, .75), rgba(255, 255, 255, 0) 46%),
+      linear-gradient(160deg, var(--c1), var(--c2));
+    box-shadow: inset -2px -2px 4px rgba(0, 0, 0, .22), 0 2px 3px rgba(90, 55, 20, .28);
+    animation: beadDrop .42s cubic-bezier(.3, .7, .4, 1) both;
+  }
+  .bead.out {
+    animation: beadOut .16s ease-in both;
+  }
+  @keyframes beadDrop {
+    0%   { transform: translateY(-170px); opacity: .3; }
+    72%  { transform: translateY(0);      opacity: 1; }
+    85%  { transform: translateY(-5px); }
+    100% { transform: translateY(0); }
+  }
+  @keyframes beadOut {
+    to { transform: scale(.2); opacity: 0; }
+  }
+
+  /* buttons under the rods */
+  .adds {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 9px;
+  }
+  .add {
+    width: 104px;
+    height: 42px;
+    border: 0;
+    border-radius: 12px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: .3px;
+    cursor: pointer;
+    background: linear-gradient(160deg, var(--c1), var(--c2));
+    box-shadow: 0 3px 0 rgba(40, 20, 60, .28), 0 5px 10px rgba(40, 60, 90, .18);
+    transition: transform .1s ease, box-shadow .1s ease, opacity .15s ease;
+  }
+  .add.h { --c1: #9c6ce5; --c2: #6a35b8; }
+  .add.t { --c1: #4b9be8; --c2: #2a68c1; }
+  .add.o { --c1: #ff9250; --c2: #e2541f; }
+  .add:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(40, 20, 60, .28); }
+  .add:disabled { opacity: .4; cursor: default; transform: none; box-shadow: none; }
+
+  /* the number below and its value in words */
+  .value {
+    margin-top: 8px;
+    text-align: center;
+  }
+  .value-num {
+    font-family: Verdana, sans-serif;
+    font-size: 38px;
+    font-weight: bold;
+    line-height: 1.1;
+    letter-spacing: 2px;
+    color: #d2416f;
+  }
+  .value-num.pulse { animation: numPulse .3s ease-out; }
+  @keyframes numPulse {
+    0%   { transform: scale(1); }
+    45%  { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+  .value-word {
+    margin-top: 1px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #0d8a64;
+    line-height: 1.3;
+  }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <h2 class="ttl">Let's Learn Hundreds,<br>Tens and Ones</h2>
+    <div class="sub">HUNDREDS · TENS · ONES</div>
+
+    <div class="abacus">
+      <div class="rod h">
+        <div class="rod-tag">Hundreds</div>
+        <div class="wire"><div class="beads" id="beadsH"></div></div>
+      </div>
+      <div class="rod t">
+        <div class="rod-tag">Tens</div>
+        <div class="wire"><div class="beads" id="beadsT"></div></div>
+      </div>
+      <div class="rod o">
+        <div class="rod-tag">Ones</div>
+        <div class="wire"><div class="beads" id="beadsO"></div></div>
+      </div>
+    </div>
+
+    <div class="adds">
+      <button class="add h" id="addH" type="button">Hundreds +</button>
+      <button class="add t" id="addT" type="button">Tens +</button>
+      <button class="add o" id="addO" type="button">Ones +</button>
+    </div>
+
+    <div class="value">
+      <div class="value-num" id="valueNum">0</div>
+      <div class="value-word" id="valueWord">zero</div>
+    </div>
+
+    <div class="hint"><b>Tap a bead</b> — it is removed</div>
+  </div>
+
+  <script>
+    var MAX = 9;
+    var state = { H: 0, T: 0, O: 0 };
+    var numEl = document.getElementById('valueNum');
+    var wordEl = document.getElementById('valueWord');
+    var audioCtx = null;
+    var FREQ = { H: 523, T: 659, O: 784 };
+
+    /* ---------- reading the number in words ---------- */
+    var UNITS  = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+    var ALONE  = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+    var TEENS  = ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+    var TENS   = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+    var HUND   = ["", "one hundred", "two hundred", "three hundred", "four hundred", "five hundred", "six hundred", "seven hundred", "eight hundred", "nine hundred"];
+
+    function two(n, alone) {
+      if (n < 10) return alone ? ALONE[n] : UNITS[n];
+      if (n < 20) return TEENS[n - 10];
+      var t = Math.floor(n / 10), u = n % 10;
+      if (u === 0) return TENS[t];
+      return TENS[t] + "-" + UNITS[u];
+    }
+
+    function inWords(n) {
+      if (n === 0) return "zero";
+      var h = Math.floor(n / 100), rest = n % 100;
+      if (h === 0) return two(rest, true);
+      if (rest === 0) return HUND[h];
+      return HUND[h] + " and " + two(rest, true);
+    }
+
+    /* ---------- sound ---------- */
+    function pop(key) {
+      try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(FREQ[key] || 660, audioCtx.currentTime);
+        o.frequency.exponentialRampToValueAtTime((FREQ[key] || 660) * 1.35, audioCtx.currentTime + .1);
+        g.gain.setValueAtTime(.14, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .2);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime + .22);
+      } catch (e) {}
+    }
+
+    /* ---------- adding / removing beads ---------- */
+    function beadsBox(key) { return document.getElementById('beads' + key); }
+
+    function addBead(key) {
+      if (state[key] >= MAX) { pop(key); return; }
+      state[key]++;
+      var bead = document.createElement('span');
+      bead.className = 'bead';
+      bead.title = 'Remove';
+      bead.addEventListener('click', function () { removeBead(key); });
+      beadsBox(key).appendChild(bead);
+      pop(key);
+      render();
+    }
+
+    function removeBead(key) {
+      var box = beadsBox(key);
+      var bead = box.lastElementChild;
+      if (!bead) return;
+      state[key]--;
+      pop(key);
+      bead.classList.add('out');
+      setTimeout(function () { if (bead.parentNode === box) box.removeChild(bead); }, 160);
+      render();
+    }
+
+    function render() {
+      var n = state.H * 100 + state.T * 10 + state.O;
+      numEl.textContent = n;
+      wordEl.textContent = inWords(n);
+      numEl.classList.remove('pulse');
+      void numEl.offsetWidth;
+      numEl.classList.add('pulse');
+      document.getElementById('addH').disabled = state.H >= MAX;
+      document.getElementById('addT').disabled = state.T >= MAX;
+      document.getElementById('addO').disabled = state.O >= MAX;
+    }
+
+    document.getElementById('addH').addEventListener('click', function () { addBead('H'); });
+    document.getElementById('addT').addEventListener('click', function () { addBead('T'); });
+    document.getElementById('addO').addEventListener('click', function () { addBead('O'); });
+
+    render();
+  </script>
+</body>
+</html>

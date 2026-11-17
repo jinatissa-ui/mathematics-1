@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=420, initial-scale=1">
+<title>Maths Crossword</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     108 · Maths crossword  (6×6 · 18 white cells · 11 clues)
+     ============================================================ */
+  .ttl { flex: none; font-size: 22px; line-height: 1.15; white-space: nowrap; }
+  .sub { flex: none; margin-top: 1px; font-size: 10.5px; letter-spacing: 1.5px; }
+
+  /* ---------- instruction / current clue ---------- */
+  .instr {
+    flex: none;
+    margin-top: 6px;
+    height: 30px;
+    padding: 0 8px;
+    border-radius: 10px;
+    background: #fffdf4;
+    border: 1px solid #f2e6bd;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: #6f6650;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  .instr .ib {
+    flex: none;
+    min-width: 27px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: #b06a00;
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  .instr .itx { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ---------- board + side ---------- */
+  .stage { flex: none; display: flex; gap: 10px; margin-top: 8px; }
+  .board {
+    flex: none;
+    position: relative;
+    width: 260px;
+    height: 260px;
+    padding: 4px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 8px 18px rgba(30, 80, 80, .10), inset 0 0 0 3px #f7fbfa;
+    box-sizing: border-box;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(6, 40px);
+    grid-template-rows: repeat(6, 40px);
+    gap: 2px;
+  }
+
+  .cwc {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 1px solid #dbe9e8;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background .12s, border-color .12s, box-shadow .12s;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .cwc .q {
+    position: absolute;
+    top: 1px;
+    left: 3px;
+    font-family: Verdana, sans-serif;
+    font-size: 7.5px;
+    font-weight: bold;
+    line-height: 1;
+    color: #86a3a1;
+  }
+  .cwc .d {
+    font-family: Verdana, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1;
+    color: #123c40;
+  }
+  .cwc.act { background: #eaf5ff; border-color: #b7d8f2; }
+  .cwc.selc { border-color: #2f7fd0; box-shadow: 0 0 0 2px rgba(47, 127, 208, .38) inset; }
+  .cwc.ok { background: #e6f9ef; border-color: #a9e3c4; }
+  .cwc.ok .d { color: #0d8a64; }
+  .cwc.no { background: #fdeef3; border-color: #f0b9cb; }
+  .cwc.no .d { color: #c22a5e; }
+
+  .cwb {
+    background: #20474a;
+    border-radius: 6px;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, .07), inset 0 -3px 0 rgba(0, 0, 0, .22);
+  }
+
+  /* ---------- keypad ---------- */
+  .side { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .pad { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 27px; gap: 4px; }
+  .pad button {
+    border: 1px solid #d6e6e4;
+    border-radius: 8px;
+    background: #fff;
+    color: #123c40;
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 2px 0 rgba(30, 70, 70, .07);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pad button:active { transform: translateY(1px); box-shadow: none; }
+  .pad .kzero { grid-column: 2 / span 2; }
+  .pad .kdel { color: #c22a5e; background: #fdf3f7; border-color: #f3d0dd; }
+
+  .prog {
+    flex: 1;
+    margin-top: 9px;
+    padding: 6px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #e4eef0;
+    box-shadow: 0 3px 8px rgba(30, 80, 80, .06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+  }
+  .pct {
+    font-family: Verdana, sans-serif;
+    font-size: 26px;
+    font-weight: bold;
+    line-height: 1.05;
+    color: #0d8a64;
+  }
+  .pct.bump { animation: pbump .3s ease; }
+  @keyframes pbump {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+  .pl { font-size: 9px; line-height: 1.2; color: #9a8f78; text-align: center; }
+
+  .ck {
+    width: 100%;
+    height: 30px;
+    border: 0;
+    border-radius: 9px;
+    background: linear-gradient(180deg, #22b07d, #0d8a64);
+    color: #fff;
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(6, 90, 64, .22);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ck:active { transform: translateY(1px); box-shadow: none; }
+  .rs {
+    width: 100%;
+    height: 26px;
+    border: 1px solid #f3c3d6;
+    border-radius: 9px;
+    background: #fdeef4;
+    color: #c22a5e;
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .rs:active { transform: translateY(1px); }
+
+  /* ---------- clues panel ---------- */
+  .clues { flex: none; margin-top: 7px; display: flex; gap: 9px; }
+  .col { flex: 1; min-width: 0; }
+  .ch {
+    font-size: 9px;
+    font-weight: bold;
+    letter-spacing: .6px;
+    color: #0d6d74;
+    border-bottom: 1px solid #e2efec;
+    padding-bottom: 2px;
+    margin-bottom: 1px;
+  }
+  .ci {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    height: 15px;
+    padding: 0 2px;
+    border-radius: 5px;
+    font-size: 10.6px;
+    line-height: 1.25;
+    color: #40504d;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ci b {
+    flex: none;
+    width: 18px;
+    text-align: right;
+    font-family: Verdana, sans-serif;
+    font-size: 8.6px;
+    color: #2f7fd0;
+  }
+  .ci.dn b { color: #7c4fc4; }
+  .ci.on { background: #eaf5ff; color: #123c40; }
+
+  /* ---------- footer note ---------- */
+  .foot {
+    flex: none;
+    margin-top: auto;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: #f2fbf7;
+    border: 1px solid #d5eee6;
+    text-align: center;
+    font-size: 10.8px;
+    line-height: 1.3;
+    color: #4f6462;
+  }
+
+  /* ---------- win animation ---------- */
+  .win {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 252, 244, .86);
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .win.on { display: flex; }
+  .wcard {
+    position: relative;
+    z-index: 2;
+    width: 276px;
+    padding: 15px 14px 13px;
+    border-radius: 22px;
+    background: #fff;
+    border: 3px solid #ffd75e;
+    box-shadow: 0 18px 40px rgba(120, 80, 0, .28);
+    text-align: center;
+    animation: pop .5s cubic-bezier(.2, 1.5, .4, 1);
+  }
+  @keyframes pop {
+    0% { transform: scale(.4) rotate(-6deg); opacity: 0; }
+    60% { transform: scale(1.06) rotate(1deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); }
+  }
+  .wstar {
+    font-size: 46px;
+    line-height: 1;
+    color: #f5b301;
+    animation: bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob {
+    0%, 100% { transform: rotate(-7deg) scale(1); }
+    50% { transform: rotate(7deg) scale(1.08); }
+  }
+  .wt { margin-top: 2px; font-size: 26px; font-weight: bold; color: #0d8a64; }
+  .ws { margin-top: 3px; font-size: 13px; color: #5d7370; }
+  .wh { margin-top: 8px; font-size: 10px; color: #b9c8c5; }
+  .conf { position: absolute; inset: 0; pointer-events: none; }
+  .cf {
+    position: absolute;
+    top: -14px;
+    width: 8px;
+    height: 12px;
+    border-radius: 2px;
+    animation: cfall linear forwards;
+  }
+  @keyframes cfall {
+    0% { transform: translateY(0) rotate(0); opacity: 1; }
+    100% { transform: translateY(580px) rotate(540deg); opacity: .9; }
+  }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <div class="ttl">Maths Crossword</div>
+  <div class="sub">ACROSS · DOWN · 18 CELLS</div>
+
+  <div class="instr">
+    <span class="ib" id="ib">HINT</span>
+    <span class="itx" id="itx">Tap a square and write the number</span>
+  </div>
+
+  <div class="stage">
+    <div class="board"><div class="grid" id="grid"></div></div>
+
+    <div class="side">
+      <div class="pad" id="pad">
+        <button type="button" data-d="1">1</button>
+        <button type="button" data-d="2">2</button>
+        <button type="button" data-d="3">3</button>
+        <button type="button" data-d="4">4</button>
+        <button type="button" data-d="5">5</button>
+        <button type="button" data-d="6">6</button>
+        <button type="button" data-d="7">7</button>
+        <button type="button" data-d="8">8</button>
+        <button type="button" data-d="9">9</button>
+        <button type="button" class="kdel" data-d="del">⌫</button>
+        <button type="button" class="kzero" data-d="0">0</button>
+      </div>
+
+      <div class="prog">
+        <div class="pct" id="pct">—</div>
+        <div class="pl" id="pl">18 cells</div>
+        <button class="ck" type="button" id="ck">✓ Check</button>
+        <button class="rs" type="button" id="rs">↻ Again</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="clues">
+    <div class="col">
+      <div class="ch">ACROSS →</div>
+      <div id="colA"></div>
+    </div>
+    <div class="col">
+      <div class="ch">DOWN ↓</div>
+      <div id="colD"></div>
+    </div>
+  </div>
+
+  <div class="foot">Tap the same square again to switch between <b>across ↔ down</b>.</div>
+
+  <div class="win" id="win">
+    <div class="conf" id="conf"></div>
+    <div class="wcard">
+      <div class="wstar">★</div>
+      <div class="wt">You won!</div>
+      <div class="ws" id="wtxt">All 18 cells correct!</div>
+      <div class="wh">Tap to close</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var PAT = [
+    'WWWW##',
+    'WWW###',
+    'W#WW##',
+    '###W##',
+    '#WWW##',
+    '#WWWW#'
+  ];
+
+  var WORDS = [
+    { id: 'A1', dir: 'A', n: 1, cells: [[0,0],[0,1],[0,2],[0,3]], a: '1440', c: 'Minutes in a day' },
+    { id: 'A2', dir: 'A', n: 4, cells: [[1,0],[1,1],[1,2]], a: '324', c: '18 × 18' },
+    { id: 'A3', dir: 'A', n: 5, cells: [[2,2],[2,3]], a: '15', c: '5th triangular number' },
+    { id: 'A4', dir: 'A', n: 7, cells: [[4,1],[4,2],[4,3]], a: '150', c: '2 hours and 30 minutes' },
+    { id: 'A5', dir: 'A', n: 9, cells: [[5,1],[5,2],[5,3],[5,4]], a: '1000', c: 'A thousand (10 × 100)' },
+    { id: 'D1', dir: 'D', n: 1, cells: [[0,0],[1,0],[2,0]], a: '132', c: '11 × 12' },
+    { id: 'D2', dir: 'D', n: 2, cells: [[0,1],[1,1]], a: '42', c: '7th multiple of 6' },
+    { id: 'D3', dir: 'D', n: 3, cells: [[0,2],[1,2],[2,2]], a: '441', c: '3 × 3 × 7 × 7' },
+    { id: 'D4', dir: 'D', n: 7, cells: [[4,1],[5,1]], a: '11', c: 'Smallest prime over 10' },
+    { id: 'D5', dir: 'D', n: 8, cells: [[4,2],[5,2]], a: '50', c: '47 to nearest 10' },
+    { id: 'D6', dir: 'D', n: 6, cells: [[2,3],[3,3],[4,3],[5,3]], a: '5000', c: 'Five thousand' }
+  ];
+
+  var grid = document.getElementById('grid');
+  var pad = document.getElementById('pad');
+  var ib = document.getElementById('ib');
+  var itx = document.getElementById('itx');
+  var pctEl = document.getElementById('pct');
+  var plEl = document.getElementById('pl');
+  var ck = document.getElementById('ck');
+  var rs = document.getElementById('rs');
+  var win = document.getElementById('win');
+  var conf = document.getElementById('conf');
+  var wtxt = document.getElementById('wtxt');
+  var colA = document.getElementById('colA');
+  var colD = document.getElementById('colD');
+
+  var cells = {};
+  var nums = {};
+  var ansDigit = {};
+  var clueRows = {};
+  var entries = {};
+  var marks = {};
+  var sel = null;
+  var dir = 'A';
+  var total = 0;
+  var hideT = null;
+
+  /* set the numbers and the correct digits */
+  WORDS.forEach(function (w) {
+    nums[w.cells[0].join(',')] = w.n;
+    w.cells.forEach(function (rc, i) {
+      ansDigit[rc.join(',')] = w.a.charAt(i);
+    });
+  });
+
+  /* board */
+  (function buildGrid() {
+    for (var r = 0; r < 6; r++) {
+      for (var c = 0; c < 6; c++) {
+        var el = document.createElement('div');
+        var k = r + ',' + c;
+        if (PAT[r][c] === 'W') {
+          el.className = 'cwc';
+          el.dataset.r = r;
+          el.dataset.c = c;
+          if (nums[k]) {
+            var q = document.createElement('span');
+            q.className = 'q';
+            q.textContent = nums[k];
+            el.appendChild(q);
+          }
+          var d = document.createElement('span');
+          d.className = 'd';
+          el.appendChild(d);
+          el.addEventListener('click', onCellClick);
+          cells[k] = el;
+          total++;
+        } else {
+          el.className = 'cwb';
+        }
+        grid.appendChild(el);
+      }
+    }
+  })();
+
+  /* clue list */
+  (function buildClues() {
+    var list = WORDS.slice();
+    list.sort(function (a, b) { return a.n - b.n || (a.dir === 'A' ? -1 : 1); });
+    list.forEach(function (w) {
+      var row = document.createElement('div');
+      row.className = 'ci' + (w.dir === 'D' ? ' dn' : '');
+      row.dataset.w = w.id;
+      var b = document.createElement('b');
+      b.textContent = w.n + (w.dir === 'A' ? 'A' : 'D');
+      var sp = document.createElement('span');
+      sp.textContent = w.c;
+      row.appendChild(b);
+      row.appendChild(sp);
+      row.addEventListener('click', function () { pickWord(w); });
+      clueRows[w.id] = row;
+      (w.dir === 'A' ? colA : colD).appendChild(row);
+    });
+  })();
+
+  function wordAt(r, c, dd) {
+    var k = r + ',' + c;
+    for (var i = 0; i < WORDS.length; i++) {
+      var w = WORDS[i];
+      if (w.dir !== dd) continue;
+      for (var j = 0; j < w.cells.length; j++) {
+        if (w.cells[j].join(',') === k) return w;
+      }
+    }
+    return null;
+  }
+
+  function onCellClick() {
+    select(+this.dataset.r, +this.dataset.c);
+  }
+
+  function select(r, c, nd) {
+    if (!cells[r + ',' + c]) return;
+    if (sel && sel.r === r && sel.c === c && !nd) {
+      var other = dir === 'A' ? 'D' : 'A';
+      if (wordAt(r, c, other)) dir = other;
+    } else {
+      if (nd) dir = nd;
+      if (!wordAt(r, c, dir)) dir = dir === 'A' ? 'D' : 'A';
+    }
+    sel = { r: r, c: c };
+    paint();
+  }
+
+  function pickWord(w) {
+    dir = w.dir;
+    sel = { r: w.cells[0][0], c: w.cells[0][1] };
+    paint();
+  }
+
+  function paint() {
+    var aw = sel ? wordAt(sel.r, sel.c, dir) : null;
+
+    for (var k in cells) {
+      var cls = 'cwc';
+      if (marks[k]) cls += ' ' + marks[k];
+      cells[k].className = cls;
+      cells[k].querySelector('.d').textContent = entries[k] || '';
+    }
+
+    if (aw) {
+      aw.cells.forEach(function (rc) {
+        cells[rc.join(',')].classList.add('act');
+      });
+    }
+    if (sel) cells[sel.r + ',' + sel.c].classList.add('selc');
+
+    for (var id in clueRows) {
+      clueRows[id].classList.toggle('on', !!aw && aw.id === id);
+    }
+
+    if (aw) {
+      ib.textContent = aw.n + (aw.dir === 'A' ? 'A' : 'D');
+      itx.textContent = aw.c;
+    } else {
+      ib.textContent = 'HINT';
+      itx.textContent = 'Tap a square and write the number';
+    }
+  }
+
+  function idxIn(w, r, c) {
+    for (var j = 0; j < w.cells.length; j++) {
+      if (w.cells[j][0] === r && w.cells[j][1] === c) return j;
+    }
+    return -1;
+  }
+
+  function typeDigit(d) {
+    if (!sel) return;
+    var w = wordAt(sel.r, sel.c, dir);
+    if (!w) return;
+    var k = sel.r + ',' + sel.c;
+    entries[k] = d;
+    delete marks[k];
+    var i = idxIn(w, sel.r, sel.c);
+    if (i >= 0 && i < w.cells.length - 1) {
+      sel = { r: w.cells[i + 1][0], c: w.cells[i + 1][1] };
+    }
+    paint();
+  }
+
+  function back() {
+    if (!sel) return;
+    var w = wordAt(sel.r, sel.c, dir);
+    if (!w) return;
+    var k = sel.r + ',' + sel.c;
+    if (entries[k]) {
+      delete entries[k];
+      delete marks[k];
+      paint();
+      return;
+    }
+    var i = idxIn(w, sel.r, sel.c);
+    if (i > 0) {
+      var p = w.cells[i - 1];
+      sel = { r: p[0], c: p[1] };
+      delete entries[p.join(',')];
+      delete marks[p.join(',')];
+    }
+    paint();
+  }
+
+  function check() {
+    var ok = 0;
+    for (var k in cells) {
+      if (entries[k] === ansDigit[k]) {
+        marks[k] = 'ok';
+        ok++;
+      } else if (entries[k]) {
+        marks[k] = 'no';
+      } else {
+        delete marks[k];
+      }
+    }
+    var pct = Math.round(ok / total * 100);
+    pctEl.style.color = '';
+    pctEl.textContent = pct + '%';
+    plEl.textContent = ok + ' / ' + total + ' correct';
+    pctEl.classList.remove('bump');
+    void pctEl.offsetWidth;
+    pctEl.classList.add('bump');
+    paint();
+    if (ok === total) winNow();
+  }
+
+  function hideWin() {
+    win.classList.remove('on');
+    conf.innerHTML = '';
+    clearTimeout(hideT);
+  }
+
+  function winNow() {
+    wtxt.textContent = 'All ' + total + ' cells correct!';
+    conf.innerHTML = '';
+    var colors = ['#ffcf3f', '#0d8a64', '#4b9be8', '#9c6ce5', '#e0457b', '#ff9250'];
+    for (var i = 0; i < 50; i++) {
+      var c = document.createElement('i');
+      c.className = 'cf';
+      c.style.left = (Math.random() * 100) + '%';
+      c.style.background = colors[i % colors.length];
+      c.style.width = (5 + Math.random() * 6) + 'px';
+      c.style.height = (8 + Math.random() * 8) + 'px';
+      c.style.animationDelay = (Math.random() * 0.9) + 's';
+      c.style.animationDuration = (1.5 + Math.random() * 1.4) + 's';
+      conf.appendChild(c);
+    }
+    win.classList.add('on');
+    clearTimeout(hideT);
+    hideT = setTimeout(hideWin, 8000);
+  }
+
+  function reset() {
+    entries = {};
+    marks = {};
+    hideWin();
+    pctEl.style.color = '#b9c8c5';
+    pctEl.textContent = '—';
+    plEl.textContent = total + ' cells';
+    dir = 'A';
+    sel = { r: 0, c: 0 };
+    paint();
+  }
+
+  pad.addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    if (b.dataset.d === 'del') back();
+    else typeDigit(b.dataset.d);
+  });
+
+  ck.addEventListener('click', check);
+  rs.addEventListener('click', reset);
+  win.addEventListener('click', hideWin);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key >= '0' && e.key <= '9') {
+      typeDigit(e.key);
+      e.preventDefault();
+    } else if (e.key === 'Backspace') {
+      back();
+      e.preventDefault();
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' ||
+               e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      var dr = e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : 0;
+      var dc = e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowRight' ? 1 : 0;
+      var r = sel.r + dr, c = sel.c + dc;
+      if (cells[r + ',' + c]) select(r, c);
+      e.preventDefault();
+    }
+  });
+
+  reset();
+})();
+</script>
+</body>
+</html>

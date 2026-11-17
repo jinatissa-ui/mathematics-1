@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     46 · Angle exercise — click letters in the figure to write the name
+     ============================================================ */
+  .ttl { flex: none; font-size: 24px; }
+  .sub { flex: none; margin-top: 0; font-size: 14px; letter-spacing: 2px; }
+
+  /* ---------- the figure ---------- */
+  .figcard {
+    position: relative;
+    overflow: hidden;
+    flex: none;
+    margin-top: 3px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #d5eee6;
+    box-shadow: 0 2px 7px rgba(30, 80, 80, .05);
+    line-height: 0;
+  }
+  #fig { display: block; width: 376px; height: 164px; }
+  #fig .edge { stroke: #33454c; stroke-width: 2.2; stroke-linejoin: round; }
+  #fig .ext  { stroke: #5f7f84; stroke-width: 1.7; stroke-linecap: round; }
+  #fig .dot  { fill: #33454c; stroke: #fff; stroke-width: 1.4; }
+  #fig .dot2 { fill: #6b8a8f; }
+  #fig .qarc { fill: none; stroke: #e0454a; stroke-width: 2.2; stroke-linecap: round; }
+
+  #fig .qn, #fig .lt { cursor: pointer; }
+  #fig text {
+    font-family: Verdana, "Nirmala UI", sans-serif;
+    font-weight: bold;
+    paint-order: stroke;
+    stroke: #fff;
+    stroke-width: 3px;
+    stroke-linejoin: round;
+  }
+  #fig .qn text { font-size: 14px; fill: #c0392f; }
+  #fig .lt text { font-size: 15px; fill: #33454c; }
+  #fig .halo { fill: none; stroke: #edb52c; stroke-width: 1.8; opacity: 0; }
+  #fig .qn.on .halo { opacity: 1; }
+  #fig .qn.on text { fill: #a45600; }
+  #fig .lt circle { fill: transparent; pointer-events: all; }
+  #fig .lt:hover text { fill: #0d6d74; }
+  #fig .lt:active text { fill: #d2416f; }
+
+  /* ---------- angle measure (drag + rotate) ---------- */
+  .gtag {
+    position: absolute;
+    left: 6px;
+    top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 20px;
+    padding: 0 6px 0 5px;
+    border-radius: 6px;
+    background: rgba(242, 251, 247, .93);
+    border: 1px solid #d5eee6;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: bold;
+    color: var(--teal);
+    pointer-events: none;
+    z-index: 6;
+  }
+  .gtag svg { width: 13px; height: 13px; }
+  .gtag path { fill: none; stroke: #0d6d74; stroke-width: 2.2; stroke-linecap: round; }
+  .gtag .gta { stroke-width: 1.5; stroke-dasharray: 2 2; }
+
+  .auge {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100px;
+    height: 100px;
+    transform-origin: 94px 94px;
+    pointer-events: none;
+    touch-action: none;
+    user-select: none;
+    z-index: 5;
+  }
+  .auge svg { display: block; width: 100px; height: 100px; }
+  .garm { fill: none; stroke: #0d6d74; stroke-width: 2.2; stroke-linecap: round; opacity: .78; }
+  .garc { fill: none; stroke: #0d6d74; stroke-width: 1.4; stroke-dasharray: 3 4; opacity: .7; }
+  .gtk  { stroke: #0d6d74; stroke-width: 1.3; opacity: .6; }
+  .ghit { fill: none; stroke: rgba(0, 0, 0, 0); stroke-width: 20; pointer-events: stroke; cursor: grab; }
+  .gpiv { fill: #0d6d74; stroke: #fff; stroke-width: 1.6; pointer-events: all; cursor: grab; }
+  .gknob {
+    position: absolute;
+    left: 85px;
+    top: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 1.5px solid #e3ab00;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+    font-family: Verdana, sans-serif;
+    font-size: 12px;
+    line-height: 16px;
+    text-align: center;
+    color: #7a5b00;
+    cursor: grab;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    animation: gkpulse 2.6s ease-in-out infinite;
+  }
+  .gknob:active { cursor: grabbing; }
+  @keyframes gkpulse {
+    0%, 100% { box-shadow: 0 1px 3px rgba(0, 0, 0, .2), 0 0 0 0 rgba(255, 207, 63, .55); }
+    55%      { box-shadow: 0 1px 3px rgba(0, 0, 0, .2), 0 0 0 6px rgba(255, 207, 63, 0); }
+  }
+
+  /* ---------- instruction strip ---------- */
+  .ask {
+    flex: none;
+    margin-top: 3px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 7px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 14px;
+    line-height: 18px;
+    color: #4c6a6a;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .ask b { color: var(--teal); }
+
+  /* ---------- table ---------- */
+  .tbl { flex: none; margin-top: 4px; }
+  .thead, .row {
+    display: grid;
+    grid-template-columns: 76px 86px 1fr 20px;
+    gap: 6px;
+    align-items: center;
+    padding: 0 5px;
+  }
+  .thead {
+    height: 19px;
+    font-size: 14px;
+    line-height: 19px;
+    font-weight: bold;
+    color: var(--muted);
+  }
+  .thead span:last-child { text-align: center; }
+
+  .row {
+    height: 21px;
+    border-bottom: 1px dashed #e8efec;
+    border-radius: 6px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .row:last-child { border-bottom: 0; }
+  .row.on {
+    background: #fff6d9;
+    box-shadow: inset 3px 0 0 #f0b429;
+  }
+  .qno { font-size: 14px; white-space: nowrap; color: var(--ink); }
+  .qno b { font-family: Verdana, sans-serif; color: #dd8422; }
+
+  .nm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+    border-radius: 5px;
+    background: #f7fbfa;
+    border: 1px solid #ddeae5;
+    font-family: Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 18px;
+    color: var(--teal);
+  }
+  .nm b { position: relative; display: inline-block; }
+  .nm .gl { display: inline-block; min-width: 8px; text-align: center; }
+  .nm .hat {
+    position: absolute;
+    left: 50%;
+    top: -1px;
+    width: 11px;
+    height: 6px;
+    margin-left: -5.5px;
+    display: none;
+  }
+  .nm.full .hat { display: block; }
+  .nm .hat path { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+  .row.on .nm { background: #fffdf4; border-color: #e8d9a8; }
+  .nm.ok { background: #e9f9f1; border-color: #8fd6b8; color: #087a56; }
+  .nm.no { background: #fdeeee; border-color: #efb3b3; color: #c0392b; }
+  .nm .gl.pop { animation: pop .24s ease; }
+  @keyframes pop {
+    0%   { transform: scale(.6); }
+    60%  { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+
+  .row select {
+    width: 100%;
+    height: 20px;
+    padding: 0 1px;
+    border-radius: 5px;
+    border: 1px solid #ddeae5;
+    background: #fbfdfc;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .row select.ok { background: #e9f9f1; border-color: #8fd6b8; color: #087a56; }
+  .row select.no { background: #fdeeee; border-color: #efb3b3; color: #c0392b; }
+
+  .mk {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
+    text-align: center;
+  }
+  .mk.ok { color: var(--green); }
+  .mk.no { color: #d64545; }
+
+  /* ---------- bottom buttons ---------- */
+  .foot {
+    flex: none;
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .chk {
+    flex: 1;
+    height: 32px;
+    border: 0;
+    border-radius: 10px;
+    background: linear-gradient(140deg, #13a675, #0c7c5a);
+    color: #fff;
+    font-family: inherit;
+    font-size: 15.5px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(13, 128, 94, .25);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .chk:active { transform: translateY(1px); }
+  .rst {
+    flex: 0 0 38px;
+    height: 32px;
+    border-radius: 10px;
+    border: 1.5px solid #9fd6c4;
+    background: #fff;
+    color: var(--teal);
+    font-size: 19px;
+    cursor: pointer;
+  }
+  .score {
+    margin-left: auto;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .score b { font-family: Verdana, sans-serif; font-size: 15px; color: var(--teal); }
+  .score.perfect b { color: var(--green); }
+
+  /* ---------- 100% · smile ---------- */
+  .jolly {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 45, 45, .42);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+    z-index: 30;
+  }
+  .jolly.on { opacity: 1; pointer-events: auto; }
+  .jcard {
+    position: relative;
+    width: 300px;
+    padding: 14px 16px 12px;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, .3);
+    text-align: center;
+  }
+  .jpct {
+    font-family: Verdana, sans-serif;
+    font-size: 46px;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--green);
+  }
+  .jline { margin-top: 3px; font-size: 14px; color: var(--muted); }
+  .joy { width: 206px; height: 116px; margin-top: 2px; }
+  .joy .handL { animation: clapL .42s ease-in-out infinite; transform-box: fill-box; transform-origin: 70% 30%; }
+  .joy .handR { animation: clapR .42s ease-in-out infinite; transform-box: fill-box; transform-origin: 30% 30%; }
+  .joy .face { animation: bounce .8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-5px) scale(1.03); }
+  }
+  @keyframes clapL {
+    0%, 100% { transform: translateX(-4px) rotate(-9deg); }
+    50%      { transform: translateX(8px) rotate(3deg); }
+  }
+  @keyframes clapR {
+    0%, 100% { transform: translateX(4px) rotate(9deg); }
+    50%      { transform: translateX(-8px) rotate(-3deg); }
+  }
+  .jmsg { margin-top: 1px; font-size: 15.5px; line-height: 1.35; color: var(--ink); }
+  .jbtn {
+    margin-top: 8px;
+    width: 132px;
+    height: 34px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--teal);
+    color: #fff;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .conf { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .conf i {
+    position: absolute;
+    top: -10px;
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    opacity: 0;
+    animation: fall 2.2s linear infinite;
+  }
+  @keyframes fall {
+    0%   { transform: translateY(-10px) rotate(0deg); opacity: 0; }
+    12%  { opacity: .95; }
+    100% { transform: translateY(560px) rotate(320deg); opacity: 0; }
+  }
+</style>
+</head>
+<body class="en">
+<div class="sheet">
+
+  <h2 class="ttl">Angle Exercise</h2>
+  <div class="sub">Angle exercise</div>
+
+  <div class="figcard">
+    <svg id="fig" viewBox="0 0 376 164">
+      <g id="scene"></g>
+    </svg>
+
+    <span class="gtag">Measure angles if needed</span>
+
+    <div class="auge" id="auge" title="Drag to move, turn the knob to rotate">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <path class="garc" d="M62 94A32 32 0 0 0 94 62"/>
+        <path class="gtk" d="M68.1 83.3L62.5 80.9M74.2 74.2L69.9 69.9M83.3 68.1L80.9 62.5"/>
+        <path class="gtk" d="M28 94v-4M46 94v-4M64 94v-4M82 94v-4M94 28h-4M94 46h-4M94 64h-4M94 82h-4"/>
+        <path class="ghit" d="M94 94H8M94 94V12"/>
+        <path class="garm" d="M94 94H6M94 94V12"/>
+        <circle class="gpiv" cx="94" cy="94" r="4.2"/>
+      </svg>
+      <b class="gknob" id="gknob">↻</b>
+    </div>
+  </div>
+
+  <div class="ask"><b>Fill in the blanks from the figure</b> · pick a row, tap the letters</div>
+
+  <div class="tbl">
+    <div class="thead">
+      <span>Angle</span>
+      <span>Angle name</span>
+      <span>Angle type</span>
+      <span></span>
+    </div>
+    <div id="rows"></div>
+  </div>
+
+  <div class="foot">
+    <button class="chk" id="checkBtn">Check answers</button>
+    <button class="rst" id="resetBtn" title="Reset">↺</button>
+    <div class="score" id="score">Score <b>—</b></div>
+  </div>
+
+  <div class="jolly" id="jolly">
+    <div class="conf" id="conf"></div>
+    <div class="jcard">
+      <div class="jpct">100%</div>
+      <div class="jline">Score 100 / 100</div>
+      <svg class="joy" viewBox="0 0 220 120" aria-hidden="true">
+        <g class="handL">
+          <rect x="24" y="70" width="27" height="39" rx="13.5" fill="#f7c98f" stroke="#d9a05f" stroke-width="2"/>
+          <path d="M32 75v9M39 75v10M46 75v9" stroke="#e0b072" stroke-width="2" stroke-linecap="round"/>
+        </g>
+        <g class="handR">
+          <rect x="169" y="70" width="27" height="39" rx="13.5" fill="#f7c98f" stroke="#d9a05f" stroke-width="2"/>
+          <path d="M175 75v9M182 75v10M189 75v9" stroke="#e0b072" stroke-width="2" stroke-linecap="round"/>
+        </g>
+        <g class="face">
+          <circle cx="110" cy="58" r="38" fill="#ffd24d" stroke="#e8a800" stroke-width="3"/>
+          <path d="M88 51 q8 -11 17 0" stroke="#6b4e0a" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+          <path d="M115 51 q8 -11 17 0" stroke="#6b4e0a" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+          <path d="M88 66 Q110 95 132 66 Z" fill="#9d2f24"/>
+          <path d="M101 84 q9 9 18 0" fill="#f2837e"/>
+          <circle cx="82" cy="66" r="6" fill="#ffb04a" opacity=".55"/>
+          <circle cx="138" cy="66" r="6" fill="#ffb04a" opacity=".55"/>
+        </g>
+      </svg>
+      <div class="jmsg">Excellent! You identified all 10 angles correctly.</div>
+      <button class="jbtn" id="jclose">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+
+  /* ============================================================
+     figure layout — A 82 · B 113 · C 75 · D 90 (only 4 is a right angle)
+     ============================================================ */
+  var A = [80.8, 134], B = [90.3, 66.6], C = [212, 34], D = [212, 134];
+  var E = [297, 134], F = [269.96, 18.47];
+  var V = { A: A, B: B, C: C, D: D };
+
+  var ARCS = [
+    ['A', 278, 360, 17],  /* 1 · interior 82 */
+    ['B', 345, 458, 17],  /* 2 · 113 */
+    ['C', 90, 165, 17],   /* 3 · 75 */
+    ['D', 180, 270, 17],  /* 4 · right 90 */
+    ['D', 270, 360, 17],  /* 5 · exterior 90 */
+    ['C', 345, 450, 17],  /* 6 · 105 */
+    ['A', 0, 278, 24],    /* 7 · reflex 278 */
+    ['B', 98, 345, 24],   /* 8 · reflex 247 */
+    ['C', 165, 345, 26],  /* 9 · straight 180 */
+    ['D', 0, 180, 22]     /* 10 · straight 180 */
+  ];
+
+  var NUMPOS = {
+    1: [100, 118], 2: [108, 84], 3: [196, 54], 4: [193, 111], 5: [231, 111],
+    6: [236, 46], 7: [58, 154], 8: [62, 42], 9: [196, 29], 10: [204, 147]
+  };
+
+  var LPOS = {
+    A: [45, 139], B: [44, 66], C: [242, 20], D: [242, 157],
+    E: [309, 139], F: [283, 18]
+  };
+
+  /* ============================================================
+     answers
+     ============================================================ */
+  /* s = [letters on one arm, letters on the other arm].
+     Letters on the same line are interchangeable: ABC = ABF, BAD = BAE */
+  var ROWS = [
+    { v: 'A', name: 'DAB', s: [['B'], ['D', 'E']], type: 'Acute' },
+    { v: 'B', name: 'ABC', s: [['A'], ['C', 'F']], type: 'Obtuse' },
+    { v: 'C', name: 'BCD', s: [['B'], ['D']], type: 'Acute' },
+    { v: 'D', name: 'CDA', s: [['C'], ['A']], type: 'Right' },
+    { v: 'D', name: 'CDE', s: [['C'], ['E']], type: 'Right' },
+    { v: 'C', name: 'DCF', s: [['D'], ['F']], type: 'Obtuse' },
+    { v: 'A', name: 'DAB', s: [['B'], ['D', 'E']], type: 'Reflex' },
+    { v: 'B', name: 'ABC', s: [['A'], ['C', 'F']], type: 'Reflex' },
+    { v: 'C', name: 'BCF', s: [['B'], ['F']], type: 'Straight' },
+    { v: 'D', name: 'ADE', s: [['A'], ['E']], type: 'Straight' }
+  ];
+  var TYPES = ['Acute', 'Right', 'Obtuse', 'Straight', 'Reflex'];
+  var TCOL = { 'Acute': '#2f6fa8', 'Right': '#0d8a64', 'Obtuse': '#b25a13', 'Straight': '#6a35b8', 'Reflex': '#c1267b' };
+
+  var scene = document.getElementById('scene');
+  var rowsEl = document.getElementById('rows');
+  var scoreEl = document.getElementById('score');
+  var jolly = document.getElementById('jolly');
+  var conf = document.getElementById('conf');
+
+  var names = [], types = [], slots = [], nmEls = [], gls = [], sels = [], mks = [], rowEls = [], numGrp = [];
+  var active = 0;
+
+  function el(tag, attrs, cls, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (cls) e.setAttribute('class', cls);
+    (parent || scene).appendChild(e);
+    return e;
+  }
+  function P(v, deg, r) {
+    var a = deg * Math.PI / 180;
+    return [V[v][0] + r * Math.cos(a), V[v][1] + r * Math.sin(a)];
+  }
+  function arcD(v, a0, a1, r) {
+    var p = P(v, a0, r);
+    var d = 'M ' + p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+    for (var a = a0 + 4; a < a1; a += 4) {
+      p = P(v, a, r);
+      d += ' L ' + p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+    }
+    p = P(v, a1, r);
+    return d + ' L ' + p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+  }
+
+  function drawFigure() {
+    /* the quadrilateral */
+    var poly = 'M ' + A[0] + ' ' + A[1] + ' L ' + B[0] + ' ' + B[1] +
+               ' L ' + C[0] + ' ' + C[1] + ' L ' + D[0] + ' ' + D[1] + ' Z';
+    el('path', { d: poly, fill: '#f3faf7' }, 'edge');
+
+    /* extensions: AD→E · BC→F */
+    el('path', { d: 'M ' + D[0] + ' ' + D[1] + ' L ' + E[0] + ' ' + E[1] }, 'ext');
+    el('path', { d: 'M ' + C[0] + ' ' + C[1] + ' L ' + F[0].toFixed(1) + ' ' + F[1].toFixed(1) }, 'ext');
+
+    /* the 10 red arcs */
+    ARCS.forEach(function (a) {
+      el('path', { d: arcD(a[0], a[1], a[2], a[3]) }, 'qarc');
+    });
+
+    /* corner points */
+    [A, B, C, D].forEach(function (p) {
+      el('circle', { cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: 2.6 }, 'dot');
+    });
+    [E, F].forEach(function (p) {
+      el('circle', { cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: 2.2 }, 'dot2');
+    });
+
+    /* numbers 1–10 (clickable) */
+    var k;
+    for (k = 1; k <= 10; k++) {
+      var np = NUMPOS[k];
+      var g = el('g', {}, 'qn');
+      g.setAttribute('data-n', k);
+      el('circle', { cx: np[0], cy: np[1], r: 9, fill: 'transparent' }, null, g);
+      el('circle', { cx: np[0], cy: np[1], r: 10 }, 'halo', g);
+      var t = el('text', { x: np[0], y: np[1] + 5, 'text-anchor': 'middle' }, null, g);
+      t.textContent = k;
+      g.addEventListener('click', (function (n) {
+        return function () { setActive(n - 1); };
+      })(k));
+      numGrp[k] = g;
+    }
+
+    /* letters A–F (clickable) */
+    Object.keys(LPOS).forEach(function (ch) {
+      var g = el('g', {}, 'lt');
+      el('circle', { cx: LPOS[ch][0], cy: LPOS[ch][1] - 5, r: 12 }, null, g);
+      var t = el('text', {
+        x: LPOS[ch][0], y: LPOS[ch][1], 'text-anchor': 'middle'
+      }, null, g);
+      t.textContent = ch;
+      g.addEventListener('click', function () { pickLetter(ch); });
+    });
+  }
+
+  /* ============================================================
+     table
+     ============================================================ */
+  function buildTable() {
+    for (var i = 0; i < 10; i++) {
+      var row = document.createElement('div');
+      row.className = 'row';
+
+      var q = document.createElement('span');
+      q.className = 'qno';
+      q.innerHTML = '<b>' + (i + 1) + '.</b> Angle';
+
+      var nm = document.createElement('span');
+      nm.className = 'nm';
+      var bs = [], gs = [];
+      for (var s = 0; s < 3; s++) {
+        var b = document.createElement('b');
+        var gl = document.createElement('span');
+        gl.className = 'gl';
+        b.appendChild(gl);
+        if (s === 1) {
+          var hat = document.createElementNS(NS, 'svg');
+          hat.setAttribute('class', 'hat');
+          hat.setAttribute('viewBox', '0 0 11 6');
+          var hp = document.createElementNS(NS, 'path');
+          hp.setAttribute('d', 'M1 5L5.5 1.4 10 5');
+          hat.appendChild(hp);
+          b.appendChild(hat);
+        }
+        nm.appendChild(b);
+        bs.push(b);
+        gs.push(gl);
+      }
+
+      var sel = document.createElement('select');
+      var o0 = document.createElement('option');
+      o0.value = '';
+      o0.textContent = '— Choose —';
+      sel.appendChild(o0);
+      TYPES.forEach(function (tp) {
+        var o = document.createElement('option');
+        o.value = tp;
+        o.textContent = tp;
+        sel.appendChild(o);
+      });
+
+      var mk = document.createElement('span');
+      mk.className = 'mk';
+
+      row.appendChild(q);
+      row.appendChild(nm);
+      row.appendChild(sel);
+      row.appendChild(mk);
+      rowsEl.appendChild(row);
+
+      rowEls.push(row);
+      slots.push(bs);
+      nmEls.push(nm);
+      gls.push(gs);
+      sels.push(sel);
+      mks.push(mk);
+      names.push([]);
+      types.push('');
+
+      row.addEventListener('click', (function (n) {
+        return function () { setActive(n); };
+      })(i));
+      nm.addEventListener('click', (function (n) {
+        return function (e) {
+          e.stopPropagation();
+          if (active !== n) { setActive(n); return; }
+          if (names[n].length) {
+            names[n].pop();
+            paintRow(n);
+            clearMarks();
+          }
+        };
+      })(i));
+      sel.addEventListener('change', (function (n) {
+        return function () {
+          types[n] = this.value;
+          paintRow(n);
+          clearMarks();
+        };
+      })(i));
+      sel.addEventListener('click', function (e) { e.stopPropagation(); setActive(this.__i); });
+      sel.__i = i;
+    }
+    paintAll();
+  }
+
+  function paintRow(i) {
+    for (var s = 0; s < 3; s++) {
+      gls[i][s].textContent = names[i][s] || '';
+    }
+    nmEls[i].classList.toggle('full', names[i].length === 3);
+    nmEls[i].classList.remove('ok', 'no');
+    sels[i].value = types[i];
+    sels[i].style.color = types[i] ? TCOL[types[i]] : '';
+    sels[i].classList.remove('ok', 'no');
+    mks[i].textContent = '';
+    mks[i].className = 'mk';
+  }
+
+  function paintAll() {
+    for (var i = 0; i < 10; i++) paintRow(i);
+    setActive(active);
+  }
+
+  function setActive(i) {
+    active = i;
+    for (var j = 0; j < 10; j++) {
+      rowEls[j].classList.toggle('on', j === i);
+      numGrp[j + 1].classList.toggle('on', j === i);
+    }
+  }
+
+  function pickLetter(ch) {
+    if (names[active].length >= 3) return;
+    var n = active;
+    names[n].push(ch);
+    var g = gls[n][names[n].length - 1];
+    g.textContent = ch;
+    nmEls[n].classList.toggle('full', names[n].length === 3);
+    g.classList.remove('pop');
+    void g.offsetWidth;
+    g.classList.add('pop');
+    clearMarks();
+  }
+
+  /* ABC = ABF, BAD = BAE — any letter from each arm pair is fine */
+  function nameOK(arr, r) {
+    if (arr.length !== 3 || arr[1] !== r.v) return false;
+    var s0 = r.s[0], s1 = r.s[1];
+    return (s0.indexOf(arr[0]) > -1 && s1.indexOf(arr[2]) > -1) ||
+           (s1.indexOf(arr[0]) > -1 && s0.indexOf(arr[2]) > -1);
+  }
+
+  function clearMarks() {
+    for (var i = 0; i < 10; i++) {
+      nmEls[i].classList.remove('ok', 'no');
+      sels[i].classList.remove('ok', 'no');
+      sels[i].style.color = types[i] ? TCOL[types[i]] : '';
+      mks[i].textContent = '';
+      mks[i].className = 'mk';
+    }
+    scoreEl.innerHTML = 'Score <b>—</b>';
+    scoreEl.classList.remove('perfect');
+    jolly.classList.remove('on');
+  }
+
+  function check() {
+    clearMarks();
+    var total = 0;
+    for (var i = 0; i < 10; i++) {
+      var nmOK = nameOK(names[i], ROWS[i]);
+      var tyOK = types[i] === ROWS[i].type;
+      if (nmOK) total += 5;
+      if (tyOK) total += 5;
+
+      nmEls[i].classList.add(nmOK ? 'ok' : 'no');
+      sels[i].classList.add(tyOK ? 'ok' : 'no');
+      sels[i].style.color = tyOK ? '' : '#c0392b';
+      var all = nmOK && tyOK;
+      mks[i].textContent = all ? '✓' : '✗';
+      mks[i].className = 'mk ' + (all ? 'ok' : 'no');
+    }
+    scoreEl.innerHTML = 'Score <b>' + total + ' / 100</b> · ' + total + '%';
+    scoreEl.classList.toggle('perfect', total === 100);
+    if (total === 100) setTimeout(function () { jolly.classList.add('on'); }, 550);
+  }
+
+  function reset() {
+    for (var i = 0; i < 10; i++) { names[i] = []; types[i] = ''; }
+    clearMarks();
+    paintAll();
+    setActive(0);
+    greset();
+  }
+
+  document.getElementById('checkBtn').addEventListener('click', check);
+  document.getElementById('resetBtn').addEventListener('click', reset);
+  document.getElementById('jclose').addEventListener('click', function () { jolly.classList.remove('on'); });
+  jolly.addEventListener('click', function (e) { if (e.target === jolly) jolly.classList.remove('on'); });
+
+  /* confetti pieces */
+  (function () {
+    for (var i = 0; i < 16; i++) {
+      var b = document.createElement('i');
+      b.style.left = (4 + i * 6.1) + '%';
+      b.style.background = ['#ffcf3f', '#0d8a64', '#e0457b', '#3aa0d8', '#f08a2c'][i % 5];
+      b.style.animationDelay = (i * 0.12) + 's';
+      conf.appendChild(b);
+    }
+  })();
+
+  /* ============================================================
+     angle measure — dragging + rotating
+     ============================================================ */
+  var auge = document.getElementById('auge');
+  var gknob = document.getElementById('gknob');
+  var figcard = document.querySelector('.figcard');
+  var G0 = [366, 116, 0];
+  var gx = G0[0], gy = G0[1], gr = G0[2];
+  var gmode = null, gdx = 0, gdy = 0, ga0 = 0, gr0 = 0;
+
+  function gapply() {
+    auge.style.transform = 'translate(' + (gx - 94) + 'px,' + (gy - 94) + 'px) rotate(' + gr + 'deg)';
+  }
+  function greset() {
+    gx = G0[0]; gy = G0[1]; gr = G0[2];
+    gapply();
+  }
+  function gpos(e) {
+    var r = figcard.getBoundingClientRect();
+    return [e.clientX - r.left, e.clientY - r.top];
+  }
+  gapply();
+
+  auge.addEventListener('pointerdown', function (e) {
+    var p = gpos(e);
+    if (e.target === gknob) {
+      gmode = 'rot';
+      ga0 = Math.atan2(p[1] - gy, p[0] - gx) * 180 / Math.PI;
+      gr0 = gr;
+    } else {
+      gmode = 'move';
+      gdx = p[0] - gx;
+      gdy = p[1] - gy;
+    }
+    try { auge.setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
+  });
+
+  auge.addEventListener('pointermove', function (e) {
+    if (!gmode) return;
+    var p = gpos(e);
+    if (gmode === 'move') {
+      gx = Math.min(372, Math.max(18, p[0] - gdx));
+      gy = Math.min(160, Math.max(20, p[1] - gdy));
+    } else {
+      var a = Math.atan2(p[1] - gy, p[0] - gx) * 180 / Math.PI;
+      gr = gr0 + (a - ga0);
+    }
+    gapply();
+    e.preventDefault();
+  });
+
+  function gend() { gmode = null; }
+  auge.addEventListener('pointerup', gend);
+  auge.addEventListener('pointercancel', gend);
+
+  drawFigure();
+  buildTable();
+})();
+</script>
+</body>
+</html>

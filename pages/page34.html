@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+  /* ============================================================
+     34 · Vertical number line — click a mark to show its value
+     ============================================================ */
+  .say {
+    margin-top: 2px;
+    font-size: 14.5px;
+    line-height: 1.3;
+    color: var(--ink-soft);
+  }
+
+  .vcard {
+    margin-top: 9px;
+    padding: 8px 9px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #fdfffe, #f4fbf8);
+    border: 1px solid #d9eee7;
+    box-shadow: 0 3px 9px rgba(30, 80, 80, .07);
+  }
+  .vsvg {
+    display: block;
+    width: 356px;
+    height: 372px;
+    margin: 0 auto;
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .axis-line { stroke: #8b9ba0; stroke-width: 1.8; stroke-linecap: round; }
+  .arrow {
+    fill: none;
+    stroke: #8b9ba0;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .tick {
+    stroke: #b9c5c9;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    transition: stroke .15s ease;
+  }
+  .num {
+    font-family: Verdana, sans-serif;
+    font-size: 13px;
+    fill: #7d8e94;
+    transition: fill .15s ease;
+  }
+  .hit { fill: transparent; cursor: pointer; }
+  .thit:hover .tick { stroke: #0d8a64; }
+  .thit:hover .num  { fill: #0d8a64; }
+
+  .mk { opacity: 0; pointer-events: none; }
+  .mk.show { opacity: 1; }
+  .dot { fill: #0d8a64; stroke: #ffffff; }
+  .val {
+    opacity: 0;
+    font-family: Verdana, sans-serif;
+    font-size: 30px;
+    font-weight: bold;
+    fill: #0d8a64;
+    pointer-events: none;
+  }
+  .val.show { opacity: 1; }
+  .mk.in .dot { animation: dotdrop .32s cubic-bezier(.3, 1.3, .5, 1); }
+  .val.in { animation: valpop .3s ease .04s both; }
+  @keyframes dotdrop {
+    0%   { transform: translateY(9px); }
+    100% { transform: none; }
+  }
+  @keyframes valpop {
+    0%   { transform: translateX(-9px); }
+    100% { transform: none; }
+  }
+
+  .note {
+    margin-top: 8px;
+    padding: 6px 11px 7px;
+    border-radius: 11px;
+    background: var(--mint);
+    border: 1px solid var(--mint-line);
+    font-size: 14.5px;
+    line-height: 1.35;
+    color: var(--ink-soft);
+  }
+  .note b { color: var(--teal); }
+</style>
+</head>
+<body class="en">
+  <div class="sheet">
+    <p class="say">Click a piece of the line.</p>
+
+    <div class="vcard">
+      <svg class="vsvg" id="vl" viewBox="0 0 356 372" aria-label="Vertical number line">
+        <line class="axis-line" x1="188" y1="28" x2="188" y2="368"/>
+        <path class="arrow" d="M182.5 28 L188 20 L193.5 28"/>
+        <g class="axis"></g>
+        <g class="mk">
+          <circle class="dot" cx="0" cy="0" r="4.4" stroke-width="1.8"/>
+        </g>
+        <text class="val" x="272" y="217" text-anchor="middle">0</text>
+      </svg>
+    </div>
+
+    <div class="note">
+      Going <b>up</b> the line an integer’s value <b>increases</b>; going <b>down</b> the value <b>decreases</b>.
+    </div>
+  </div>
+
+<script>
+  var NS = 'http://www.w3.org/2000/svg';
+  var LX = 188, TOP = 52, STEP = 31;
+
+  (function () {
+    var axis = document.querySelector('.axis');
+    var mk = document.querySelector('.mk');
+    var val = document.querySelector('.val');
+    var inT = null;
+
+    function mark(y, v) {
+      mk.style.transform = 'translate(' + LX + 'px,' + y + 'px)';
+      val.textContent = v;
+      mk.classList.remove('show', 'in');
+      val.classList.remove('show', 'in');
+      void mk.getBoundingClientRect();
+      mk.classList.add('show', 'in');
+      val.classList.add('show', 'in');
+      if (inT) clearTimeout(inT);
+      inT = setTimeout(function () {
+        mk.classList.remove('in');
+        val.classList.remove('in');
+      }, 420);
+    }
+
+    for (var i = 0; i <= 10; i++) {
+      var y = TOP + i * STEP;
+      var v = 5 - i;
+
+      var g = document.createElementNS(NS, 'g');
+      g.setAttribute('class', 'thit');
+
+      var hit = document.createElementNS(NS, 'rect');
+      hit.setAttribute('class', 'hit');
+      hit.setAttribute('x', LX - 30);
+      hit.setAttribute('y', y - 12);
+      hit.setAttribute('width', 60);
+      hit.setAttribute('height', 24);
+      g.appendChild(hit);
+
+      var tick = document.createElementNS(NS, 'line');
+      tick.setAttribute('class', 'tick');
+      tick.setAttribute('x1', LX - 8);
+      tick.setAttribute('y1', y);
+      tick.setAttribute('x2', LX + 8);
+      tick.setAttribute('y2', y);
+      g.appendChild(tick);
+
+      var lab = document.createElementNS(NS, 'text');
+      lab.setAttribute('class', 'num');
+      lab.setAttribute('x', 170);
+      lab.setAttribute('y', y + 4.5);
+      lab.setAttribute('text-anchor', 'end');
+      lab.textContent = v;
+      g.appendChild(lab);
+
+      axis.appendChild(g);
+
+      (function (yy, vv) {
+        hit.addEventListener('click', function () { mark(yy, vv); });
+      })(y, v);
+    }
+  })();
+</script>
+</body>
+</html>
