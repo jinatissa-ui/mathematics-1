@@ -1,6 +1,7 @@
 /* Mathematics 1 — Grade 6
    Offline cache for the flip-book. Bump VERSION when the book changes. */
-var VERSION = 'math1-v5';
+var VERSION = 'math1-en-v6';
+var PREFIX = 'math1-en-';
 
 self.addEventListener('install', function (event) {
   event.waitUntil((async function () {
@@ -21,7 +22,8 @@ self.addEventListener('activate', function (event) {
   event.waitUntil((async function () {
     var keys = await caches.keys();
     await Promise.all(keys.map(function (k) {
-      if (k !== VERSION) return caches.delete(k);
+      // other books on the same origin keep their own caches
+      if (k === 'math1-v5' || (k.indexOf(PREFIX) === 0 && k !== VERSION)) return caches.delete(k);
     }));
     await self.clients.claim();
   })());
